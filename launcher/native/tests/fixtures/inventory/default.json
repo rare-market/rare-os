@@ -1,0 +1,201 @@
+{
+ "inventory": {
+  "data": [
+   {
+    "floorValueMist": "12600000000",
+    "game": {
+     "logoUrl": "",
+     "name": "Pawtato Heroes",
+     "slug": "pawtato-heroes"
+    },
+    "items": [
+     {
+      "collection": {
+       "imageUrl": null,
+       "name": "Pawtato Heroes",
+       "slug": "pawtato-heroes",
+       "verified": true
+      },
+      "floorMist": "4200000000",
+      "id": "0x0000000000000000000000000000000000000000000000000000000000000065",
+      "imageUrl": null,
+      "lastSaleMist": "4600000000",
+      "listing": null,
+      "name": "Hero #1204",
+      "owner": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+      "rarity": null,
+      "topOfferMist": "3900000000",
+      "type": "0xa1::hero::Hero"
+     },
+     {
+      "collection": {
+       "imageUrl": null,
+       "name": "Pawtato Heroes",
+       "slug": "pawtato-heroes",
+       "verified": true
+      },
+      "floorMist": "4200000000",
+      "id": "0x0000000000000000000000000000000000000000000000000000000000000066",
+      "imageUrl": null,
+      "lastSaleMist": "5100000000",
+      "listing": {
+       "allInMist": "6000000000",
+       "kioskId": "0x0000000000000000000000000000000000000000000000000000000000000384",
+       "priceMist": "6000000000",
+       "venue": "kiosk"
+      },
+      "name": "Hero #88",
+      "owner": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+      "rarity": null,
+      "topOfferMist": null,
+      "type": "0xa1::hero::Hero"
+     },
+     {
+      "collection": {
+       "imageUrl": null,
+       "name": "Pawtato Heroes",
+       "slug": "pawtato-heroes",
+       "verified": true
+      },
+      "floorMist": "4200000000",
+      "id": "0x0000000000000000000000000000000000000000000000000000000000000067",
+      "imageUrl": null,
+      "lastSaleMist": null,
+      "listing": null,
+      "name": "Hero #3017",
+      "owner": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+      "rarity": null,
+      "topOfferMist": null,
+      "type": "0xa1::hero::Hero"
+     }
+    ]
+   },
+   {
+    "floorValueMist": "174000000000",
+    "game": {
+     "logoUrl": "",
+     "name": "Popkins",
+     "slug": "popkins"
+    },
+    "items": [
+     {
+      "collection": {
+       "imageUrl": null,
+       "name": "Popkins",
+       "slug": "popkins",
+       "verified": true
+      },
+      "floorMist": "58000000000",
+      "id": "0x89d249c6a43ff4490902247a950e2e69ba61b74089151166169cfe3fbfea8611",
+      "imageUrl": "https://storage.claynosaurz.com/popkins/images/0x89d249c6a43ff4490902247a950e2e69ba61b74089151166169cfe3fbfea8611",
+      "lastSaleMist": "70000000000",
+      "listing": null,
+      "name": "Popkins #412",
+      "owner": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+      "rarity": null,
+      "topOfferMist": "64000000000",
+      "type": "0xb2::popkin::Popkin"
+     },
+     {
+      "collection": {
+       "imageUrl": null,
+       "name": "Popkins",
+       "slug": "popkins",
+       "verified": true
+      },
+      "floorMist": "58000000000",
+      "id": "0x000000000000000000000000000000000000000000000000000000000000019d",
+      "imageUrl": null,
+      "lastSaleMist": "61500000000",
+      "listing": {
+       "allInMist": "67200000000",
+       "priceMist": "66000000000",
+       "venue": "tradeport"
+      },
+      "name": "Popkins #1190",
+      "owner": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+      "rarity": null,
+      "topOfferMist": null,
+      "type": "0xb2::popkin::Popkin"
+     },
+     {
+      "collection": {
+       "imageUrl": null,
+       "name": "Popkins",
+       "slug": "popkins",
+       "verified": true
+      },
+      "floorMist": "58000000000",
+      "id": "0x000000000000000000000000000000000000000000000000000000000000019e",
+      "imageUrl": null,
+      "lastSaleMist": "60000000000",
+      "listing": null,
+      "name": "Popkins #77",
+      "owner": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+      "rarity": null,
+      "staked": {
+       "name": "staking_contract",
+       "protocol": "0x38f0bad7a60a8c4399a810430b7625b60c93983321b3cd8723f201cc559de5c1::staking_contract",
+       "via": "staked"
+      },
+      "topOfferMist": null,
+      "type": "0xb2::popkin::Popkin"
+     }
+    ]
+   },
+   {
+    "floorValueMist": "12500000000",
+    "game": {
+     "logoUrl": "",
+     "name": "Warped Universe",
+     "slug": "warped-universe"
+    },
+    "items": [
+     {
+      "collection": {
+       "imageUrl": null,
+       "name": "Warped Ships",
+       "slug": "warped-ships",
+       "verified": true
+      },
+      "floorMist": "12500000000",
+      "id": "0x00000000000000000000000000000000000000000000000000000000000000c9",
+      "imageUrl": null,
+      "lastSaleMist": "11000000000",
+      "listing": null,
+      "name": "Scout Ship 07",
+      "owner": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+      "rarity": null,
+      "topOfferMist": "10200000000",
+      "type": "0xc3::ship::Ship"
+     }
+    ]
+   },
+   {
+    "floorValueMist": "1100000000",
+    "game": null,
+    "items": [
+     {
+      "collection": {
+       "imageUrl": null,
+       "name": "Misc art",
+       "slug": "misc",
+       "verified": true
+      },
+      "floorMist": "1100000000",
+      "id": "0x000000000000000000000000000000000000000000000000000000000000012d",
+      "imageUrl": null,
+      "lastSaleMist": "1400000000",
+      "listing": null,
+      "name": "Suifrens Cap",
+      "owner": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+      "rarity": null,
+      "topOfferMist": null,
+      "type": "0xd4::art::Piece"
+     }
+    ]
+   }
+  ],
+  "total": 8
+ }
+}

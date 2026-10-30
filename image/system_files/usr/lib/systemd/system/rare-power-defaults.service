@@ -1,0 +1,12 @@
+[Unit]
+Description=Rare OS: power defaults (Balanced: 15 W, CPU boost off)
+After=powerstation.service
+ConditionVirtualization=!vm
+
+[Service]
+# simple, not oneshot: boot never waits on PowerStation for this.
+Type=simple
+ExecStart=/usr/libexec/rare/power-defaults
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,7 @@
+name: search-games
+task: "Find a game"
+fix: "none needed (Y on any launcher screen)"
+home:
+  steps: [y]
+  done: {osk: "Search"}
+  was: [y]

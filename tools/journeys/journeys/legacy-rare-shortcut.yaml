@@ -1,0 +1,19 @@
+name: legacy-rare-shortcut
+title: "The leftover Bazzite \"Rare\" shortcut in Steam's library"
+tags: [steam]
+needs: [probe, steam, root_or_attended]
+timeout_s: 60
+steps:
+  - goto: tab:library
+  - wait_for: {screen: {tab: library}, timeout_ms: 5000}
+  - goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (not automated: needs the leftover Steam shortcut; library page only checked)
+# 2026-10-27 the owner launched it five times from Big Picture; each start reached the running launcher ("second start") but Rare stayed behind Steam, so it looked like nothing happened.
+# - Precondition: shortcuts.vdf has a "Rare" shortcut whose exe is ~/Applications/Rare*.AppImage
+# - Precondition: Big Picture opened from Rare
+# - Do: in Big Picture, Library > Non-Steam > Rare, press A
+#   Expect: Rare Home within 2 s (the AppImage exits; Steam marks it stopped). Rare library: the shortcut is not listed (shortcuts::is_launcher)
+#   Journal: [launcher] second start: showing the running launcher
+#   Journal: -> [1380012613, 
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

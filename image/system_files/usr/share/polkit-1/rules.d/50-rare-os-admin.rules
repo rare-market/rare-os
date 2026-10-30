@@ -1,0 +1,8 @@
+// Rare OS: the launcher (active local session) runs `pkexec /usr/libexec/rare/os-admin <action>`
+// for Settings > System: update now, boot menu next start, restore the previous system. Only
+// that helper, only the person at the device; anyone else (SSH included) is refused, not prompted.
+polkit.addRule(function (action, subject) {
+    if (action.id === "org.rare.os.admin") {
+        return subject.local && subject.active ? polkit.Result.YES : polkit.Result.NO;
+    }
+});

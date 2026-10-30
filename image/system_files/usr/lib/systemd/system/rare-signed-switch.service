@@ -1,0 +1,12 @@
+[Unit]
+Description=Rare OS: use signature-checked updates
+# Started by rare-signed-switch.timer a minute after boot, so boot never waits for Wi-Fi
+# (network-online) or rpm-ostree for it.
+After=network-online.target rpm-ostreed.service
+Wants=network-online.target
+ConditionPathExists=/etc/pki/containers/rare-os.pub
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/signed-switch
+

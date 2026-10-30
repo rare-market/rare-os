@@ -1,0 +1,12 @@
+[Unit]
+Description=Rare OS: keep the speaker EQ chain only on the SuiPlay0X1
+DefaultDependencies=no
+Before=systemd-user-sessions.service
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/speaker-eq-gate
+
+[Install]
+WantedBy=multi-user.target

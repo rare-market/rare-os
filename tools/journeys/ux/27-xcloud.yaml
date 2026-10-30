@@ -1,0 +1,7 @@
+name: xcloud
+task: "Open Xbox Cloud"
+fix: "Apps sit right under the stage on Home, game apps first (Xbox Cloud, GeForce NOW, Steam)"
+home:
+  steps: [down, down, a]
+  done: {act: 'OpenApp\("xcloud"\)'}
+  was: [down, down, down, down, down, down, right, right, right, right, right, right, right, right, a]

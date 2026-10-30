@@ -1,0 +1,12 @@
+name: friends
+task: "See your friends"
+fix: "Friends is on the Rare menu's first screen; LB from Home (tabs wrap); the menu's Friends tab over a game"
+home:
+  steps: [lb]
+  done: {screen: {tab: friends}}
+  was: [lb]
+game:
+  open: menu
+  steps: [lt, lt]
+  done: {focus: "."}
+  was: [lt, lt]

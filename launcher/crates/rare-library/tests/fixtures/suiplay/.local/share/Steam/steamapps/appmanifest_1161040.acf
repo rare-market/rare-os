@@ -1,0 +1,43 @@
+"AppState"
+{
+	"appid"		"1161040"
+	"Universe"		"1"
+	"name"		"Proton BattlEye Runtime"
+	"StateFlags"		"4"
+	"installdir"		"Proton BattlEye Runtime"
+	"LastUpdated"		"1783725059"
+	"LastPlayed"		"0"
+	"SizeOnDisk"		"9984682"
+	"StagingSize"		"0"
+	"buildid"		"19113446"
+	"LastOwner"		"76561199848316363"
+	"DownloadType"		"1"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"84042672"
+	"BytesDownloaded"		"84042672"
+	"BytesToStage"		"232319312"
+	"BytesStaged"		"232319312"
+	"TargetBuildID"		"19113446"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"1161041"
+		{
+			"manifest"		"939188514674877118"
+			"size"		"157454"
+		}
+		"1060251"
+		{
+			"manifest"		"40761245617435435"
+			"size"		"9827228"
+		}
+	}
+	"UserConfig"
+	{
+	}
+	"MountedConfig"
+	{
+	}
+}

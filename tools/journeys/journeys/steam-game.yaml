@@ -1,0 +1,29 @@
+name: steam-game-checks
+title: "Steam game, from launch to quit"
+tags: [games, steam]
+needs: [probe, steam]
+timeout_s: 60
+steps:
+  - goto: open:game:${steam_game}
+  - wait_for: {focus: '"(Play|Resume)', timeout_ms: 8000}
+  - name: the page is up, nothing is started
+    goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (full flow: core/steam-game.yaml)
+# - Precondition: an installed Steam game (e.g. steam:620)
+# - Do: Home, the game's tile, press A
+#   Expect: Rare stays with the launch progress until Steam shows the game (cold Steam about 6 s). the game
+#   Journal: "base-layer apps" with Rare's id last
+# - Do: press the Rare button
+#   Expect: Rare Home; the game keeps running (Running list: Resume, Quit). Known: Steam also opens its own menu over the game, see docs/STEAM-IN-RARE.md
+# - Do: Running, the game, Resume
+#   Expect: the game
+# - Do: hold View, choose "Steam menu"
+#   Expect: Steam's in-game menu over the game
+#   Journal: [overlay] Steam menu: sent Shift+Tab to the game
+# - Do: quit the game from its own menu
+#   Expect: Rare Home within 3 s; Running list empty
+# - Do: launch a Steam game that never starts (e.g. Steam shows an error dialog, or the game is uninstalled)
+#   Expect: Toast: "Steam did not start <game>. Open Steam to see why ..." after the grace (120 s)
+#   Journal: [launch] steam:<id> ended without starting (steam)
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

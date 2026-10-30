@@ -1,0 +1,17 @@
+[package]
+name = "rare-agent"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Ask Rare: the agent loop over a model the owner brings (Claude, OpenAI, an OpenAI-compatible endpoint, Ollama), Rare's tool catalog, MCP over the Local API, and local speech to text. UI-independent."
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ureq = { version = "2", features = ["json"] }
+base64 = "0.22"
+sha2 = "0.10"
+
+# Speech to text on the device (whisper.cpp, CPU). The Mac builds without it.
+[target.'cfg(target_os = "linux")'.dependencies]
+whisper-rs = "0.16"

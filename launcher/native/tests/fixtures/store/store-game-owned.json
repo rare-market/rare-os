@@ -1,0 +1,718 @@
+{
+ "config": {
+  "origin": "0xde00000000000000000000000000000000000000000000000000000000000500",
+  "package": "0xde00000000000000000000000000000000000000000000000000000000000500",
+  "policy": "0xde00000000000000000000000000000000000000000000000000000000000502",
+  "policy_version": "1",
+  "store": "0xde00000000000000000000000000000000000000000000000000000000000501",
+  "store_version": "1",
+  "uploads_open": false,
+  "usdc_type": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+ },
+ "games": {
+  "games": [
+   {
+    "blocked": false,
+    "created_ms": 1792935660000,
+    "description": "Arcade racing on coastal roads. Twelve tracks, split-screen for two, and weekly time trials with ghosts from the leaderboard.",
+    "edition": 1,
+    "featured": true,
+    "game_id": "0xde00000000000000000000000000000000000000000000000000000000000001",
+    "genre": "Racing",
+    "images": {
+     "banner": null,
+     "cover": null,
+     "logo": null
+    },
+    "kind": "uploaded",
+    "latest": {
+     "builds": [
+      {
+       "platform": "linux-x86_64",
+       "sha256": "abababababababababababababababababababababababababababababababab",
+       "size": "734003200"
+      }
+     ],
+     "edition": 1,
+     "label": "1.2.0",
+     "published_ms": 1793022060000,
+     "version": 3
+    },
+    "launch_check": true,
+    "links": {},
+    "listed": true,
+    "name": "Driftline",
+    "page": {
+     "about": "Arcade racing on coastal roads. Twelve tracks, split-screen for two, and weekly time trials with ghosts from the leaderboard.",
+     "media": [],
+     "requirements": "Runs on SuiPlay0X1 and any Linux x86_64 handheld.",
+     "tags": [
+      "Racing"
+     ]
+    },
+    "platforms": [
+     "linux-x86_64"
+    ],
+    "price": {
+     "accept_sui": true,
+     "sale_ends_ms": null,
+     "sale_usd": null,
+     "usd": "14990000"
+    },
+    "resale": {
+     "enabled": true,
+     "min_hold_ms": 604800000,
+     "min_royalty_mist": "100000000",
+     "royalty_bps": 1000
+    },
+    "sales": 412,
+    "slug": "driftline",
+    "status": "live",
+    "studio": {
+     "id": "0xde00000000000000000000000000000000000000000000000000000000000101",
+     "name": "Northbound Games"
+    }
+   },
+   {
+    "blocked": false,
+    "created_ms": 1792071660000,
+    "description": "A short-run dungeon crawler built for handhelds. Each run takes about twenty minutes.",
+    "edition": 1,
+    "featured": false,
+    "game_id": "0xde00000000000000000000000000000000000000000000000000000000000002",
+    "genre": "Roguelike",
+    "images": {
+     "banner": null,
+     "cover": null,
+     "logo": null
+    },
+    "kind": "uploaded",
+    "latest": {
+     "builds": [
+      {
+       "platform": "linux-x86_64",
+       "sha256": "abababababababababababababababababababababababababababababababab",
+       "size": "734003200"
+      }
+     ],
+     "edition": 1,
+     "label": "1.2.0",
+     "published_ms": 1793022060000,
+     "version": 3
+    },
+    "launch_check": false,
+    "links": {},
+    "listed": true,
+    "name": "Hollow Keep",
+    "page": {
+     "about": "A short-run dungeon crawler built for handhelds. Each run takes about twenty minutes.",
+     "media": [],
+     "requirements": "Runs on SuiPlay0X1 and any Linux x86_64 handheld.",
+     "tags": [
+      "Roguelike"
+     ]
+    },
+    "platforms": [
+     "linux-x86_64"
+    ],
+    "price": {
+     "accept_sui": true,
+     "sale_ends_ms": 1793367660000,
+     "sale_usd": "6990000",
+     "usd": "9990000"
+    },
+    "resale": null,
+    "sales": 198,
+    "slug": "hollow-keep",
+    "status": "live",
+    "studio": {
+     "id": "0xde00000000000000000000000000000000000000000000000000000000000102",
+     "name": "Small Lantern"
+    }
+   },
+   {
+    "blocked": false,
+    "created_ms": 1793022060000,
+    "description": "Grow a small orchard, trade fruit with neighbours, and keep it going through four seasons.",
+    "edition": 1,
+    "featured": false,
+    "game_id": "0xde00000000000000000000000000000000000000000000000000000000000003",
+    "genre": "Farming",
+    "images": {
+     "banner": null,
+     "cover": null,
+     "logo": null
+    },
+    "kind": "uploaded",
+    "latest": {
+     "builds": [
+      {
+       "platform": "linux-x86_64",
+       "sha256": "abababababababababababababababababababababababababababababababab",
+       "size": "734003200"
+      }
+     ],
+     "edition": 1,
+     "label": "1.2.0",
+     "published_ms": 1793022060000,
+     "version": 3
+    },
+    "launch_check": false,
+    "links": {},
+    "listed": true,
+    "name": "Pocket Orchard",
+    "page": {
+     "about": "Grow a small orchard, trade fruit with neighbours, and keep it going through four seasons.",
+     "media": [],
+     "requirements": "Runs on SuiPlay0X1 and any Linux x86_64 handheld.",
+     "tags": [
+      "Farming"
+     ]
+    },
+    "platforms": [
+     "linux-x86_64"
+    ],
+    "price": {
+     "accept_sui": true,
+     "sale_ends_ms": null,
+     "sale_usd": null,
+     "usd": "0"
+    },
+    "resale": null,
+    "sales": 1302,
+    "slug": "pocket-orchard",
+    "status": "live",
+    "studio": {
+     "id": "0xde00000000000000000000000000000000000000000000000000000000000103",
+     "name": "Field Day"
+    }
+   },
+   {
+    "created_ms": 1790775660000,
+    "description": "ACT, Advanced Combat Tactics, is a co-op shooter and social hub set in Megacity 0, where every fight is a job. Jump into the browser hub, team up and take contracts.",
+    "featured": true,
+    "game_id": null,
+    "genre": "Co-op shooter",
+    "images": {
+     "banner": "https://rare.market/games/act-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/act-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "play": "https://play.actuniverse.com/",
+     "website": "https://actuniverse.com/",
+     "x": "https://x.com/act_nexus"
+    },
+    "name": "ACT",
+    "platforms": [
+     "web"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "act",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "Advanced Combat Tactics"
+    }
+   },
+   {
+    "created_ms": 1789998060000,
+    "description": "Third-person extraction-style POP shooter with RPG progression, in Early Access on the Epic Games Store. It is the flagship Sui game and a SuiPlay0X1 launch title.",
+    "featured": true,
+    "game_id": null,
+    "genre": "Shooter",
+    "images": {
+     "banner": "https://rare.market/games/xociety-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/xociety-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "website": "https://www.xociety.io",
+     "x": "https://x.com/xocietyofficial"
+    },
+    "name": "XOCIETY",
+    "platforms": [
+     "pc",
+     "suiplay"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "xociety",
+    "status": "beta",
+    "studio": {
+     "id": null,
+     "name": "NDUS Interactive"
+    }
+   },
+   {
+    "created_ms": 1789220460000,
+    "description": "A player-built sandbox universe from the makers of EVE Online, with programmable structures on Sui. It runs in timed cycles with paid and trial access.",
+    "featured": true,
+    "game_id": null,
+    "genre": "Space survival MMO",
+    "images": {
+     "banner": "https://rare.market/games/eve-frontier-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/eve-frontier-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "website": "https://evefrontier.com/en",
+     "x": "https://x.com/EVE_Frontier"
+    },
+    "name": "EVE Frontier",
+    "platforms": [
+     "pc"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "eve-frontier",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "CCP Games"
+    }
+   },
+   {
+    "created_ms": 1788442860000,
+    "description": "A browser MMO where heroes work land plots and craft with tools, all as NFTs, powered by the TATO token. Its land and hero collections are the most traded game items on Sui.",
+    "featured": true,
+    "game_id": null,
+    "genre": "Crafting MMO",
+    "images": {
+     "banner": "https://rare.market/games/pawtato-land-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/pawtato-land-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "play": "https://pawtato.gg",
+     "website": "https://pawtato.gg",
+     "x": "https://x.com/PawtatoFinance"
+    },
+    "name": "Pawtato Land",
+    "platforms": [
+     "web"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "pawtato-land",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "Pawtato"
+    }
+   },
+   {
+    "created_ms": 1787665260000,
+    "description": "A free-to-play Unreal Engine 5 sci-fi game that mixes third-person action, strategy and base building. It is in Early Access on Steam and Epic.",
+    "featured": true,
+    "game_id": null,
+    "genre": "Action strategy",
+    "images": {
+     "banner": "https://rare.market/games/warped-universe-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/warped-universe-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "website": "https://www.warped.games",
+     "x": "https://x.com/warped_games"
+    },
+    "name": "Warped Universe",
+    "platforms": [
+     "pc",
+     "suiplay"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "warped-universe",
+    "status": "beta",
+    "studio": {
+     "id": null,
+     "name": "Warped Games"
+    }
+   },
+   {
+    "created_ms": 1786887660000,
+    "description": "A licensed Samurai Shodown MMORPG with PvP duels, Google and Apple sign-in through zkLogin, and tradable in-game items on Sui.",
+    "featured": true,
+    "game_id": null,
+    "genre": "Mobile MMORPG",
+    "images": {
+     "banner": "https://rare.market/games/samurai-shodown-r-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/samurai-shodown-r-icon.png"
+    },
+    "kind": "link",
+    "links": {},
+    "name": "Samurai Shodown R",
+    "platforms": [
+     "mobile"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "samurai-shodown-r",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "LumiWave (SNK licence)"
+    }
+   },
+   {
+    "created_ms": 1786110060000,
+    "description": "A Brave Frontier trading card game for iOS and Android with on-chain card assets on Sui. It launched worldwide in October 2025.",
+    "featured": true,
+    "game_id": null,
+    "genre": "Card battler",
+    "images": {
+     "banner": "https://rare.market/games/brave-frontier-versus-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/brave-frontier-versus-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "website": "https://www.bravefrontierversus.com",
+     "x": "https://x.com/bfvs_jp"
+    },
+    "name": "Brave Frontier Versus",
+    "platforms": [
+     "mobile"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "brave-frontier-versus",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "gumi"
+    }
+   },
+   {
+    "created_ms": 1785332460000,
+    "description": "A free-to-play social party game with a dozen minigames, in Early Access on Steam and Epic since December 2025.",
+    "featured": false,
+    "game_id": null,
+    "genre": "Party",
+    "images": {
+     "banner": "https://rare.market/games/super-b-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/super-b-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "website": "https://super-b.io"
+    },
+    "name": "Super-B",
+    "platforms": [
+     "pc"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "super-b",
+    "status": "beta",
+    "studio": {
+     "id": null,
+     "name": "Nimblebites"
+    }
+   },
+   {
+    "created_ms": 1784554860000,
+    "description": "A team and solo PvP tank brawler where tanks and parts are tradable items. The iOS app was last updated in June 2026; the old panzerdogs.io site no longer resolves.",
+    "featured": false,
+    "game_id": null,
+    "genre": "PvP tank brawler",
+    "images": {
+     "banner": "https://rare.market/games/panzerdogs-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/panzerdogs-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "x": "https://x.com/LuckyKatStudios"
+    },
+    "name": "Panzerdogs",
+    "platforms": [
+     "mobile",
+     "suiplay"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "panzerdogs",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "Lucky Kat Studios"
+    }
+   },
+   {
+    "created_ms": 1783777260000,
+    "description": "A cozy farming, fishing and decorating sim built around island NFTs. The playable build is a web demo.",
+    "featured": false,
+    "game_id": null,
+    "genre": "Life sim",
+    "images": {
+     "banner": "https://rare.market/games/cosmocadia-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/cosmocadia-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "play": "https://www.cosmocadia.io",
+     "website": "https://www.cosmocadia.io",
+     "x": "https://x.com/LuckyKatStudios"
+    },
+    "name": "Cosmocadia",
+    "platforms": [
+     "web"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "cosmocadia",
+    "status": "beta",
+    "studio": {
+     "id": null,
+     "name": "Lucky Kat Studios"
+    }
+   },
+   {
+    "created_ms": 1782999660000,
+    "description": "A social casino from Korean publisher NHN with zkLogin sign-in and Kiosk-held membership NFTs.",
+    "featured": false,
+    "game_id": null,
+    "genre": "Social casino",
+    "images": {
+     "banner": "https://rare.market/games/pebble-city-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/pebble-city-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "play": "https://www.pebblestream.io/games/pebble-city",
+     "website": "https://www.pebblestream.io/games/pebble-city",
+     "x": "https://x.com/PebblePlay"
+    },
+    "name": "Pebble City",
+    "platforms": [
+     "mobile",
+     "web"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "pebble-city",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "NHN (Pebble)"
+    }
+   },
+   {
+    "created_ms": 1782222060000,
+    "description": "A roguelike survivor game whose heroes are NFTs drawn from Sui community IPs, listed on the Epic Games Store.",
+    "featured": false,
+    "game_id": null,
+    "genre": "Roguelike",
+    "images": {
+     "banner": "https://rare.market/games/suuuiplash-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/suuuiplash-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "play": "https://www.pebblestream.io/games/suuuiplash",
+     "website": "https://www.pebblestream.io/games/suuuiplash",
+     "x": "https://x.com/PebblePlay"
+    },
+    "name": "Suuuiplash",
+    "platforms": [
+     "pc",
+     "web"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "suuuiplash",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "NHN (Pebble)"
+    }
+   },
+   {
+    "created_ms": 1781444460000,
+    "description": "On-chain casino games such as coinflip, plinko, roulette and lottery, settled with Sui randomness. Its Citizen NFTs are the community pass.",
+    "featured": false,
+    "game_id": null,
+    "genre": "On-chain casino",
+    "images": {
+     "banner": "https://rare.market/games/doubleup-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/doubleup-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "play": "https://www.doubleup.io",
+     "website": "https://www.doubleup.io",
+     "x": "https://x.com/doubleup_app"
+    },
+    "name": "DoubleUp",
+    "platforms": [
+     "web"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "doubleup",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "DoubleUp"
+    }
+   },
+   {
+    "created_ms": 1780666860000,
+    "description": "A creature collecting game from the SEED Telegram community where SEED Mons are tradable companions on Sui.",
+    "featured": false,
+    "game_id": null,
+    "genre": "Creature collector",
+    "images": {
+     "banner": "https://rare.market/games/seed-go-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/seed-go-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "website": "https://playseedgo.com",
+     "x": "https://x.com/SeedCombinator"
+    },
+    "name": "SEED Go",
+    "platforms": [
+     "mobile"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "seed-go",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "SEED"
+    }
+   },
+   {
+    "created_ms": 1779889260000,
+    "description": "A football game family with a Telegram and LINE mini-game and a 6v6 mobile title, with Sui as its default chain.",
+    "featured": false,
+    "game_id": null,
+    "genre": "Football",
+    "images": {
+     "banner": "https://rare.market/games/striker-league-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/striker-league-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "website": "https://lineupgames.io",
+     "x": "https://x.com/LINEUP_games"
+    },
+    "name": "Gold Striker / Striker League",
+    "platforms": [
+     "mobile"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "striker-league",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "Lineup Games"
+    }
+   },
+   {
+    "created_ms": 1779111660000,
+    "description": "Mysten Labs' own Capy and Bullshark collectibles, with accessories and quest campaigns. A collection rather than a game, kept here because it anchors Sui's play culture.",
+    "featured": false,
+    "game_id": null,
+    "genre": "Collectible",
+    "images": {
+     "banner": "https://rare.market/games/suifrens-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/suifrens-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "play": "https://suifrens.com",
+     "website": "https://suifrens.com"
+    },
+    "name": "SuiFrens",
+    "platforms": [
+     "web"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "suifrens",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "Mysten Labs"
+    }
+   },
+   {
+    "created_ms": 1778334060000,
+    "description": "AresRPG is a turn-based voxel MMORPG you play in the browser. Explore worlds, fight monsters, clear dungeons and trade your loot; your characters, items and progression are Sui objects.",
+    "featured": false,
+    "game_id": null,
+    "genre": "Turn-based MMORPG",
+    "images": {
+     "banner": "https://rare.market/games/aresrpg-banner.jpg",
+     "cover": null,
+     "logo": "https://rare.market/games/aresrpg-icon.png"
+    },
+    "kind": "link",
+    "links": {
+     "play": "https://aresrpg.world/",
+     "website": "https://aresrpg.world/",
+     "x": "https://x.com/AresRPG"
+    },
+    "name": "AresRPG",
+    "platforms": [
+     "web"
+    ],
+    "price": null,
+    "sales": 0,
+    "slug": "aresrpg",
+    "status": "live",
+    "studio": {
+     "id": null,
+     "name": "AresRPG"
+    }
+   }
+  ],
+  "next": null
+ },
+ "licences": {
+  "licences": [
+   {
+    "edition": 1,
+    "game_id": "0xde00000000000000000000000000000000000000000000000000000000000001",
+    "id": "0xde00000000000000000000000000000000000000000000000000000000000900",
+    "image_url": "",
+    "kiosk_id": null,
+    "name": "Driftline",
+    "number": 413,
+    "purchased_ms": 1793097660000,
+    "refundable_until_ms": 1793270460000,
+    "slug": "driftline",
+    "tradable_from_ms": 1793713260000,
+    "type": "licence",
+    "version": 2
+   }
+  ]
+ },
+ "price": {
+  "conf_e8": "40000",
+  "price_e8": "90600000",
+  "publish_time": 1793108460,
+  "update_b64": ""
+ }
+}

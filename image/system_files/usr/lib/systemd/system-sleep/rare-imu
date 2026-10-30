@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+# Quiet the SuiPlay's IMU across suspend. The bmi323 driver has runtime PM only, no system sleep
+# ops, so the 200 Hz hrtimer trigger keeps firing and one read can land before the I2C adapter
+# has resumed: "i2c i2c-1: Transfer while suspended" with a WARNING trace (1 of 4 resumes on
+# 2026-10-27). At 1 Hz that window is about 200 times less likely. The rate in use before
+# suspend comes back after resume.
+state=/run/rare-imu-rate
+case "$1" in
+    pre)
+        cur="$(/usr/libexec/rare/imu-rate get 2>/dev/null)" || exit 0
+        echo "$cur" > "$state"
+        /usr/libexec/rare/imu-rate 1 || true
+        ;;
+    post)
+        [ -s "$state" ] || exit 0
+        /usr/libexec/rare/imu-rate "$(cut -d. -f1 "$state")" || true
+        rm -f "$state"
+        ;;
+esac
+exit 0

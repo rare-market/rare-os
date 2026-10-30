@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Yu-Gi-Oh!  Master Duel
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/1449850
+Icon=steam_icon_1449850
+Terminal=false
+Type=Application
+Categories=Game;

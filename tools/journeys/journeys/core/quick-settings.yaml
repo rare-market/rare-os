@@ -1,0 +1,21 @@
+name: quick-settings
+title: Quick settings from Start and from the QAM chord
+tags: [core, launcher]
+timeout_s: 60
+steps:
+  - name: Start opens Quick settings
+    press: start
+    expect: {screen: {overlay: qam}, respond_ms: 150, settle_ms: 800}
+  - name: down through Quick settings
+    press: down
+    repeat: 4
+    gap_ms: 200
+  - name: B closes it
+    press: b
+    expect: {screen: {overlay: "-"}, respond_ms: 150, settle_ms: 800}
+  - name: QAM (Guide + A) opens it
+    press: qam
+    expect: {screen: {overlay: qam}, respond_ms: 200}
+  - name: Start closes it again
+    press: start
+    expect: {screen: {overlay: "-"}, respond_ms: 150}

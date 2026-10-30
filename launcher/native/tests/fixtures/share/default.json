@@ -1,0 +1,124 @@
+{
+ "list": [
+  {
+   "bytes": 880000,
+   "createdMs": 1793107740000,
+   "durationMs": null,
+   "game": {
+    "id": "steam:1145350",
+    "name": "Hades II"
+   },
+   "height": 1080,
+   "id": "shot-1793107740000-1",
+   "kind": "screenshot",
+   "mime": "image/webp",
+   "path": "/home/rare/Pictures/Rare/shot-1793107740000-1.webp",
+   "width": 1920
+  },
+  {
+   "bytes": 14800000,
+   "createdMs": 1793106660000,
+   "durationMs": 30000,
+   "game": {
+    "id": "web:act",
+    "name": "ACT"
+   },
+   "height": 1080,
+   "id": "clip-1793106660000-2",
+   "kind": "clip",
+   "mime": "video/mp4",
+   "path": "/home/rare/Pictures/Rare/clip-1793106660000-2.mp4",
+   "width": 1920
+  },
+  {
+   "bytes": 700000,
+   "createdMs": 1793097660000,
+   "durationMs": null,
+   "game": {
+    "id": "steam:2379780",
+    "name": "Balatro"
+   },
+   "height": 1080,
+   "id": "shot-1793097660000-3",
+   "kind": "screenshot",
+   "mime": "image/webp",
+   "path": "/home/rare/Pictures/Rare/shot-1793097660000-3.webp",
+   "width": 1920
+  },
+  {
+   "bytes": 700000,
+   "createdMs": 1793090460000,
+   "durationMs": null,
+   "game": {
+    "id": "web:act",
+    "name": "ACT"
+   },
+   "height": 1080,
+   "id": "shot-1793090460000-4",
+   "kind": "screenshot",
+   "mime": "image/webp",
+   "path": "/home/rare/Pictures/Rare/shot-1793090460000-4.webp",
+   "width": 1920
+  },
+  {
+   "bytes": 14800000,
+   "createdMs": 1793014860000,
+   "durationMs": 30000,
+   "game": {
+    "id": "steam:1145350",
+    "name": "Hades II"
+   },
+   "height": 1080,
+   "id": "clip-1793014860000-5",
+   "kind": "clip",
+   "mime": "video/mp4",
+   "path": "/home/rare/Pictures/Rare/clip-1793014860000-5.mp4",
+   "width": 1920
+  },
+  {
+   "bytes": 700000,
+   "createdMs": 1792928460000,
+   "durationMs": null,
+   "game": {
+    "id": "steam:504230",
+    "name": "Celeste"
+   },
+   "height": 1080,
+   "id": "shot-1792928460000-6",
+   "kind": "screenshot",
+   "mime": "image/webp",
+   "path": "/home/rare/Pictures/Rare/shot-1792928460000-6.webp",
+   "width": 1920
+  },
+  {
+   "bytes": 700000,
+   "createdMs": 1792838460000,
+   "durationMs": null,
+   "game": {
+    "id": "web:wordgame",
+    "name": "Word Game"
+   },
+   "height": 1080,
+   "id": "shot-1792838460000-7",
+   "kind": "screenshot",
+   "mime": "image/webp",
+   "path": "/home/rare/Pictures/Rare/shot-1792838460000-7.webp",
+   "width": 1920
+  }
+ ],
+ "status": {
+  "clips": {
+   "available": true,
+   "enabled": true,
+   "method": "gpu-screen-recorder",
+   "recording": true,
+   "seconds": 30
+  },
+  "dir": "/home/rare/Pictures/Rare",
+  "screenshot": {
+   "available": true,
+   "method": "gamescope"
+  },
+  "session": "gamescope"
+ }
+}

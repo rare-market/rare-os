@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+	[Desktop Entry]
+	Name=Azahar AppImage
+	Exec=/home/bazzite/Emulation/tools/launchers/azahar.sh
+	Icon=/home/bazzite/.local/share/icons/emudeck/Azahar.svg
+	Terminal=false
+	Type=Application
+	Categories=Game;
+	StartupNotify=false

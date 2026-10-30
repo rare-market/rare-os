@@ -1,0 +1,14 @@
+# Golden image renderer: Fedora 44 (the Rare OS base) with Mesa's lavapipe as the only Vulkan
+# driver, Xvfb for the X11 surface, libfaketime for the pinned wall clock, Pillow and numpy for
+# the diff. run.sh tags the image with this file's hash, so pixels only move when this file does.
+FROM registry.fedoraproject.org/fedora:44
+RUN dnf -y install --setopt=install_weak_deps=False \
+      mesa-vulkan-drivers vulkan-loader vulkan-tools \
+      xorg-x11-server-Xvfb libX11 libXcursor libXrandr libXi libxkbcommon libxkbcommon-x11 libxcb \
+      libfaketime tzdata python3 python3-pillow python3-numpy \
+ && dnf clean all \
+ && ls /usr/share/vulkan/icd.d/
+ENV VK_DRIVER_FILES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json \
+    WGPU_BACKEND=vulkan \
+    LP_NUM_THREADS=8 \
+    RR_GOLDEN_XVFB=1

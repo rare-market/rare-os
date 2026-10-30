@@ -1,0 +1,4 @@
+# Rare OS: the launcher's virtual touchscreen for Android touch controls (rare-android touch.rs) is
+# for Android only. Android reads it directly; gamescope's input stack leaves it alone, so a
+# touch never lands twice (or rotated) through the compositor.
+SUBSYSTEM=="input", ATTRS{name}=="Rare Android Touch", ENV{LIBINPUT_IGNORE_DEVICE}="1", ENV{ID_INPUT_TOUCHSCREEN}=""

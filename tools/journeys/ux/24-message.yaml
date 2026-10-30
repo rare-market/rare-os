@@ -1,0 +1,8 @@
+name: message
+task: "Message a friend"
+fix: "none needed (a friend in the Rare menu's Friends tab, A replies)"
+game:
+  open: menu
+  steps: [lt, lt]
+  done: {focus: "."}
+  was: [lt, lt]

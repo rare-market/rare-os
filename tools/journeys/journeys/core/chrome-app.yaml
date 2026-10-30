@@ -1,0 +1,29 @@
+name: chrome-app
+title: YouTube TV through Chrome, Home from the app, quit
+tags: [core, apps]
+needs: [probe, network]
+timeout_s: 150
+steps:
+  - goto: open:app:${chrome_app}
+  - wait_for: {focus: '"Open"|"Resume"', timeout_ms: 8000}
+  - name: A on Open starts Chrome
+    press: a
+    allow: [black]
+    after_ms: 300
+    wait_for: {focus_app: not_launcher, timeout_ms: 30000}
+  - name: YouTube TV loads (12 s)
+    wait: 12000
+  - name: d-pad in the app
+    press: right
+    repeat: 3
+    gap_ms: 400
+  - name: The Rare button opens the Rare menu over the app
+    press: guide
+    expect: {focus_app: launcher, respond_ms: 1200}
+    wait_for: {ingame: {mode: menu}, timeout_ms: 3000}
+  - name: The Rare button again brings Rare Home in front (Home from an app)
+    press: guide
+    expect: {focus_app: launcher, screen: {tab: home}, respond_ms: 300, settle_ms: 1200}
+  - name: quit Chrome
+    goto: quit:all
+  - wait_for: {focus_app: launcher, timeout_ms: 20000}

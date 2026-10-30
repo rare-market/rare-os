@@ -1,0 +1,124 @@
+/**
+ * Ledger failures as a small set of codes with plain messages. Errors come
+ * from three places: the device (status words), @ledgerhq's Transport (named errors), and the Rust
+ * transport (NativeError codes: udev, ble-off, ble-pairing, busy, notfound, disconnected, timeout).
+ * Several copies of @ledgerhq/errors can be bundled, so everything is matched by shape, never by
+ * instanceof.
+ */
+export type LedgerErrorCode =
+  | 'no-device'
+  | 'locked'
+  | 'app-closed'
+  | 'wrong-app'
+  | 'rejected'
+  | 'blind-signing'
+  | 'disconnected'
+  | 'busy'
+  | 'mismatch'
+  | 'timeout'
+  | 'cancelled'
+  | 'update-app'
+  | 'udev'
+  | 'ble-off'
+  | 'ble-pairing'
+  | 'unknown'
+
+export const LEDGER_MESSAGES: Record<LedgerErrorCode, string> = {
+  'no-device': 'No Ledger found. Connect it with USB-C or turn on its Bluetooth, unlock it and open the Sui app.',
+  locked: 'Your Ledger is locked. Unlock it with your PIN and try again.',
+  'app-closed': 'Open the Sui app on your Ledger and try again.',
+  'wrong-app': 'Another app is open on your Ledger. Close it, open the Sui app and try again.',
+  rejected: 'Rejected on your Ledger.',
+  'blind-signing':
+    "Your Ledger can't show this transaction in full, so it needs blind signing. On your Ledger, open the Sui app, go to Settings and turn on Blind signing. Then try again.",
+  disconnected: 'Your Ledger disconnected. Reconnect it and try again.',
+  busy: 'Your Ledger is busy with another request. Finish or reject it on the device, close other apps using it, then try again.',
+  mismatch: 'This Ledger does not hold this account. Connect the Ledger you added it with.',
+  timeout: 'Your Ledger did not answer in time. Try again.',
+  cancelled: 'Cancelled. If your Ledger still shows the request, reject it there.',
+  'update-app': 'Update the Sui app in Ledger Live and try again.',
+  udev: 'Rare OS needs permission to use your Ledger. Run this command once in a terminal, then reconnect your Ledger.',
+  'ble-off': 'Bluetooth is off. Turn it on and try again.',
+  'ble-pairing': 'Pairing with your Ledger failed. Check that the code on your Ledger matches, approve it there and try again.',
+  unknown: 'Your Ledger did not respond. Reconnect it and try again.',
+}
+
+export class LedgerError extends Error {
+  readonly code: LedgerErrorCode
+  /** status word from the device, when there was one */
+  readonly statusCode?: number
+  /** extra data from the Rust side; for "udev", `fix` is the one-line command to show */
+  readonly data?: Record<string, unknown>
+  constructor(code: LedgerErrorCode, message?: string, statusCode?: number, data?: Record<string, unknown>) {
+    super(message ?? LEDGER_MESSAGES[code])
+    this.name = 'LedgerError'
+    this.code = code
+    this.statusCode = statusCode
+    this.data = data
+  }
+  /** The udev rule command for the "udev" error, for the UI to show and copy. */
+  get fix(): string | undefined {
+    return typeof this.data?.fix === 'string' ? this.data.fix : undefined
+  }
+}
+
+export const isLedgerError = (e: unknown): e is LedgerError =>
+  !!e && typeof e === 'object' && (e as { name?: string }).name === 'LedgerError' && typeof (e as { code?: unknown }).code === 'string'
+
+/** Status words. The Sui app is a Rust (ledger_device_sdk) app; the dashboard and other apps answer with BOLOS codes. */
+const SW = {
+  LOCKED: [0x5515, 0x6b0c, 0x6982],
+  // 0x6985: CONDITIONS_OF_USE_NOT_SATISFIED (C apps), 0x6e04: StatusWords::UserCancelled (Rust SDK)
+  REJECTED: [0x6985, 0x6e04],
+  // SyscallError::NotSupported: the Sui app rejects a transaction it can't clear sign while blind signing is off
+  BLIND: [0x6808],
+  // CLA/INS not supported: the dashboard or another app is open. 0x6511/0x6a15/0x6807: app not open or missing
+  APP_CLOSED: [0x6e00, 0x6e01, 0x6d00, 0x6d02, 0x6511, 0x6a15, 0x6807, 0x6a83],
+}
+
+/** Rust transport error codes (see native.ts LedgerNative) -> LedgerError codes. */
+const NATIVE: Record<string, LedgerErrorCode> = {
+  udev: 'udev',
+  'ble-off': 'ble-off',
+  'ble-pairing': 'ble-pairing',
+  busy: 'busy',
+  notfound: 'no-device',
+  disconnected: 'disconnected',
+  timeout: 'timeout',
+  // the exchange was dropped because the device was closed (another conversation took over)
+  cancelled: 'cancelled',
+}
+
+/** Map anything thrown while talking to a Ledger to a LedgerError with a plain message. */
+export function toLedgerError(e: unknown): LedgerError {
+  if (isLedgerError(e)) return e
+  const o = (e && typeof e === 'object' ? e : {}) as { name?: string; id?: string; message?: string; statusCode?: unknown; code?: unknown; data?: unknown }
+  const name = o.name ?? ''
+  const id = o.id ?? ''
+  const msg = typeof o.message === 'string' ? o.message : typeof e === 'string' ? e : ''
+  const sw = typeof o.statusCode === 'number' ? o.statusCode : undefined
+
+  if (name === 'NativeError' && typeof o.code === 'string') {
+    const code = NATIVE[o.code]
+    const data = o.data && typeof o.data === 'object' ? (o.data as Record<string, unknown>) : undefined
+    return code ? new LedgerError(code, undefined, undefined, data) : new LedgerError('unknown', undefined, undefined, data)
+  }
+  if (sw !== undefined) {
+    if (SW.LOCKED.includes(sw)) return new LedgerError('locked', undefined, sw)
+    if (SW.REJECTED.includes(sw)) return new LedgerError('rejected', undefined, sw)
+    if (SW.BLIND.includes(sw)) return new LedgerError('blind-signing', undefined, sw)
+    if (SW.APP_CLOSED.includes(sw)) return new LedgerError('app-closed', undefined, sw)
+    return new LedgerError('unknown', `Your Ledger returned an error (0x${sw.toString(16)}). Check the Sui app is open and up to date, then try again.`, sw)
+  }
+  if (name === 'LockedDeviceError') return new LedgerError('locked')
+  if (name === 'UpdateYourApp') return new LedgerError('update-app')
+  if (name === 'LatestFirmwareVersionRequired') return new LedgerError('update-app', 'Update your Ledger in Ledger Live and try again.')
+  if (name === 'TransportRaceCondition' || id === 'TransportLocked' || name === 'TransportLocked') return new LedgerError('busy')
+  if (name === 'DisconnectedDevice' || name === 'DisconnectedDeviceDuringOperation') return new LedgerError('disconnected')
+  if (name === 'TransportOpenUserCancelled') return new LedgerError('no-device')
+  if (/disconnect/i.test(msg)) return new LedgerError('disconnected')
+  return new LedgerError('unknown')
+}
+
+/** The message to show for any Ledger failure. */
+export const ledgerErrorMessage = (e: unknown) => toLedgerError(e).message

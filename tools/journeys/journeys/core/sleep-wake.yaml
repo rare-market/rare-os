@@ -1,0 +1,17 @@
+name: sleep-wake
+title: Sleep from Quick settings, wake (RTC with --sudo, else the owner presses power)
+tags: [core, system]
+needs: [probe, root_or_attended]
+timeout_s: 240
+steps:
+  - name: Start opens Quick settings
+    press: start
+    expect: {screen: {overlay: qam}}
+  - nav: {press: down, until: {focus: '"Sleep"'}, max: 14}
+  - nav: {press: right, until: {focus: '"Sleep"'}, max: 4}
+  - name: Sleep, then wake
+    sleep_wake: {seconds: 20}
+    expect: {focus_app: launcher, settle_ms: 3000}
+  - name: after wake the pad still works
+    press: b
+    expect: {screen: {overlay: "-"}}

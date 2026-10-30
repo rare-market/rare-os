@@ -1,0 +1,10 @@
+[Unit]
+Description=Rare OS: Rare's Steam startup clip and desktop branding in the home folder
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/user-branding
+Nice=10
+
+[Install]
+WantedBy=default.target

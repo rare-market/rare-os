@@ -1,0 +1,17 @@
+{
+  "_doc": "Golden states of the native launcher's Phase 1 shell (rare-launcher-native; WS 12 owns this file from here on). Fields as in poc.json; env carries the binary's own switches (RR_TAB, RR_OPEN, RR_SEARCH, RR_RUNNING, RR_BOOT, RR_NOGAMES; see launcher/native/src/main.rs).",
+  "programs": {
+    "native": { "manifest": "launcher/native/Cargo.toml", "bin": "rare-launcher-native" }
+  },
+  "states": [
+    { "id": "shell-home", "program": "native", "title": "Home", "phase": 1, "web": "home" },
+    { "id": "shell-home-shelf", "program": "native", "title": "Home, strip moved two tiles", "phase": 1, "web": "home-shelf", "script": "right,right" },
+    { "id": "shell-home-nothing", "program": "native", "title": "Home, nothing installed, offline", "phase": 1, "web": "home-nothing-installed", "env": { "RR_NOGAMES": "1" } },
+    { "id": "shell-library", "program": "native", "title": "Library", "phase": 1, "web": "library", "env": { "RR_TAB": "library" } },
+    { "id": "shell-game-running", "program": "native", "title": "Game page of a running game", "phase": 1, "web": "games-running", "env": { "RR_TAB": "library", "RR_RUNNING": "steam:1145350", "RR_OPEN": "game:steam:1145350" } },
+    { "id": "shell-search", "program": "native", "title": "Search with a query", "phase": 1, "web": "search", "env": { "RR_OPEN": "search", "RR_SEARCH": "ha" } },
+    { "id": "shell-quick-settings", "program": "native", "title": "Quick settings", "phase": 1, "web": "quick-settings", "env": { "RR_OPEN": "qam" } },
+    { "id": "shell-boot", "program": "native", "title": "Boot splash", "phase": 1, "web": "boot", "env": { "RR_BOOT": "hold" } },
+    { "id": "shell-home-sweep", "program": "native", "title": "Budget run: along the strip, down and back, tabs", "phase": 1, "fixture": "default", "script": "right,right,right,right,left,left,down,up,rb,lb", "res": ["1920x1200"], "budget": true }
+  ]
+}

@@ -1,0 +1,7 @@
+name: add-friend
+task: "Add a friend"
+fix: "none needed (Friends opens on Add a friend)"
+home:
+  steps: [lb, a]
+  done: {focus: "Add a friend|Username"}
+  was_same: true

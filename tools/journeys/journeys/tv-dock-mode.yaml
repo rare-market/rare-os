@@ -1,0 +1,34 @@
+# Docked on a TV: what the runner can check once the cable is in. The launcher side only; the
+# rest is in the device checklist below.
+#
+# device checklist (a person does these, the runner cannot):
+#   - plug a USB-C to DP/HDMI cable into a 4K TV: the picture moves to the TV, landscape and
+#     upright (never rotated 90 degrees), 3840x2160 at 60 Hz, the built-in panel goes dark
+#   - a toast reads "Docked to <TV name> 3840x2160"
+#   - sound comes from the TV, not the speakers (pactl get-default-sink is the hdmi sink)
+#   - the Bluetooth pad and the built-in pad both navigate; touching the dark panel does not
+#     click things on the TV
+#   - repeat with a 1080p monitor; reboot with UI size Larger and check it is still Larger
+name: tv-dock-mode
+title: Docked to a TV, the launcher is usable and the Docked line is right
+tags: [display, dock, device]
+needs: [probe]
+timeout_s: 90
+steps:
+  - goto: settings
+    expect: {screen: {tab: settings}}
+  - nav:
+      press: down
+      until: {focus: "Display"}
+  - press: a
+    expect: {respond_ms: 200}
+  - nav:
+      press: down
+      until: {focus: "Automatic|Large|Larger"}
+  - press: right
+    expect: {respond_ms: 200}
+  - press: b
+  - goto: home
+    expect: {screen: {tab: home}}
+  - press: rb
+  - press: lb

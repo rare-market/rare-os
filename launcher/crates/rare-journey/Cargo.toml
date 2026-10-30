@@ -1,0 +1,9 @@
+[package]
+name = "rare-journey"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Journey probe for tools/journeys in the native launcher: the same files and log lines as the web launcher's nav/journey.ts"
+
+[dependencies]
+libc = "0.2"

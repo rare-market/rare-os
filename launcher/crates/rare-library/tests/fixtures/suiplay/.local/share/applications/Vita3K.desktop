@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+	[Desktop Entry]
+	Name=Vita3K Binary
+	Exec=/home/bazzite/Emulation/tools/launchers/vita3k.sh
+	Icon=/home/bazzite/.local/share/icons/emudeck/Vita3K.png
+	Terminal=false
+	Type=Application
+	Categories=Game;
+	StartupNotify=false

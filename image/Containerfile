@@ -1,0 +1,143 @@
+# Rare OS image. Build from the repo root:
+#   podman build -f image/Containerfile -t rare-os .
+#
+# Base: Bazzite's handheld edition (Fedora Atomic, bootc). It brings the kernel,
+# Mesa, gamescope, Steam, InputPlumber and PowerStation; Rare OS adds the launcher,
+# its game-mode session, device fixes and branding.
+
+ARG BASE_IMAGE=ghcr.io/ublue-os/bazzite-deck:stable
+
+# ---------- build tools, on the exact libraries the image runs with ----------
+FROM ${BASE_IMAGE} AS builder
+RUN dnf5 -y install --setopt=install_weak_deps=False \
+        gcc gcc-c++ make pkgconf-pkg-config cargo rust \
+        nodejs npm \
+        webkit2gtk4.1-devel libsoup3-devel gtk3-devel openssl-devel \
+        systemd-devel librsvg2-devel dbus-devel perl clang-devel cmake \
+    && dnf5 clean all \
+    && mkdir -p /var/roothome
+# /root is a symlink into /var on image-based systems; keep tool caches under /var/cache.
+ENV HOME=/var/roothome CARGO_HOME=/var/cache/cargo npm_config_cache=/var/cache/npm
+
+# ---------- Rare Launcher ----------
+FROM builder AS launcher
+WORKDIR /src/launcher
+COPY launcher/package.json launcher/package-lock.json ./
+RUN --mount=type=cache,target=/var/cache/npm \
+    npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+COPY launcher/ ./
+# The Tauri CLI builds the UI (beforeBuildCommand) and the release binary with
+# production asset embedding; no installer bundle is needed inside the image.
+RUN --mount=type=cache,target=/var/cache/cargo \
+    --mount=type=cache,target=/src/launcher/src-tauri/target \
+    npx tauri build --no-bundle -- --locked \
+    && install -Dm0755 src-tauri/target/release/rare-launcher /out/rare-launcher
+
+# ---------- Rare Launcher, native (Rust, wgpu): the default launcher of the session ----------
+FROM builder AS native
+WORKDIR /src/launcher
+COPY launcher/ ./
+RUN --mount=type=cache,target=/var/cache/cargo \
+    --mount=type=cache,target=/src/launcher/native/target \
+    cargo build --release --locked --manifest-path native/Cargo.toml --bin rare-launcher-native \
+    && install -Dm0755 native/target/release/rare-launcher-native /out/rare-launcher-native \
+    && cp -r public /out/public
+
+# ---------- the web game host: Chromium (CEF) for web games, one runtime for the image ----------
+# rare-webgame-host next to the native launcher, the CEF runtime (~300 MB) in /usr/lib/rare/cef. The CEF
+# distribution is downloaded once per version into a cache mount.
+FROM builder AS webhost
+WORKDIR /src/webhost
+COPY launcher/native/webhost/ ./
+COPY tools/render/cef-runtime.sh /usr/local/bin/cef-runtime.sh
+RUN --mount=type=cache,target=/var/cache/cargo \
+    --mount=type=cache,target=/var/cache/cef \
+    --mount=type=cache,target=/src/webhost/target \
+    CEF_PATH=/var/cache/cef cargo build --release --locked \
+    && install -Dm0755 target/release/rare-webgame-host /out/bin/rare-webgame-host \
+    && strip /out/bin/rare-webgame-host \
+    && cef-runtime.sh "$(ls -d /var/cache/cef/*/cef_linux_x86_64 | sort -V | tail -1)" /out/cef
+
+# ---------- Epic and GOG: legendary, gogdl and umu-run for the native launcher (rare-stores) ----------
+# Python zipapps (the image's python3 runs them), pinned and checked by sha256.
+FROM builder AS stores
+COPY tools/render/store-tools.sh /usr/local/bin/store-tools.sh
+RUN --mount=type=cache,target=/var/cache/store-tools \
+    store-tools.sh /out/stores /var/cache/store-tools
+
+# ---------- arRPC: Discord Rich Presence for Discord on the web (rare-discord) ----------
+# Pinned and checked by sha256; the image's nodejs runs it (dnf in build.sh).
+FROM builder AS arrpc
+COPY tools/render/arrpc-tools.sh /usr/local/bin/arrpc-tools.sh
+RUN --mount=type=cache,target=/var/cache/arrpc-tools \
+    arrpc-tools.sh --no-node /out/arrpc /var/cache/arrpc-tools
+
+# ---------- lsfg-vk: frame generation layer, pinned (gamefx.rs writes per-game manifests) ----------
+FROM builder AS lsfg
+COPY tools/render/lsfg-vk.sh /usr/local/bin/lsfg-vk.sh
+RUN --mount=type=cache,target=/var/cache/lsfg-vk \
+    lsfg-vk.sh /out/lsfg-vk /var/cache/lsfg-vk
+
+# ---------- rare-fand: fan curves on the SuiPlay0X1 ----------
+FROM builder AS fand
+WORKDIR /src/rare-fand
+COPY image/rare-fand/ ./
+RUN --mount=type=cache,target=/var/cache/cargo \
+    --mount=type=cache,target=/src/rare-fand/target \
+    cargo build --release --locked \
+    && install -Dm0755 target/release/rare-fand /out/rare-fand
+
+# ---------- rare-pin-guard: Rare Wallet PIN accounts (wrong-PIN count and lock, root and TPM-sealed) ----------
+# Its rules file is rare-wallet's (launcher/crates/rare-wallet/src/pin_guard/rules.rs), copied to the same relative path.
+FROM builder AS pinguard
+WORKDIR /src/image/rare-pin-guard
+COPY image/rare-pin-guard/ ./
+COPY launcher/crates/rare-wallet/src/pin_guard/rules.rs /src/launcher/crates/rare-wallet/src/pin_guard/rules.rs
+RUN --mount=type=cache,target=/var/cache/cargo \
+    --mount=type=cache,target=/src/image/rare-pin-guard/target \
+    cargo build --release --locked \
+    && install -Dm0755 target/release/rare-pin-guard /out/rare-pin-guard
+
+# ---------- the SuiPlay0X1 fan driver (ayaneo-ec + a SuiPlay DMI match) for the base kernel ----------
+FROM ${BASE_IMAGE} AS kmod
+COPY image/kmod/ayaneo-ec-suiplay/ /src/ayaneo-ec-suiplay/
+RUN /src/ayaneo-ec-suiplay/build.sh /out
+
+# ---------- Rare OS ----------
+FROM ${BASE_IMAGE}
+
+ARG RARE_VERSION=0.1.0
+# Where devices take updates from (registry/name, no tag). The one default for the whole tree: CI passes its own
+# (vars.RARE_IMAGE_REPO, else ghcr.io/<this repository>), and the image keeps it in /usr/lib/rare/image-repo.
+ARG RARE_IMAGE_REPO=ghcr.io/rare-market/rare-os
+LABEL org.opencontainers.image.title="Rare OS" \
+      org.opencontainers.image.description="Rare OS: a community gaming OS for PC handhelds" \
+      org.opencontainers.image.url="https://rare.market" \
+      org.opencontainers.image.source="https://github.com/rare-market/rare-os" \
+      org.opencontainers.image.licenses="Apache-2.0" \
+      org.opencontainers.image.version="${RARE_VERSION}" \
+      containers.bootc="1" \
+      ostree.bootable="1"
+
+COPY --from=launcher /out/rare-launcher /usr/bin/rare-launcher
+COPY --from=native /out/ /usr/libexec/rare/native/
+COPY --from=webhost /out/bin/rare-webgame-host /usr/libexec/rare/native/rare-webgame-host
+COPY --from=webhost /out/cef/ /usr/lib/rare/cef/
+COPY --from=stores /out/stores/ /usr/libexec/rare/stores/
+COPY --from=arrpc /out/arrpc/ /usr/libexec/rare/arrpc/
+COPY --from=fand /out/rare-fand /usr/libexec/rare/rare-fand
+COPY --from=pinguard /out/rare-pin-guard /usr/libexec/rare/rare-pin-guard
+COPY --from=lsfg /out/lsfg-vk/ /usr/lib/rare/lsfg-vk/
+# Empty when the module could not be built (the fan then stays on the EC's curve).
+COPY --from=kmod /out/ /
+RUN depmod -a "$(ls /usr/lib/modules | sort -V | tail -n1)"
+COPY image/system_files/ /
+# SuiPlay0X1 key map and serial access, from Playtron's MIT-licensed gameos (see third_party/gameos).
+COPY third_party/gameos/rootfs/ /
+COPY image/keys/rare-os.pub /etc/pki/containers/rare-os.pub
+
+RUN --mount=type=bind,source=image/build,target=/ctx \
+    --mount=type=tmpfs,target=/tmp \
+    RARE_VERSION=${RARE_VERSION} RARE_IMAGE_REPO=${RARE_IMAGE_REPO} /ctx/build.sh
+
+RUN bootc container lint

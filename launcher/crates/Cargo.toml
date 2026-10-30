@@ -1,0 +1,17 @@
+# Rare's UI-independent native layers. Standalone so both the Tauri launcher (src-tauri, as path
+# dependencies) and the native UI can call them directly; this workspace exists to build and test
+# them on their own: `cargo test --manifest-path launcher/crates/Cargo.toml`.
+[workspace]
+resolver = "2"
+# Every crate under this directory is a member (a glob, so parallel workstreams never conflict here).
+members = ["rare-*"]
+
+# rare-wallet: the same webauthn-authenticator-rs patch src-tauri uses (assertions return the user handle).
+[patch.crates-io]
+webauthn-authenticator-rs = { path = "../src-tauri/vendor/webauthn-authenticator-rs" }
+
+# rare-wallet: Argon2 at 64 MiB is unusably slow unoptimized; keep test builds fast.
+[profile.dev.package.argon2]
+opt-level = 3
+[profile.dev.package.blake2]
+opt-level = 3

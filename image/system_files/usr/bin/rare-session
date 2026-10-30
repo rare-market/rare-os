@@ -1,0 +1,34 @@
+#!/usr/bin/bash
+# Starts Rare OS game mode.
+#
+# On real hardware: gamescope-session-plus with Rare Launcher as the client.
+# In a virtual machine with no real GPU (virtio, QXL, VMware, Bochs), gamescope cannot
+# run, so the launcher runs fullscreen in cage with software rendering. That keeps VMs
+# useful for testing the image. RARE_COMPOSITOR=gamescope|cage forces either.
+
+mode="${RARE_COMPOSITOR:-}"
+if [[ -z "$mode" ]]; then
+    mode=gamescope
+    real_gpu=0
+    for v in /sys/class/drm/card*/device/vendor; do
+        [[ -r "$v" ]] || continue
+        case "$(cat "$v")" in
+            0x1002|0x10de|0x8086) real_gpu=1 ;;
+        esac
+    done
+    if [[ $real_gpu == 0 ]] && systemd-detect-virt --vm -q; then
+        mode=cage
+    fi
+fi
+
+if [[ "$mode" == "cage" ]]; then
+    export WLR_RENDERER=pixman
+    export WLR_NO_HARDWARE_CURSORS=1
+    export LIBGL_ALWAYS_SOFTWARE=1
+    export WEBKIT_DISABLE_DMABUF_RENDERER=1
+    export WEBKIT_DISABLE_COMPOSITING_MODE=1
+    export RARE_FULLSCREEN=1
+    exec cage -s -d -- /usr/bin/rare-launcher
+fi
+
+exec gamescope-session-plus rare

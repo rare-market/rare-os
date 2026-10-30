@@ -1,0 +1,396 @@
+#!/usr/bin/bash
+# Rare OS updater, run by rare-update.service (rare-update.timer, hourly) and on demand from the
+# launcher (os-admin update-now).
+#
+#   os-update            automatic run: does the work only when it is due (no check in the last
+#                        20 hours, or the last run waited, failed or stopped) and the device
+#                        allows it: on the charger, or on battery at 30% or more; not during a
+#                        game; not on a metered network. A game starting or the battery falling
+#                        under 25% stops the download; it goes on from where it stopped later.
+#   os-update --now      a person asked (Settings > System): runs at once, on battery down to 15%
+#                        and during a game (at idle priority)
+#   os-update --recover  at boot: tell whether the update staged before the last shutdown was
+#                        applied, or lost to a power-off, and download it again if it was lost
+#
+# Downloads resume: every layer that finished stays in the ostree repo, so a stopped or failed
+# download fetches only what is missing the next time.
+#
+# Why recover exists. `bootc upgrade` pulls the image into the ostree repo and stages it, but a
+# staged deployment is only a file in /run (tmpfs). ostree-finalize-staged.service turns it into
+# a boot entry in its ExecStop, which only runs on a clean shutdown or reboot. A forced power-off
+# loses the staged file, never the downloaded data, so the update is not broken, just not
+# scheduled. The marker below remembers what was staged, so the next boot notices the loss and
+# stages it again from the local data. This never reboots: restarting is the person's choice
+# (the launcher's "Restart to update"), and never while a game runs.
+#
+# Skipped versions (/var/lib/rare/update-skip.json, {digest, version, reason, at}):
+#   reason "failed"       it did not start here (the greenboot check /usr/lib/greenboot/check/
+#                         required.d/50-rare-session.sh failed, red.d/50-rare-record-failed.sh
+#                         wrote it): never staged again; the next newer version is
+#   reason "rolled-back"  the owner went back from it (os-admin rollback): automatic runs skip
+#                         it, "Update now" installs it again
+#
+# State for the launcher (world readable): /var/lib/rare/update-state.json
+#   checkedAt ok error          the last finished check (unix seconds), as before
+#   phase                       idle | checking | downloading | ready | waiting | failed
+#   result                      current | staged | waiting | failed | skipped | unsupported | stopped
+#   manual                      the run was asked for by a person
+#   startedAt updatedAt         this run's start and its heartbeat (every 20 s while it works)
+#   bytes bytesTotal            download progress, layers already on the device included
+#   steps stepsTotal            layers done and in all
+#   waitReason battery          why an automatic run waits: battery | game | metered
+#   stagedVersion notes         the downloaded version and its release notes
+set -uo pipefail
+STATE_DIR=${RARE_UPDATE_STATE_DIR:-/var/lib/rare}
+STATE="$STATE_DIR/update-state.json"
+MARKER="$STATE_DIR/update-staged"
+SKIP="$STATE_DIR/update-skip.json"
+RUN_DIR=${RARE_UPDATE_RUN_DIR:-/run/rare}
+LOCK="$RUN_DIR/update.lock"
+STATE_LOCK="$RUN_DIR/update-state.lock"
+MANUAL_FLAG="$RUN_DIR/update-manual"
+BOOTC=${RARE_BOOTC:-/usr/bin/bootc}
+PSU=${RARE_POWER_DIR:-/sys/class/power_supply}
+USER_RUN=${RARE_USER_RUN:-/run/user}
+AUTO_FLOOR=30   # % battery an automatic download needs off the charger
+AUTO_STOP=25    # % where a running automatic download stops
+MANUAL_FLOOR=15 # % battery a download someone asked for needs off the charger
+DUE_SECS=$((20 * 3600))
+NOTES_MAX=4000
+mkdir -p "$STATE_DIR" "$RUN_DIR"
+
+log() { echo "rare-update: $*"; logger -t rare-update -- "$*" 2>/dev/null || true; }
+now() { date +%s; }
+
+# Merges into the state file: state_merge [jq args...] FILTER. Serialized, atomic, world readable.
+state_merge() {
+    (
+        flock 8
+        local cur tmp="$STATE.new.$BASHPID"
+        cur="$(cat "$STATE" 2>/dev/null)"
+        jq -e 'type == "object"' <<<"$cur" >/dev/null 2>&1 || cur='{}'
+        jq --argjson _now "$(now)" "$@" <<<"$cur" >"$tmp" && chmod 0644 "$tmp" && mv -f "$tmp" "$STATE"
+        rm -f "$tmp"
+    ) 8>"$STATE_LOCK"
+}
+state_get() { jq -r "$1 // empty" "$STATE" 2>/dev/null; }
+
+status_json() { rpm-ostree status --json 2>/dev/null; }
+staged_sum() { jq -r '[.deployments[] | select(.staged == true)][0].checksum // empty' <<<"$1"; }
+staged_ver() { jq -r '[.deployments[] | select(.staged == true)][0].version // empty' <<<"$1"; }
+staged_digest() { jq -r '[.deployments[] | select(.staged == true)][0]["container-image-reference-digest"] // empty' <<<"$1"; }
+booted_sum() { jq -r '[.deployments[] | select(.booted == true)][0].checksum // empty' <<<"$1"; }
+booted_ref() { jq -r '[.deployments[] | select(.booted == true)][0] | (.["container-image-reference"] // .origin // empty)' <<<"$1"; }
+has_sum() { jq -e --arg c "$2" '[.deployments[] | select(.checksum == $c)] | length > 0' <<<"$1" >/dev/null; }
+
+# The staged version's release notes: /usr/share/rare/release-notes.txt inside its deployment
+# (staging writes the deployment's files at once; only the boot entry waits for shutdown).
+staged_notes() {
+    local d f
+    d="$(jq -r '[.deployments[] | select(.staged == true)][0] | "\(.osname)/deploy/\(.checksum).\(.serial)"' <<<"$1")"
+    f="/ostree/deploy/$d/usr/share/rare/release-notes.txt"
+    [[ -r "$f" ]] || return 0
+    grep -v '^#' "$f" | sed -e '/./,$!d' | head -c "$NOTES_MAX"
+}
+
+# --- what the device is doing --------------------------------------------------------------
+
+on_ac() {
+    local p
+    for p in "$PSU"/*; do
+        [[ "$(cat "$p/type" 2>/dev/null)" == Mains || "$(cat "$p/type" 2>/dev/null)" == USB ]] || continue
+        [[ "$(cat "$p/online" 2>/dev/null)" == 1 ]] && return 0
+    done
+    # No battery at all (a desktop or a VM): treat as plugged in.
+    compgen -G "$PSU/*/capacity" >/dev/null || return 0
+    return 1
+}
+battery_pct() {
+    local p
+    for p in "$PSU"/*; do
+        [[ "$(cat "$p/type" 2>/dev/null)" == Battery && -r "$p/capacity" ]] || continue
+        cat "$p/capacity"
+        return
+    done
+    echo 100
+}
+# A game runs: the launcher's marker ($XDG_RUNTIME_DIR/rare-playing), or a Steam game (its
+# reaper carries "SteamLaunch AppId=").
+game_running() {
+    compgen -G "$USER_RUN/*/rare-playing" >/dev/null && return 0
+    pgrep -f 'SteamLaunch AppId=[0-9]' >/dev/null 2>&1
+}
+metered() {
+    local m
+    m="$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Metered 2>/dev/null | awk '{print $2}')"
+    [[ "$m" == 1 || "$m" == 3 ]] # yes, or guessed yes (a phone hotspot)
+}
+is_manual() { [[ "$MANUAL" == 1 || -e "$MANUAL_FLAG" ]]; }
+
+# Why this run cannot go on now, or nothing. $1: start (the floor) or run (the stop level).
+blocker() {
+    local floor=$AUTO_FLOOR
+    [[ "${1:-start}" == run ]] && floor=$AUTO_STOP
+    if is_manual; then
+        on_ac || (($(battery_pct) >= MANUAL_FLOOR)) || { echo battery; return; }
+        return
+    fi
+    on_ac || (($(battery_pct) >= floor)) || { echo battery; return; }
+    game_running && { echo game; return; }
+    [[ "${1:-start}" == start ]] && metered && { echo metered; return; }
+}
+
+# bootc's last line, in words a player reads.
+plain_error() {
+    local e="$1"
+    case "${e,,}" in
+        *"no space left"*) echo "There is not enough free space for the update. Free some space and try again." ;;
+        *denied* | *unauthorized* | *"not found"* | *manifest\ unknown*) echo "The update server refused the request." ;;
+        *resolv* | *"temporary failure"* | *"network is unreachable"* | *"connection refused"* | *timeout* | *"timed out"* | *"no route"* | *dns*) echo "The device is offline or the update server could not be reached." ;;
+        *) echo "${e:0:300}" ;;
+    esac
+}
+
+# --- the parts -------------------------------------------------------------------------------
+
+recover() {
+    [[ -s "$MARKER" ]] || { log "nothing was staged before shutdown"; exit 0; }
+    local want json
+    want="$(cat "$MARKER")"
+    json="$(status_json)"
+    if [[ -z "$json" ]]; then log "rpm-ostree not ready, leaving the marker for next boot"; exit 0; fi
+    if [[ "$(booted_sum "$json")" == "$want" ]]; then
+        log "the staged update ${want:0:12} was applied; running it now"
+        rm -f "$MARKER"
+        state_merge '.phase = "idle" | .result = "current" | del(.stagedVersion, .notes, .bytes, .bytesTotal, .steps, .stepsTotal)'
+    elif [[ "$(staged_sum "$json")" == "$want" ]]; then
+        log "update ${want:0:12} is staged again; waiting for a restart"
+    elif has_sum "$json" "$want"; then
+        log "update ${want:0:12} is finalized for the next start; waiting for a restart"
+    else
+        log "the staged update ${want:0:12} was lost (the device was powered off before it finished installing); downloading it again"
+        rm -f "$MARKER"
+        state_merge '.phase = "idle" | .result = "stopped"'
+        systemctl start --no-block rare-update.service || log "could not start rare-update.service"
+    fi
+    exit 0
+}
+
+# An automatic run with nothing to do: checked recently and nothing pending.
+not_due() {
+    local result at json
+    result="$(state_get .result)"
+    at="$(state_get .checkedAt)"
+    [[ "$at" =~ ^[0-9]+$ ]] || return 1
+    (($(now) - at < DUE_SECS)) || return 1
+    case "$result" in
+        current) return 0 ;;
+        staged)
+            json="$(status_json)"
+            [[ -n "$(staged_sum "$json")" ]] && return 0
+            # staged, then lost or applied: recover handles it; check again
+            return 1
+            ;;
+        skipped | unsupported) return 0 ;;
+    esac
+    return 1
+}
+
+# Progress JSON lines from bootc --progress-fd into the state file, at most every 2 s.
+# bytes/bytesTotal count the layers already on the device, so a resumed download shows its
+# real position.
+progress_reader() {
+    local line last=0 t
+    while IFS= read -r line; do
+        [[ "$line" == *'"ProgressBytes"'* ]] || continue
+        t=$(now)
+        ((t - last >= 2)) || continue
+        last=$t
+        state_merge --argjson p "$line" \
+            'if (.phase == "checking" or .phase == "downloading") then
+                .phase = "downloading" | .updatedAt = $_now
+                | .bytes = (($p.bytesCached // 0) + ($p.bytes // 0))
+                | .bytesTotal = (($p.bytesCached // 0) + ($p.bytesTotal // 0))
+                | .steps = (($p.stepsCached // 0) + ($p.steps // 0))
+                | .stepsTotal = (($p.stepsCached // 0) + ($p.stepsTotal // 0))
+             else . end' 2>/dev/null
+    done
+}
+
+finish() { # result ok(true|false) error [extra jq filter]
+    local extra="${4:-.}"
+    state_merge --arg r "$1" --argjson ok "$2" --arg e "$3" \
+        '.result = $r | .ok = $ok | .error = (if $e == "" then null else $e end) | .checkedAt = $_now | .updatedAt = $_now
+         | .phase = (if $r == "staged" then "ready" elif $r == "waiting" then "waiting" elif ($r == "failed" or $r == "unsupported") then "failed" else "idle" end)
+         | if $r != "waiting" then del(.waitReason) else . end
+         | '"$extra"
+}
+
+wait_for() { # reason: the run waits (automatic only); the timer tries again within the hour
+    log "waiting to download: $1"
+    # checkedAt is not moved: an automatic wait is not a check
+    state_merge --arg w "$1" --argjson b "$(battery_pct)" \
+        '.phase = "waiting" | .result = "waiting" | .waitReason = $w | .battery = $b | .updatedAt = $_now | .manual = false'
+}
+
+run_update() {
+    local json ref out rc skip_digest skip_reason digest offer pid reason stop="" tmp
+    json="$(status_json)"
+    ref="$(booted_ref "$json")"
+    case "$ref" in
+        *oci-archive:* | *oci:* | *containers-storage:* | *dir:*)
+            log "the running system came from a local file ($ref); it has no update source"
+            finish unsupported false "This device runs a build installed from a file, so it has no update source yet."
+            return 0
+            ;;
+    esac
+
+    state_merge --argjson m "$(is_manual && echo true || echo false)" \
+        '.phase = "checking" | .manual = $m | .startedAt = $_now | .updatedAt = $_now | del(.waitReason, .bytes, .bytesTotal, .steps, .stepsTotal, .offerVersion)'
+
+    # Metadata first: what would be downloaded. A version that did not start here is skipped.
+    # fd 9 (the run lock) stays with this script: a helper bootc leaves behind must not hold it.
+    out="$("$BOOTC" upgrade --check 2>&1 9>&-)"
+    rc=$?
+    if ((rc != 0)); then
+        log "check failed (exit $rc): ${out##*$'\n'}"
+        finish failed false "$(plain_error "${out##*$'\n'}")"
+        return $rc
+    fi
+    digest="$(sed -n 's/^ *Digest: *//p' <<<"$out" | head -1)"
+    offer="$(sed -n 's/^ *Version: *//p' <<<"$out" | head -1)"
+    skip_digest="$(jq -r '.digest // empty' "$SKIP" 2>/dev/null)"
+    skip_reason="$(jq -r '.reason // empty' "$SKIP" 2>/dev/null)"
+    # Going back was the owner's choice; asking for the update again undoes it.
+    if [[ "$skip_reason" == rolled-back ]] && is_manual; then skip_digest=""; fi
+    if [[ -n "$digest" && "$digest" == "$skip_digest" ]]; then
+        local fv
+        fv="$(jq -r '.version // empty' "$SKIP" 2>/dev/null)"
+        log "update ${fv:-$digest} is skipped ($skip_reason)"
+        finish skipped true "$(skip_words "$skip_reason" "$fv")"
+        return 0
+    fi
+    # "Update available for: ..." (with Version and Digest lines) or "No changes in: ..." (the
+    # image is already in the repo). With nothing staged, "No changes" can still mean a newer
+    # image is on the device but not staged (a staged update lost to a power-off, a version gone
+    # back from): the upgrade below stages it from local data without downloading, or says
+    # "No update available" when the running version is the newest.
+    if ! grep -q '^Update available' <<<"$out"; then
+        json="$(status_json)"
+        if [[ -n "$(staged_sum "$json")" ]]; then
+            finish staged true "" "$(staged_filter "$json")"
+            return 0
+        fi
+    fi
+
+    [[ -n "$offer" ]] && state_merge --arg v "$offer" '.offerVersion = $v'
+    tmp="$(mktemp)"
+    "$BOOTC" upgrade --quiet --progress-fd 3 >"$tmp" 2>&1 9>&- 3> >(progress_reader 9>&-) &
+    pid=$!
+    while kill -0 "$pid" 2>/dev/null; do
+        sleep 5
+        if ! is_manual; then
+            reason="$(blocker run)"
+            if [[ -n "$reason" ]]; then
+                stop="$reason"
+                log "stopping the download ($reason); it goes on from here later"
+                kill -TERM "$pid" 2>/dev/null
+                break
+            fi
+        fi
+    done
+    wait "$pid"
+    rc=$?
+    out="$(cat "$tmp")"
+    rm -f "$tmp"
+    [[ -n "$out" ]] && echo "$out"
+    if [[ -n "$stop" ]]; then
+        wait_for "$stop"
+        return 0
+    fi
+    if ((rc != 0)); then
+        log "download failed (exit $rc)"
+        finish failed false "$(plain_error "${out##*$'\n'}")"
+        return $rc
+    fi
+    json="$(status_json)"
+    local sum
+    sum="$(staged_sum "$json")"
+    if [[ -n "$sum" ]]; then
+        if [[ -n "$skip_digest" && "$(staged_digest "$json")" == "$skip_digest" ]]; then
+            log "the staged version is skipped ($skip_reason); dropping it"
+            rpm-ostree cleanup -p >/dev/null 2>&1 || true
+            finish skipped true "$(skip_words "$skip_reason" "$(staged_ver "$json")")"
+            return 0
+        fi
+        [[ "$skip_reason" == rolled-back ]] && is_manual && rm -f "$SKIP"
+        echo "$sum" >"$MARKER"
+        log "update $(staged_ver "$json") (${sum:0:12}) is staged; it installs when the device restarts"
+        finish staged true "" "$(staged_filter "$json")"
+    else
+        log "up to date"
+        finish current true "" 'del(.stagedVersion, .notes, .offerVersion)'
+    fi
+}
+
+skip_words() { # reason version
+    if [[ "$1" == rolled-back ]]; then
+        echo "You went back from version ${2:-on offer}, so it does not install by itself. Update now installs it."
+    else
+        echo "Version ${2:-on offer} did not start on this device, so it is skipped. The next version installs by itself."
+    fi
+}
+
+# A jq filter that records the staged version and its notes.
+staged_filter() {
+    local v n
+    v="$(staged_ver "$1")"
+    [[ -n "$v" ]] || v="$(staged_sum "$1" | cut -c1-8)"
+    n="$(staged_notes "$1")"
+    printf '.stagedVersion = %s | .notes = %s' "$(jq -Rn --arg v "$v" '$v')" "$(jq -Rn --arg n "$n" 'if $n == "" then null else $n end')"
+}
+
+# --- main ------------------------------------------------------------------------------------
+
+MANUAL=0
+case "${1:-}" in
+    --recover) recover ;;
+    --now) MANUAL=1 ;;
+    "") ;;
+    *) echo "usage: os-update [--now | --recover]" >&2; exit 2 ;;
+esac
+
+exec 9>"$LOCK"
+if ! flock -n 9; then
+    if [[ $MANUAL == 1 ]]; then
+        # A run is at work: it now counts as asked for (no stopping for a game or the battery).
+        touch "$MANUAL_FLAG"
+        log "an update run is already at work; it carries on as asked for"
+    fi
+    exit 0
+fi
+hb=""
+trap 'rm -f "$MANUAL_FLAG"; [[ -n "$hb" ]] && kill "$hb" 2>/dev/null' EXIT
+[[ $MANUAL == 0 ]] && rm -f "$MANUAL_FLAG"
+
+if [[ $MANUAL == 0 ]] && not_due; then
+    exit 0
+fi
+
+reason="$(blocker start)"
+if [[ -n "$reason" ]]; then
+    if [[ $MANUAL == 1 ]]; then
+        b=$(battery_pct)
+        finish failed false "The battery is at ${b}%. Plug in the charger to download the update."
+        exit 0
+    fi
+    wait_for "$reason"
+    exit 0
+fi
+
+# A heartbeat, so the launcher knows the run is alive during long quiet stretches (a stale one
+# means the run died: the launcher says it stopped, and the next timer run tries again).
+# fd 9 (the run lock) is closed in it, so a heartbeat outliving the run never holds the lock.
+(while sleep 20; do state_merge 'if (.phase == "checking" or .phase == "downloading") then .updatedAt = $_now else . end'; done) 9>&- &
+hb=$!
+run_update

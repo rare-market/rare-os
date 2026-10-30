@@ -1,0 +1,158 @@
+"UserLocalConfigStore"
+{
+	"Software"
+	{
+		"Valve"
+		{
+			"Steam"
+			{
+				"apps"
+				{
+					"7"
+					{
+						"cloud"
+						{
+							"last_sync_state"		"synchronized"
+						}
+					}
+					"760"
+					{
+						"cloud"
+						{
+							"quota_bytes"		"20000000000"
+							"quota_files"		"50000"
+							"used_bytes"		"0"
+							"used_files"		"0"
+						}
+					}
+					"1374490"
+					{
+						"LastPlayed"		"1745857974"
+						"Playtime"		"23"
+					}
+					"2371090"
+					{
+						"cloud"
+						{
+							"last_sync_state"		"synchronized"
+						}
+					}
+					"241100"
+					{
+						"cloud"
+						{
+							"last_sync_state"		"synchronized"
+						}
+						"autocloud"
+						{
+							"lastlaunch"		"1793053087"
+							"lastexit"		"1793053084"
+						}
+					}
+					"0"
+					{
+						"Playtime2wks"		"50"
+						"Playtime"		"50"
+					}
+					"1145350"
+					{
+						"LastPlayed"		"1767309843"
+						"cloud"
+						{
+							"last_sync_state"		"conflictingchanges"
+						}
+						"autocloud"
+						{
+							"lastlaunch"		"1767308947"
+							"lastexit"		"1783722964"
+						}
+						"BadgeData"		"020000000801"
+						"Playtime"		"48"
+					}
+					"10180"
+					{
+						"LastPlayed"		"1767236496"
+						"cloud"
+						{
+							"last_sync_state"		"synchronized"
+						}
+					}
+					"3658110"
+					{
+						"LastPlayed"		"1767236496"
+					}
+					"1628350"
+					{
+						"LastPlayed"		"1767236496"
+					}
+					"10190"
+					{
+						"LastPlayed"		"1767239624"
+						"cloud"
+						{
+							"last_sync_state"		"synchronized"
+						}
+						"autocloud"
+						{
+							"lastlaunch"		"1767239348"
+							"lastexit"		"1767239624"
+						}
+						"BadgeData"		"020000000801"
+						"Playtime"		"12"
+					}
+					"1449850"
+					{
+						"1449850_eula_0"		"9"
+						"LastPlayed"		"1767284961"
+					}
+					"2399830"
+					{
+						"LastPlayed"		"1783725038"
+						"cloud"
+						{
+							"last_sync_state"		"synchronized"
+						}
+					}
+					"1161040"
+					{
+						"LastPlayed"		"1783725038"
+					}
+					"1070560"
+					{
+						"LastPlayed"		"1783725038"
+					}
+					"3107396389"
+					{
+						"BadgeData"		"020000000801"
+					}
+					"-1187570907"
+					{
+						"Playtime2wks"		"29"
+						"Playtime"		"29"
+					}
+					"4628710"
+					{
+						"LastPlayed"		"1793048794"
+					}
+					"4183110"
+					{
+						"LastPlayed"		"1793048794"
+					}
+					"1493710"
+					{
+						"LastPlayed"		"1793052087"
+					}
+					"3364029001"
+					{
+						"BadgeData"		"020000000801"
+					}
+					"-930938295"
+					{
+						"Playtime2wks"		"1"
+						"Playtime"		"1"
+					}
+				}
+			}
+		}
+	}
+}

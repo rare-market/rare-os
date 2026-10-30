@@ -1,0 +1,22 @@
+name: heroic
+title: "Heroic (Epic, GOG) game"
+tags: [games]
+needs: [probe]
+timeout_s: 60
+steps:
+  - goto: tab:library
+  - wait_for: {screen: {tab: library}, timeout_ms: 5000}
+  - goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (not automated: needs an installed Heroic game)
+# - Precondition: Heroic installed with an installed game that has an install folder
+# - Do: the game's tile, A
+#   Expect: the game, under Heroic's app id
+#   Journal: heroic --no-gui heroic://launch?... (or flatpak run com.heroicgameslauncher.hgl)
+# - Do: press the Rare button, then Running > Resume
+#   Expect: Rare Home, then the game
+# - Do: quit the game
+#   Expect: Rare within 3 s
+# - Do: launch a Heroic game that never starts (offline login, missing runner)
+#   Expect: Toast: "<game> did not start. Open it in Heroic to see why." after 90 s
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

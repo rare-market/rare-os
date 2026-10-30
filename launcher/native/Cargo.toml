@@ -1,0 +1,120 @@
+# The native Rare launcher: the React launcher's screens rebuilt on Rare Render (launcher/render).
+#   cargo build --manifest-path launcher/native/Cargo.toml
+# Library `rare_native` (the kit, the app shell, every screen workstream's screens) and the binary
+# `rare-launcher-native`.
+[package]
+name = "rare-launcher-native"
+version = "0.0.1"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+description = "Rare Launcher, native: the shell, Home, Library, game pages, Search, keyboard, Quick settings and the other screens"
+
+[lib]
+name = "rare_native"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rare-launcher-native"
+path = "src/main.rs"
+
+[[bin]]
+name = "ws13_shots"
+path = "src/bin/ws13_shots.rs"
+
+[[bin]]
+name = "storage_e2e"
+path = "src/bin/storage_e2e.rs"
+
+[[bin]]
+name = "cloudsaves_e2e"
+path = "src/bin/cloudsaves_e2e.rs"
+
+[features]
+# Share's video playback (WS 15): GStreamer is only on the device image, so CI builds without it.
+# Rarelings perks (off in this release).
+rarelings = ["rare-perks/rarelings"]
+share-video = ["dep:gstreamer", "dep:gstreamer-app", "dep:gstreamer-video"]
+
+[dependencies]
+rare-render = { path = "../render/engine" }
+# WS 14 (Phase 3): the markup screens' class strings resolve through rare-tw at run time.
+rare-tw = { path = "../crates/rare-tw" }
+# WS 14: the wallet's portfolio and activity (gRPC + the Trade API), on one tokio runtime for the screens.
+rare-sui = { path = "../crates/rare-sui" }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "http2"] }
+# The wallet: keystore, vault, signing, the review, devices (WS 10), wired by the Wallet tab.
+rare-wallet = { path = "../crates/rare-wallet" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+base64 = "0.22"
+sha2 = "0.10"
+# PIN account restore keeps the typed recovery words wiped on drop.
+zeroize = "1"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+log = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ureq = { version = "3", features = ["json"] }
+# Rare's trophy badges (SVG) for the HUD pop-ups over a game; the render engine has the same version.
+resvg = "0.49"
+libc = "0.2"
+# Parental controls: the PIN's hash (features/parental.rs).
+argon2 = "0.5"
+# The device: battery, brightness, volume, radios, power (WS 7).
+rare-system = { path = "../crates/rare-system" }
+# Library and launching (WS 6).
+rare-core = { path = "../crates/rare-core" }
+rare-library = { path = "../crates/rare-library" }
+rare-launch = { path = "../crates/rare-launch" }
+# Epic and GOG without Heroic: legendary and gogdl (separate programs), sign-in, installs, saves.
+rare-stores = { path = "../crates/rare-stores" }
+# The "On your PC" shelf: paired PCs and their games through Moonlight.
+rare-stream = { path = "../crates/rare-stream" }
+rare-discord = { path = "../crates/rare-discord" }
+# tools/journeys' probe (same files and lines as nav/journey.ts).
+rare-journey = { path = "../crates/rare-journey" }
+# Web games: the window in its own process (webhost/), the wallet bridge, gamescope's base layer.
+rare-webgame = { path = "../crates/rare-webgame" }
+rare-overlay = { path = "../crates/rare-overlay" }
+# WS 15 (Phase 4): BuySheet's QR and the market, trade, friends, store and share crates.
+qrcode = { version = "0.14", default-features = false }
+rare-market = { path = "../crates/rare-market" }
+# Fork E: the Local API for games.
+rare-localapi = { path = "../crates/rare-localapi" }
+# Ask Rare: the agent loop over the owner's own model, its tools, MCP, push to talk.
+rare-agent = { path = "../crates/rare-agent" }
+rare-trade = { path = "../crates/rare-trade" }
+rare-friends = { path = "../crates/rare-friends" }
+rare-notify = { path = "../crates/rare-notify" }
+rare-store = { path = "../crates/rare-store" }
+rare-share = { path = "../crates/rare-share" }
+# Settings: the controller, LC and RC, emulators.
+rare-input = { path = "../crates/rare-input" }
+# Android apps and games through Waydroid (Library > Android).
+rare-android = { path = "../crates/rare-android" }
+rare-emu = { path = "../crates/rare-emu" }
+# Trophies and perks (features/trophies.rs, perks.rs).
+rare-trophies = { path = "../crates/rare-trophies" }
+rare-attest = { path = "../crates/rare-attest" }
+rare-perks = { path = "../crates/rare-perks" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+gstreamer = { version = "0.24", optional = true }
+gstreamer-app = { version = "0.24", optional = true }
+gstreamer-video = { version = "0.24", optional = true }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4
+debug = "line-tables-only"
+panic = "abort"
+
+[profile.dev.package."*"]
+opt-level = 2
+
+# taffy 0.15.1 patched: a leaf or hidden containing block drops its stale hoisted list (the "Rare patch" comments).
+[patch.crates-io]
+taffy = { path = "../render/vendor/taffy" }
+# rare-wallet: assertions return the user handle (the patch src-tauri and launcher/crates use).
+webauthn-authenticator-rs = { path = "../src-tauri/vendor/webauthn-authenticator-rs" }

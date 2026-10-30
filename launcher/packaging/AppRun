@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Rare Launcher AppRun: use the system's WebKitGTK when it has one, else the bundled copy.
+#
+# The bundled WebKitGTK comes from the build host (Ubuntu 24.04). Distros like Bazzite and
+# Rare OS ship a newer one (AVIF, newer GPU paths). The launcher binary links WebKitGTK,
+# GTK and libsoup by soname with RUNPATH $ORIGIN/../lib, so pointing LD_LIBRARY_PATH at the
+# system's lib dir makes it load the system's copies; anything the system lacks still
+# resolves from the bundle through the RUNPATH. RARE_BUNDLED_WEBKIT=1 forces the bundle.
+
+# Started by Steam, LD_PRELOAD holds Steam's gameoverlayrenderer.so. It hides the controller's
+# own evdev device (Handheld Daemon's pad on the SuiPlay) from the launcher, which then only sees
+# Steam's virtual pad, and that one goes quiet whenever a Steam game has focus: no View + Menu
+# way out, no View-hold overlay over Steam games. The launcher drops it for itself; programs it
+# starts get the original value back (launch.rs clean_env).
+case "${LD_PRELOAD-}" in
+  *gameoverlayrenderer*)
+    export RARE_ORIG_LD_PRELOAD="$LD_PRELOAD"
+    kept=""
+    IFS=': ' read -r -a parts <<<"$LD_PRELOAD"
+    for p in "${parts[@]}"; do
+      case "$p" in *gameoverlayrenderer*|"") ;; *) kept="${kept:+$kept:}$p" ;; esac
+    done
+    if [ -n "$kept" ]; then export LD_PRELOAD="$kept"; else unset LD_PRELOAD; fi
+    echo "[apprun] without Steam's overlay preload (the controller stays readable)" >&2
+    ;;
+esac
+
+this_dir="$(readlink -f "$(dirname "$0")")"
+bin="$this_dir/usr/bin/rare-launcher"
+
+system_libdir() {
+  for d in /usr/lib64 /usr/lib/x86_64-linux-gnu /usr/lib /lib64; do
+    if [ -e "$d/libwebkit2gtk-4.1.so.0" ] && [ -e "$d/libjavascriptcoregtk-4.1.so.0" ]; then
+      echo "$d"
+      return 0
+    fi
+  done
+  return 1
+}
+
+if [ "${RARE_BUNDLED_WEBKIT:-0}" != "1" ] && libdir="$(system_libdir)" && command -v ldd >/dev/null 2>&1; then
+  # Every library must resolve and WebKit must come from the system, or we fall back.
+  deps="$(env LD_LIBRARY_PATH="$libdir" ldd "$bin" 2>/dev/null)"
+  if [ -n "$deps" ] && ! grep -q "not found" <<<"$deps" && grep -q "=> $libdir/libwebkit2gtk-4.1.so.0" <<<"$deps"; then
+    # Programs the launcher starts get the original value back (see launch.rs clean_env).
+    export RARE_ORIG_LD_LIBRARY_PATH="${LD_LIBRARY_PATH-}"
+    export LD_LIBRARY_PATH="$libdir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    export RARE_SYSTEM_WEBKIT=1
+    echo "[apprun] system WebKitGTK from $libdir" >&2
+    exec "$bin" "$@"
+  fi
+fi
+
+echo "[apprun] bundled WebKitGTK" >&2
+exec "$this_dir/AppRun.bundled" "$@"

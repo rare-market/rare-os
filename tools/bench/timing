@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Timing probes (read only on the device). Runs on the Mac over ssh; BENCH_HOST picks the device (default suiplay).
+#   timing boot   <build> [--boot 0]                       power-on to first launcher frame (systemd-analyze + journal [startup] lines)
+#   timing resume <build> [--boot 0] [--last 1]            resume-from-suspend latency from journal timestamps
+#   timing launch <build> <label> [--watch 120]            Play press to game focus; start it, then press Play on the device
+#   timing sleep start                                      before suspend: records capacity and energy on the device
+#   timing sleep finish <build> [--note TEXT]               after resume: sleep drain %/h and mW
+#   timing selftest                                         parser checks against tools/bench/test fixtures
+exec python3 -I "$(dirname "$0")/timing.py" "$@"

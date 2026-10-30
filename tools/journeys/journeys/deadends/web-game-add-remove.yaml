@@ -1,0 +1,34 @@
+# Library "+ Web game": the address and name on the on-screen keyboard add the game; its page's
+# Remove takes it out again.
+name: deadends-web-game-add-remove
+title: "+ Web game adds a game, Remove takes it out"
+tags: [deadends]
+needs: [probe]
+timeout_s: 150
+steps:
+  - goto: tab:library
+  - wait_for: {screen: {tab: library}, timeout_ms: 5000}
+  - press: up
+  - name: the Web game button
+    nav: {press: right, until: {focus: 'Web game'}, max: 12}
+  - name: A opens the keyboard for the address
+    press: a
+    after_ms: 800
+  - type: "deadends-check.example"
+  - name: Menu finishes the address; the name keyboard comes up with the host
+    press: start
+    after_ms: 800
+  - name: Menu finishes the name; the game is added
+    press: start
+    wait_for: {probe_text: 'is in your library', timeout_ms: 30000}
+  - goto: open:game:web:deadends-check-example
+  - wait_for: {focus: '"(Play|Resume)', timeout_ms: 8000}
+  - name: Remove on the game page
+    nav: {press: right, until: {focus: '"Remove'}, max: 8}
+  - press: a
+    after_ms: 800
+  - name: Uninstall in the sheet
+    nav: {press: left, until: {focus: '"Uninstall"'}, max: 3}
+  - press: a
+    wait_for: {probe_text: 'toast', timeout_ms: 15000}
+  - wait: 2000

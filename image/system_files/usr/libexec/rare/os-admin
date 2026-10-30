@@ -1,0 +1,284 @@
+#!/usr/bin/bash
+# The few root actions the launcher's Settings > System can ask for, run through pkexec
+# (polkit action org.rare.os.admin: the person at the device only, no password; SSH is refused).
+#
+#   os-admin update-now         start the update download now (os-update --now, on battery too)
+#   os-admin rollback [--reboot]   make the previous Rare OS version the next start (and restart)
+#   os-admin boot-menu-once     show the boot menu on the next start only
+#   os-admin undo [--reboot]    make the system from before Rare OS the next start (rare-undo)
+#   os-admin ssh on|off|status|set-password|add-key|remove-key <fp>|keep-password on|off|auto-off on|off
+#                               SSH management (ssh-lib.sh); secrets and keys come on stdin, never argv
+#   os-admin netapi on|off <port>   open or close a TCP port (1024..65535) in firewalld for the Local API
+#   os-admin factory-reset keep-games|erase-all [--later]
+#                               reset at the next start (rare-factory-reset.service), then restart now
+#                               (--later: only book it; the launcher clears its session's part, then restarts)
+# Paths can be redirected for tests, see ssh-lib.sh (RARE_ROOT and friends).
+set -euo pipefail
+# shellcheck source=ssh-lib.sh
+. "${RARE_LIB_DIR:-$(dirname "$(readlink -f "$0")")}/ssh-lib.sh"
+
+die() { echo "$*" >&2; exit 1; }
+valid_fp() { [[ "$1" =~ ^SHA256:[A-Za-z0-9+/]{43}$ ]]; }
+
+ssh_cmd() {
+    local sub="${1:-}" user keys
+    shift || true
+    case "$sub" in
+        on)
+            ssh_state_init
+            ssh_state_set state on
+            ssh_install_hardening
+            ssh_apply_auth || { ssh_state_set state off; die "ssh: login policy did not load"; }
+            ssh_ensure_on
+            ssh_fail2ban
+            ;;
+        off)
+            ssh_off
+            ;;
+        status)
+            user="$(ssh_user)"
+            keys=""
+            [[ -n "$user" ]] && keys="$(ssh_auth_keys "$user")"
+            local pwstat="no" at
+            if [[ -n "$user" ]] && [[ "$(passwd -S "$user" 2>/dev/null | awk '{print $2}')" == P ]]; then pwstat=yes; fi
+            at="$(ssh_state_get auto-off-at)"; [[ "$at" =~ ^[0-9]+$ ]] || at=none
+            local net=no port
+            port="$(ssh_state_get netapi-port)"
+            if [[ "$port" =~ ^[0-9]+$ ]]; then
+                if ssh_firewall_active; then
+                    firewall-cmd --permanent --query-port="$port/tcp" >/dev/null 2>&1 && net=yes
+                elif [[ "${RARE_NO_FIREWALL:-}" != 1 ]]; then
+                    net=yes # no firewall running, so the port is not blocked
+                fi
+            fi
+            local act=no
+            if "$SYSTEMCTL" is-active -q sshd.service 2>/dev/null || "$SYSTEMCTL" is-active -q rare-sshd-fallback.service 2>/dev/null; then act=yes; fi
+            echo "enabled=$(ssh_is_on && echo yes || echo no)"
+            echo "active=$act"
+            echo "user=$user"
+            echo "password_auth=$(ssh_password_auth_now)"
+            echo "keep_password=$([[ "$(ssh_state_get keep-password)" == yes ]] && echo yes || echo no)"
+            echo "has_password=$pwstat"
+            echo "auto_off_at=$at"
+            echo "netapi=$net"
+            echo "default_password=$([[ -n "$user" ]] && ssh_default_password "$user" && echo yes || echo no)"
+            if [[ -n "$keys" ]]; then
+                ssh_list_keys "$keys" | sed 's/^/key=/'
+            fi
+            ;;
+        set-password)
+            user="$(ssh_user)"
+            [[ -n "$user" ]] || die "ssh: no login user"
+            local pw extra
+            IFS= read -r pw || [[ -n "$pw" ]] || die "ssh: no password given"
+            if IFS= read -r -N 1 extra 2>/dev/null || [[ -n "${extra:-}" ]]; then die "ssh: the password must be one line"; fi
+            pw="${pw%$'\r'}"
+            (( ${#pw} >= 8 && ${#pw} <= 128 )) || die "ssh: the password must be 8 to 128 characters"
+            [[ "$pw" != *[[:cntrl:]]* ]] || die "ssh: the password has control characters"
+            ! ssh_is_default_word "$pw" || die "ssh: pick a password other than the default one"
+            printf '%s:%s\n' "$user" "$pw" | chpasswd || die "ssh: could not set the password"
+            ssh_apply_auth
+            ;;
+        add-key)
+            user="$(ssh_user)"
+            [[ -n "$user" ]] || die "ssh: no login user"
+            local data
+            data="$(head -c 16385; printf x)"; data="${data%x}"
+            (( ${#data} <= 16384 )) || die "ssh: more than 16 KiB of keys"
+            data="${data//$'\r'/}"
+            local line n=0 added=0 skipped=0 fp ak home
+            tmp="$(mktemp -d)"
+            trap 'rm -rf "$tmp"' EXIT
+            : >"$tmp/new"
+            while IFS= read -r line || [[ -n "$line" ]]; do
+                [[ -z "${line//[[:space:]]/}" ]] && continue
+                n=$((n + 1))
+                (( n <= 50 )) || die "ssh: more than 50 keys"
+                [[ "$line" =~ ^(ssh-ed25519|ssh-rsa|ecdsa-sha2-[a-z0-9]+|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com)[[:space:]]+[A-Za-z0-9+/=]+([[:space:]]+[^[:cntrl:]]*)?$ ]] \
+                    || die "ssh: line $n is not a plain public key (options are not allowed)"
+                printf '%s\n' "$line" >"$tmp/one"
+                ssh-keygen -l -f "$tmp/one" >/dev/null 2>&1 || die "ssh: line $n is not a valid public key"
+                printf '%s\n' "$line" >>"$tmp/new"
+            done <<<"$data"
+            (( n > 0 )) || die "ssh: no key given"
+            ak="$(ssh_auth_keys "$user")"; home="$(ssh_user_home "$user")"
+            [[ -n "$home" ]] || die "ssh: no home for $user"
+            local existing
+            existing="$(ssh_list_keys "$ak" | awk '{print $1}')"
+            : >"$tmp/add"
+            while IFS= read -r line; do
+                printf '%s\n' "$line" >"$tmp/one"
+                fp="$(ssh-keygen -l -f "$tmp/one" | awk '{print $2}')"
+                if grep -qxF "$fp" <<<"$existing"; then skipped=$((skipped + 1)); continue; fi
+                existing+=$'\n'"$fp"
+                printf '%s\n' "$line" >>"$tmp/add"
+                added=$((added + 1))
+            done <"$tmp/new"
+            mkdir -p "$home/.ssh"; chmod 0700 "$home/.ssh"
+            touch "$ak"; chmod 0600 "$ak"
+            # make sure the file ends with a newline before appending
+            [[ ! -s "$ak" || -z "$(tail -c1 "$ak")" ]] || echo >>"$ak"
+            cat "$tmp/add" >>"$ak"
+            if [[ $(id -u) == 0 ]]; then chown "$user:$(id -gn "$user")" "$home/.ssh" "$ak"; fi
+            echo "added=$added skipped=$skipped"
+            ssh_apply_auth
+            ;;
+        remove-key)
+            user="$(ssh_user)"
+            local fp="${1:-}" ak tmp2 line removed=0 f
+            valid_fp "$fp" || die "ssh: not a fingerprint"
+            ak="$(ssh_auth_keys "$user")"
+            [[ -f "$ak" ]] || die "ssh: no such key"
+            tmp2="$(mktemp)"
+            while IFS= read -r line || [[ -n "$line" ]]; do
+                f=""
+                if [[ -n "${line//[[:space:]]/}" && "${line:0:1}" != "#" ]]; then
+                    f="$(printf '%s\n' "$line" | { cat >"$tmp2.one"; ssh-keygen -l -f "$tmp2.one" 2>/dev/null | awk '{print $2}'; })"
+                fi
+                if [[ -n "$f" && "$f" == "$fp" ]]; then removed=$((removed + 1)); else printf '%s\n' "$line" >>"$tmp2"; fi
+            done <"$ak"
+            rm -f "$tmp2.one"
+            if (( removed == 0 )); then rm -f "$tmp2"; die "ssh: no such key"; fi
+            cat "$tmp2" >"$ak"; rm -f "$tmp2"
+            ssh_apply_auth
+            ;;
+        keep-password)
+            case "${1:-}" in
+                on) ssh_state_set keep-password yes ;;
+                off) ssh_state_set keep-password no ;;
+                *) die "usage: os-admin ssh keep-password on|off" ;;
+            esac
+            ssh_apply_auth
+            ;;
+        auto-off)
+            case "${1:-}" in
+                on)
+                    ssh_is_on || die "ssh: SSH is off"
+                    local at=$(( $(date +%s) + 3600 ))
+                    ssh_autooff_schedule 3600
+                    ssh_state_set auto-off-at "$at"
+                    ;;
+                off)
+                    ssh_autooff_cancel
+                    ssh_state_clear auto-off-at
+                    ;;
+                *) die "usage: os-admin ssh auto-off on|off" ;;
+            esac
+            ;;
+        *)
+            die "usage: os-admin ssh on | off | status | set-password | add-key | remove-key <fingerprint> | keep-password on|off | auto-off on|off"
+            ;;
+    esac
+}
+
+netapi_cmd() {
+    local act="${1:-}" port="${2:-}" z
+    [[ "$act" == on || "$act" == off ]] || die "usage: os-admin netapi on|off <port>"
+    [[ "$port" =~ ^[0-9]{4,5}$ ]] && (( 10#$port >= 1024 && 10#$port <= 65535 )) || die "netapi: port must be 1024 to 65535"
+    port=$((10#$port))
+    if [[ "$act" == on ]]; then
+        ssh_state_set netapi-port "$port"
+        if ssh_firewall_active; then
+            for z in $(ssh_firewall_zones); do
+                firewall-cmd --permanent --zone="$z" --add-port="$port/tcp" >/dev/null || true
+                firewall-cmd --zone="$z" --add-port="$port/tcp" >/dev/null 2>&1 || true
+            done
+        fi
+    else
+        if ssh_firewall_active; then
+            for z in $(ssh_firewall_zones); do
+                firewall-cmd --permanent --zone="$z" --remove-port="$port/tcp" >/dev/null 2>&1 || true
+                firewall-cmd --zone="$z" --remove-port="$port/tcp" >/dev/null 2>&1 || true
+            done
+        fi
+        ssh_state_clear netapi-port
+    fi
+}
+# Go back to the previous Rare OS version: the first Rare OS deployment that is not the running
+# one becomes the next start (bootc rollback does the same when it is the next entry; with the
+# pinned pre-Rare system in between, `bootc rollback` could pick that instead). A staged update
+# is dropped first, since it would be the next start otherwise. The version left is recorded in
+# update-skip.json (reason rolled-back), so automatic updates do not put it straight back.
+rollback_cmd() {
+    local json cur target name sd=/var/lib/rare
+    rpm-ostree cancel >/dev/null 2>&1 || true
+    json="$(rpm-ostree status --json)" || die "rollback: rpm-ostree status failed"
+    cur="$(jq -c '[.deployments[] | select(.booted == true)][0] | {digest: (.["container-image-reference-digest"] // null), version: (.version // null), checksum: (.checksum // null)}' <<<"$json")"
+    if jq -e '[.deployments[] | select(.staged == true)] | length > 0' <<<"$json" >/dev/null; then
+        rpm-ostree cleanup -p >/dev/null || die "rollback: could not drop the waiting update"
+        json="$(rpm-ostree status --json)"
+    fi
+    target="$(jq -r '[.deployments | to_entries[] | select(.value.booted != true and .value.staged != true)
+        | select((.value["container-image-reference"] // .value.origin // "") | test("rare-os")) | .key][0] // empty' <<<"$json")"
+    [[ -n "$target" ]] || die "There is no previous Rare OS version on this device."
+    name="$(jq -r ".deployments[$target].version // empty" <<<"$json")"
+    if [[ "$target" != 0 ]]; then
+        ostree admin set-default "$target" >/dev/null || die "rollback: could not change the next start"
+    fi
+    mkdir -p "$sd"
+    jq --argjson at "$(date +%s)" '. + {reason: "rolled-back", at: $at}' <<<"$cur" >"$sd/update-skip.json.new" &&
+        chmod 0644 "$sd/update-skip.json.new" && mv -f "$sd/update-skip.json.new" "$sd/update-skip.json"
+    rm -f "$sd/update-staged"
+    if [[ -s "$sd/update-state.json" ]]; then
+        jq '.phase = "idle" | .result = "current" | del(.stagedVersion, .notes, .offerVersion, .bytes, .bytesTotal, .steps, .stepsTotal)' "$sd/update-state.json" >"$sd/update-state.json.new" &&
+            chmod 0644 "$sd/update-state.json.new" && mv -f "$sd/update-state.json.new" "$sd/update-state.json"
+    fi
+    echo "The next start is Rare OS ${name:-the previous version}."
+    if [[ "${1:-}" == --reboot ]]; then
+        systemctl reboot
+    fi
+}
+
+case "${1:-}" in
+    update-now)
+        # A person asked: os-update --now runs on battery down to 15% and during a game. When a
+        # run is already at work (the timer's, or an earlier press), it carries on as asked for.
+        systemctl reset-failed rare-update-now.service 2>/dev/null || true
+        if ! systemd-run --no-block --unit=rare-update-now --nice=19 --property=IOSchedulingClass=idle \
+            --property=TimeoutStartSec=infinity /usr/libexec/rare/os-update --now 2>/dev/null; then
+            /usr/libexec/rare/os-update --now
+        fi
+        ;;
+    rollback)
+        rollback_cmd "${2:-}"
+        ;;
+    boot-menu-once)
+        env=/boot/grub2/grubenv
+        [[ -f "$env" ]] || { echo "no $env on this install" >&2; exit 1; }
+        remounted=false
+        if ! touch /boot/.rare-rw-test 2>/dev/null; then
+            mount -o remount,rw /boot && remounted=true
+        fi
+        rm -f /boot/.rare-rw-test
+        grub2-editenv "$env" set menu_show_once=1
+        sync "$env" 2>/dev/null || sync
+        $remounted && mount -o remount,ro /boot || true
+        ;;
+    undo)
+        exec /usr/bin/rare-undo ${2:+"$2"}
+        ;;
+    ssh)
+        shift
+        ssh_cmd "$@"
+        ;;
+    netapi)
+        shift
+        netapi_cmd "$@"
+        ;;
+    factory-reset)
+        mode="${2:-}"
+        [[ "$mode" == keep-games || "$mode" == erase-all ]] || die "usage: os-admin factory-reset keep-games|erase-all"
+        marker="${RARE_ROOT:-}/var/lib/rare/factory-reset"
+        mkdir -p "${marker%/*}"
+        printf '%s\n' "$mode" >"$marker.tmp"
+        sync "$marker.tmp" 2>/dev/null || sync
+        mv -f "$marker.tmp" "$marker"
+        sync
+        logger -t rare-factory-reset "requested: $mode, restarting" 2>/dev/null || true
+        [[ "${3:-}" == --later || "${RARE_NO_REBOOT:-}" == 1 ]] || "$SYSTEMCTL" reboot
+        ;;
+    *)
+        echo "usage: os-admin update-now | rollback [--reboot] | boot-menu-once | undo [--reboot] | ssh <on|off|status|set-password|add-key|remove-key|keep-password|auto-off> | netapi on|off <port> | factory-reset keep-games|erase-all" >&2
+        exit 2
+        ;;
+esac

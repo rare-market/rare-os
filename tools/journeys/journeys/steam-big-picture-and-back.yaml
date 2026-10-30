@@ -1,0 +1,29 @@
+name: steam-big-picture-and-back
+title: "Steam Big Picture and back to Rare"
+tags: [steam]
+needs: [probe, steam, root_or_attended]
+timeout_s: 60
+steps:
+  - goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+  - goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (not automated: opening Steam is not verifiable here; the Rare button back-to-Home flow is in core/steam-game.yaml)
+# 2026-10-27 the owner landed in Big Picture and could not get back.
+# - Precondition: Rare OS game mode, launcher on Home, Steam running quietly or not at all
+# - Do: Apps row, focus Steam, press A
+#   Expect: card "Opening Steam" with "Press the Rare button to come back to Rare." for about 1.6 s. Steam Big Picture
+#   Journal: [steam] Steam has the screen; Home brings Rare back
+#   Journal: base-layer apps [1380012613, 769] -> [769, 1380012613]
+# - Do: press the Rare button (Guide)
+#   Expect: Rare Home within 1 s. Running list: contains Steam with Resume and Close
+#   Journal: -> [1380012613, 
+# - Do: hold Guide (or View + Menu), choose Steam, Resume
+#   Expect: the "Opening Steam" card, then Big Picture
+# - Do: press the Rare button, open Running, Steam, Close (A twice)
+#   Expect: Steam processes gone within 20 s (steam -shutdown). Running list: no Steam. Rare Home
+# - Do: on Home press View
+#   Expect: nothing opens (View no longer opens Steam)
+# - Do: press the Rare button during the "Opening Steam" card
+#   Expect: stays on Rare; Steam never takes the screen
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

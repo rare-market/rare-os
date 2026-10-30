@@ -1,0 +1,24 @@
+name: first-run-happy
+title: First run, online, Welcome to Steam, controller only
+tags: [first-run, launcher]
+needs: [probe, network]
+timeout_s: 120
+start: as-is
+steps:
+  # Setup is open on Welcome (fresh config). Wi-Fi is passed over because the device is online.
+  - wait_for: {focus: "Get started"}
+  - press: a
+    expect: {focus: "Sign in with a passkey"}
+  # Not now: username and move steps are passed over without an account, Steam is next.
+  - nav: {press: right, until: {focus: "Not now"}}
+  - press: a
+    expect: {focus: "Open Steam"}
+  - nav: {press: right, until: {focus: "Skip Steam"}}
+  - press: a
+    expect: {screen: {tab: home}}
+# device checklist
+# - Power on to Welcome within about 25 s. Budget: setup 10 s with Not now and Skip Steam, about 2 min with a phone passkey.
+# - Phone passkey: Sign in with a passkey, phone, Continue, QR shows, scan, approve; setup moves on by itself.
+# - Username on the on-screen keyboard (live availability), then Move assets (I don't have a Playtron wallet ends it).
+# - Steam: Open Steam, sign in, Guide back; "Steam is ready"; Continue lands on Home. Press Play on the first game.
+# - Restart mid-setup: it reopens on the same step. Y at any step ends setup. B never leaves setup or dead-ends.

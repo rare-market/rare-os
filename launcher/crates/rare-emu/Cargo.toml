@@ -1,0 +1,23 @@
+[package]
+name = "rare-emu"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare's emulators: update checks and one-press updates for the AppImages, first-run settings tuned for the handheld, default power profiles, and the in-game action rows"
+
+[dependencies]
+rare-core = { path = "../rare-core" }
+rare-launch = { path = "../rare-launch" }
+rare-library = { path = "../rare-library" }
+rare-system = { path = "../rare-system" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "6"
+ureq = { version = "2", features = ["json"] }
+sha2 = "0.10"
+aes = "0.8"
+flate2 = "1"
+tar = "0.4"
+
+[dev-dependencies]
+tempfile = "3"

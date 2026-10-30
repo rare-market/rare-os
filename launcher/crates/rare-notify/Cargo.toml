@@ -1,0 +1,16 @@
+[package]
+name = "rare-notify"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare's notices: kinds, delivery rules, the SSE stream client, alerts, wake summary"
+
+[dependencies]
+rare-core = { path = "../rare-core" }
+rare-market = { path = "../rare-market" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+# Sample notices, alerts and a wired MockNet for UI work and golden images.
+mock = []

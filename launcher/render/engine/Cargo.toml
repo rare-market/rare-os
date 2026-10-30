@@ -1,0 +1,37 @@
+[package]
+name = "rare-render"
+version = "0.0.1"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Rare Render: the launcher's native GPU UI engine (scene, layout, text, images, animation, focus, input)"
+
+[dependencies]
+wgpu = "30"
+winit = "0.30"
+cosmic-text = "0.19"
+# Text: glyph rasterisation with our own gamma and colour glyphs (same swash cosmic-text uses),
+# grapheme-aware editing.
+swash = "0.2"
+skrifa = "0.40"
+unicode-segmentation = "1"
+taffy = "0.15"
+etagere = "0.3"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "gif", "bmp", "ico"] }
+base64 = "0.22"
+resvg = "0.49"
+bytemuck = { version = "1", features = ["derive"] }
+pollster = "0.4"
+libc = "0.2"
+ureq = "3"
+log = "0.4"
+rare-input = { path = "../../crates/rare-input" }
+# Screen readers (Orca over AT-SPI on Linux): the focus tree as an AccessKit tree.
+accesskit = "0.25"
+accesskit_winit = "0.34"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Raw Vulkan for VK_EXT_present_timing on our own swapchain (the version wgpu-hal 30 uses).
+ash = "0.38"
+evdev = "0.13"
+x11rb = "0.14"

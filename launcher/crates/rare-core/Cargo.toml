@@ -1,0 +1,11 @@
+[package]
+name = "rare-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare's shared backend types: Ctx, Error, EventSink and Event, config paths, the host hooks a front end implements"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "6"

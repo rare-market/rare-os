@@ -1,0 +1,35 @@
+name: launch-progress-and-failures
+title: "Launch progress, a game that won't start, a game that crashes"
+tags: [games]
+needs: [probe]
+timeout_s: 60
+steps:
+  - goto: tab:games
+  - wait_for: {screen: {tab: games}, timeout_ms: 5000}
+  - goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (not automated: needs hung/crashing games)
+# UX-BUILD item 14: visible launch progress, and a clear message when a game won't start or crashes.
+# - Precondition: Rare OS game mode (gamescope lists GAMESCOPE_FOCUSABLE_APPS)
+# - Do: Home, a Steam game on the stage, A, with Steam not running
+#   Expect: The stage line reads Starting Steam, then Starting <game>, then Now playing when the game's window shows
+#   Journal: [launch] steam:
+#   Journal: has a window
+# - Do: Start a game that hangs before a window (an emulator pointed at a missing ROM folder works), wait 15 s
+#   Expect: The stage line reads Still starting. B to cancel.
+# - Do: B
+#   Expect: Toast: Cancelled. The run leaves the Running list
+# - Do: Start it again and wait 45 s
+#   Expect: Sheet: <game> didn't start. Try again (closes it and starts it again) and Close
+#   Journal: : stuck
+# - Do: Start a program that exits with an error at once (a broken AppImage)
+#   Expect: Sheet: <game> didn't start. It closed before showing anything (exit code N)
+#   Journal: : quick, exit code
+# - Do: Start a game that crashes within 10 s of its first frame
+#   Expect: Toast: <game> closed unexpectedly. The stage offers Play again (A)
+#   Journal: : crash
+# - Do: Play a game for a minute and quit it from its own menu
+#   Expect: No message. Rare has the screen
+# - Do: Quit a game from the Running list within its first seconds
+#   Expect: No message (the player's own quit is never reported)
+# - Mock: cargo test --lib launch::; npx vitest run src/lib/progress.test.ts

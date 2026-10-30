@@ -1,0 +1,12 @@
+[package]
+name = "rare-tw"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+publish = false
+description = "tw!: Tailwind class strings from the web launcher, parsed at compile time into a Taffy Style and a node look for Rare Render"
+
+[dependencies]
+rare-tw-core = { path = "core", features = ["taffy"] }
+rare-tw-macros = { path = "macros" }
+taffy = "0.15"

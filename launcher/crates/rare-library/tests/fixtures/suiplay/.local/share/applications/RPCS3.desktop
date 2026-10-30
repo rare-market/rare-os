@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+	[Desktop Entry]
+	Name=RPCS3 AppImage
+	Exec=/home/bazzite/Emulation/tools/launchers/rpcs3.sh
+	Icon=/home/bazzite/.local/share/icons/emudeck/RPCS3.svg
+	Terminal=false
+	Type=Application
+	Categories=Game;
+	StartupNotify=false

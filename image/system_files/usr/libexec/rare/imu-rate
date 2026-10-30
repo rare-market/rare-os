@@ -1,0 +1,45 @@
+#!/usr/bin/bash
+# How often the SuiPlay's bmi323 IMU is read: imu-rate full|idle|get|<hz>.
+#
+# InputPlumber reads the IMU through an IIO hrtimer trigger it creates
+# ("inputplumber-iio_deviceN"), 200 Hz from its profile. Each tick is an I2C burst read in an IRQ
+# thread plus a wakeup of InputPlumber: about 6 % of a core on the idle home screen, for motion
+# that only the deck-uhid target can carry. The chip's own rate cannot change while the buffer
+# runs (the bmi323 driver returns EBUSY), but the trigger's sampling_frequency can, at once, and
+# InputPlumber simply waits longer for the next sample (it only warns after 2 s without one).
+#
+# The launcher runs this through pkexec (polkit org.rare.imu.rate, active local session only):
+# full while the pad target is deck-uhid, idle otherwise. rare-imu (system-sleep) drops the rate
+# before suspend so no read lands in the resume window ("i2c i2c-1: Transfer while suspended").
+set -uo pipefail
+
+FULL=200
+IDLE=2
+
+trigger() {
+    local d cur t
+    for d in /sys/bus/iio/devices/iio:device*; do
+        [ "$(cat "$d/name" 2>/dev/null)" = bmi323-imu ] || continue
+        cur="$(cat "$d/trigger/current_trigger" 2>/dev/null)"
+        [ -n "$cur" ] || continue
+        for t in /sys/bus/iio/devices/trigger*; do
+            [ "$(cat "$t/name" 2>/dev/null)" = "$cur" ] && { echo "$t"; return 0; }
+        done
+    done
+    return 1
+}
+
+case "${1:-}" in
+    full) hz=$FULL ;;
+    idle) hz=$IDLE ;;
+    get) hz= ;;
+    '' | *[!0-9.]*) echo "usage: imu-rate full|idle|get|<hz>" >&2; exit 2 ;;
+    *) hz=$1 ;;
+esac
+
+t="$(trigger)" || { echo "no bmi323 trigger (InputPlumber not reading the IMU)" >&2; exit 1; }
+if [ -z "$hz" ]; then
+    cat "$t/sampling_frequency"
+    exit 0
+fi
+echo "$hz" > "$t/sampling_frequency"

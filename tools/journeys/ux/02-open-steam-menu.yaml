@@ -1,0 +1,12 @@
+name: open-steam-menu
+task: "Open Steam from the Rare menu"
+fix: "Open Steam is the first row of the Rare menu's first screen (A), with X as its shortcut"
+home:
+  steps: [guide, a]
+  done: {act: SteamBigPicture}
+  was_none: true
+game:
+  open: quick
+  steps: [y]
+  done: {act: SteamBigPicture}
+  was_none: true

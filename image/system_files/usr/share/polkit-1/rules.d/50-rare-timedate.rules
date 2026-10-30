@@ -1,0 +1,8 @@
+// Rare OS: Settings > System sets the time zone and automatic time (timedatectl) for the person at
+// the device, with no password prompt (game mode has no polkit agent). Anyone else (SSH included)
+// gets the default policy.
+polkit.addRule(function (action, subject) {
+    if ((action.id === "org.freedesktop.timedate1.set-timezone" || action.id === "org.freedesktop.timedate1.set-ntp") && subject.local && subject.active) {
+        return polkit.Result.YES;
+    }
+});

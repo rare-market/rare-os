@@ -1,0 +1,59 @@
+name: perf-handheld
+title: The overlay level, a game's sharpening and a custom fan point reach mangoapp, the Vulkan layer manifests and rare-fand, then go back
+tags: [perf, settings]
+needs: [probe]
+timeout_s: 180
+steps:
+  # Quick settings with no game running: the launcher's own overlay level.
+  - goto: open:qam
+    expect: {screen: {overlay: qam}}
+  - nav: {press: down, until: {focus: '@qam-hud '}, max: 4, gap_ms: 250}
+  - nav: {press: left, until: {focus: '@qam-hud "Off"'}, max: 6, gap_ms: 450}
+  - press: right
+    expect: {focus: '@qam-hud "FPS"'}
+  - press: a
+  - mark: overlay-fps
+  - wait: 5000
+  - press: left
+    expect: {focus: '@qam-hud "Off"'}
+  - press: a
+  - mark: overlay-off
+  - wait: 3000
+  - press: b
+  # A game's Performance sheet: Sharpening Low writes its vkBasalt manifest; Use Rare's settings
+  # forgets the game's settings again (and the manifest goes).
+  - goto: open:game:${steam_game}
+    expect: {screen: {overlay: game}}
+  - nav: {press: down, until: {focus: '"Performance"'}, max: 10, gap_ms: 300}
+  - press: a
+  - wait: 1500
+  - nav: {press: down, until: {focus: '@gm-perf-8 '}, max: 12, gap_ms: 250}
+  - nav: {press: left, until: {focus: '@gm-perf-8 "Off"'}, max: 6, gap_ms: 450}
+  - press: right
+    expect: {focus: '@gm-perf-8 "Low"'}
+  - press: a
+  - mark: sharpen-low
+  - wait: 5000
+  - nav: {press: down, until: {focus: 'Use Rare.s settings'}, max: 10, gap_ms: 250}
+  - press: a
+  - mark: rare-settings
+  - wait: 3000
+  - press: b
+  - press: b
+  # The fan editor: a point up and X saves a custom curve; LB twice goes back to Balanced.
+  - goto: open:fan-curve
+  - wait_for: {focus: '@fan-points ', timeout_ms: 4000}
+  - press: up
+  - press: x
+  - mark: fan-custom
+  - wait: 5000
+  - press: lb
+  - wait: 500
+  - press: lb
+  - mark: fan-balanced
+  - wait: 3000
+  - press: b
+# device checklist (watch from ssh while it runs)
+# - overlay-fps: $MANGOHUD_CONFIGFILE (the session mangoapp's, see /proc/$(pgrep -x mangoapp)/environ) starts with fps_only; overlay-off: no_display.
+# - sharpen-low: ~/.local/share/vulkan/implicit_layer.d/rare-fx-steam_<appid>-basalt.json with enable_environment SteamAppId; rare-settings: gone.
+# - fan-custom: busctl --system get-property org.rare.Fan /org/rare/Fan org.rare.Fan Preset Curve -> custom; fan-balanced: default.

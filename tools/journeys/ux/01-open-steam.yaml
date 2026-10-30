@@ -1,0 +1,13 @@
+name: open-steam
+task: "Open Steam"
+fix: "Steam is a tile on Home's top row, one press left of your last game; Open Steam is a row in the Rare menu (and X there) and in Quick settings (and Y there)"
+home:
+  steps: [left, a]
+  done: {act: SteamBigPicture}
+  was: [down, down, down, down, down, down, a]
+  was_done: {act: 'OpenApp\("steam"\)'}
+game:
+  open: menu
+  steps: [x]
+  done: {act: SteamBigPicture}
+  was_none: true

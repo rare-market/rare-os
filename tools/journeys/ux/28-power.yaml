@@ -1,0 +1,13 @@
+name: power
+task: "Sleep, restart or turn off"
+fix: "Power is the last row of the Rare menu and Up from the top reaches it; the power button sleeps in one press"
+home:
+  steps: [guide, up, a]
+  done: {screen: {overlay: power}, focus: "Sleep"}
+  was: [guide, down, down, down]
+  was_done: {focus: "Sleep"}
+game:
+  open: power
+  steps: []
+  done: {screen: {overlay: power}, focus: "Sleep"}
+  was_same: true

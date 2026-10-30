@@ -1,0 +1,7 @@
+name: uninstall
+task: "Uninstall a game"
+fix: "Uninstall is right under Play in Options (Menu), and right after Play and Move on the game page"
+home:
+  steps: [start, down, a]
+  done: {act: 'Uninstall\("steam:1449850"\)'}
+  was: [start, down, down, down, down, down, a]

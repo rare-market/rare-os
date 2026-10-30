@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Rare",
+  "mainBinaryName": "rare-launcher",
+  "version": "0.1.0",
+  "identifier": "market.rare.launcher",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5180",
+    "beforeDevCommand": "npm run dev:ui",
+    "beforeBuildCommand": "npm run build:ui"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Rare",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 960,
+        "minHeight": 600,
+        "resizable": true,
+        "decorations": true,
+        "backgroundColor": "#100C18",
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": {
+          "allow": ["$HOME/**", "/home/**", "/var/home/**", "/run/media/**", "/media/**", "/mnt/**", "/var/mnt/**", "/usr/share/rare/**"],
+          "requireLiteralLeadingDot": false
+        }
+      }
+    }
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": { "schemes": ["rare"] }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["rpm", "deb"],
+    "linux": {
+      "appimage": { "bundleMediaFramework": true }
+    },
+    "category": "Game",
+    "shortDescription": "Rare Launcher",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.png"]
+  }
+}

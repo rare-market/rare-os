@@ -1,0 +1,150 @@
+{
+  "$comment": "Per-game data the rare.market catalog does not carry: where a web game actually plays, how the controller maps, and where native builds come from. Keyed by the catalog slug. Read by the UI (src/games) and compiled into the native side (src-tauri/src/library/profiles.rs). input: gamepad = the page reads the standard Gamepad API, Rare exposes a virtual pad with analog sticks and sends no keys; keys = buttons become keyboard events, the right stick drives a pointer. browser: chrome = the page needs features WebKitGTK lacks, open it in a Chromium browser.",
+  "games": {
+    "act": {
+      "playUrl": "https://play.actuniverse.com/",
+      "hosts": [
+        "play.actuniverse.com",
+        "actuniverse.com"
+      ],
+      "input": "gamepad",
+      "pointer": false,
+      "controls": "Left stick moves, right stick aims, triggers fire and aim. Buttons can be rebound in ACT's settings.",
+      "builtin": true
+    },
+    "pawtato-land": {
+      "playUrl": "https://pawtato.gg/",
+      "hosts": [
+        "pawtato.gg",
+        "pawtato.app"
+      ],
+      "input": "focus",
+      "focusStart": [
+        "button"
+      ],
+      "controls": "D-pad moves between the game's buttons, A presses. Explore Without Account starts as a guest."
+    },
+    "cosmocadia": {
+      "playUrl": "https://www.cosmocadia.io/",
+      "hosts": [
+        "cosmocadia.io",
+        "www.cosmocadia.io"
+      ],
+      "input": "keys",
+      "pointer": true,
+      "keys": {
+        "up": "w",
+        "down": "s",
+        "left": "a",
+        "right": "d"
+      },
+      "controls": "Left stick walks (WASD), right stick moves the pointer, RB clicks."
+    },
+    "aresrpg": {
+      "playUrl": "https://aresrpg.world/",
+      "hosts": [
+        "aresrpg.world",
+        "www.aresrpg.world"
+      ],
+      "input": "keys",
+      "pointer": true,
+      "keys": {
+        "start": "Enter",
+        "b": "Escape"
+      },
+      "controls": "Right stick moves the pointer, RB clicks. Menu presses Enter (the game starts on Enter), B is Escape. Sign in with Google or connect Rare Wallet."
+    },
+    "suuuiplash": {
+      "playUrl": null,
+      "unavailable": "Suuuiplash has no web build yet; its page is a trailer and app download."
+    },
+    "pebble-city": {
+      "playUrl": null,
+      "unavailable": "Pebble City's web page is offline right now."
+    },
+    "doubleup": {
+      "playUrl": "https://www.doubleup.io/",
+      "hosts": [
+        "doubleup.io",
+        "www.doubleup.io"
+      ],
+      "input": "keys",
+      "pointer": true,
+      "controls": "Right stick moves the pointer, RB clicks. DoubleUp blocks some regions."
+    },
+    "suifrens": {
+      "playUrl": "https://suifrens.com/",
+      "hosts": [
+        "suifrens.com"
+      ],
+      "input": "focus",
+      "controls": "D-pad moves between buttons, A presses. Connect Wallet lists Rare Wallet."
+    },
+    "sui-8192": {
+      "playUrl": null,
+      "unavailable": "Sui 8192 is no longer online."
+    },
+    "xociety": {
+      "native": {
+        "store": "Epic Games Store",
+        "storeUrl": "https://store.epicgames.com/p/xociety",
+        "titles": [
+          "XOCIETY"
+        ],
+        "how": "Get it free on the Epic Games Store. Sign in to Epic in Heroic (Desktop mode, Discover) and install it there; it shows up here when installed."
+      }
+    },
+    "eve-frontier": {
+      "native": {
+        "store": "evefrontier.com",
+        "storeUrl": "https://evefrontier.com/en",
+        "titles": [
+          "EVE Frontier"
+        ],
+        "how": "Download the Windows launcher from evefrontier.com and add it to Steam as a non-Steam game with Proton, or copy the installed game into ~/Games. It shows up here once installed."
+      }
+    },
+    "warped-universe": {
+      "native": {
+        "store": "Steam",
+        "storeUrl": "https://store.steampowered.com/app/3277880",
+        "steamAppIds": [
+          3277880
+        ],
+        "titles": [
+          "Warped Universe"
+        ],
+        "how": "Install it from Steam. It runs through Proton."
+      }
+    },
+    "super-b": {
+      "native": {
+        "store": "Steam",
+        "storeUrl": "https://store.steampowered.com/app/3728650",
+        "steamAppIds": [
+          3728650,
+          3991840
+        ],
+        "titles": [
+          "Super-B",
+          "Super-B Demo"
+        ],
+        "how": "Install it from Steam. It runs through Proton."
+      }
+    },
+    "darktimes": {
+      "native": {
+        "store": "Steam",
+        "storeUrl": "https://store.steampowered.com/app/3202760",
+        "steamAppIds": [
+          3202760
+        ],
+        "titles": [
+          "DarkTimes",
+          "DarkTimes Demo"
+        ],
+        "how": "The demo is on Steam. It runs through Proton."
+      }
+    }
+  }
+}

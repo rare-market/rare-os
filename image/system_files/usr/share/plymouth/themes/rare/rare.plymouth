@@ -1,0 +1,34 @@
+[Plymouth Theme]
+Name=Rare
+Description=Rare OS boot splash
+ModuleName=two-step
+
+[two-step]
+Font=Inter 12
+TitleFont=Inter Light 30
+ImageDir=/usr/share/plymouth/themes/rare
+DialogHorizontalAlignment=.5
+DialogVerticalAlignment=.382
+TitleHorizontalAlignment=.5
+TitleVerticalAlignment=.382
+HorizontalAlignment=.5
+VerticalAlignment=.78
+WatermarkHorizontalAlignment=.5
+WatermarkVerticalAlignment=.45
+Transition=none
+TransitionDuration=0.0
+BackgroundStartColor=0x100c18
+BackgroundEndColor=0x100c18
+ProgressBarBackgroundColor=0x231e2f
+ProgressBarForegroundColor=0x3d5afe
+MessageBelowAnimation=true
+UseFirmwareBackground=false
+
+[boot-up]
+UseEndAnimation=false
+
+[shutdown]
+UseEndAnimation=false
+
+[reboot]
+UseEndAnimation=false

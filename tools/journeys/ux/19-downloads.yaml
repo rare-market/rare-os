@@ -1,0 +1,8 @@
+name: downloads
+task: "See downloads"
+fix: "a Downloads chip with the progress sits in the top bar while anything downloads (Up, A); Downloads is always on the Rare menu's first screen"
+home:
+  env: {RR_DOWNLOADS: "1"}
+  steps: [up, a]
+  done: {screen: {overlay: downloads}}
+  was: [guide, down, down, down, a]

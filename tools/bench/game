@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# In-game capture (default 10 min). The owner starts the game by hand BEFORE running this and leaves it in the labelled scene.
+#   game run <build> <game> <scene> <tdp-watts> [--secs 600] [--note TEXT]
+# Scenario key = "<game>/<scene>/<tdp>W", so only like-for-like runs line up in `report`.
+# Frame times: put the MangoHud log in /tmp/rare-bench/mango; without it
+# the tool falls back to gamescope's 1 Hz fps counter and says so. Never run two benches at once (single stats pipe reader).
+. "$(dirname "$0")/common.sh"
+[[ "${1:-}" == run ]] || { sed -n '2,7p' "$0"; exit 2; }
+shift; build="${1:?build}"; g="${2:?game}"; scene="${3:?scene}"; tdp="${4:?tdp watts}"; shift 4
+secs=600; note=""
+while (($#)); do case "$1" in --secs) secs="$2";; --note) note="$2";; *) die "unknown flag $1";; esac; shift 2; done
+scen="$(slug "$g")/$(slug "$scene")/${tdp}W"
+id="game-$(slug "$build")-$(date +%Y%m%dT%H%M%S)"
+rrun "mkdir -p /tmp/rare-bench/mango"
+remote_start "$id" --interval 1 --secs "$secs" --pipe
+remote_wait "$id" $((secs+120)) || die "timed out"
+# attach MangoHud logs written since the sampler started (summary files skipped)
+rrun "mkdir -p /tmp/rare-bench/$id/mango; find /tmp/rare-bench/mango -maxdepth 1 -name '*.csv' ! -name '*_summary.csv' -newer /tmp/rare-bench/sampler.py -exec cp {} /tmp/rare-bench/$id/mango/ \;"
+dir="$OUTROOT/$(slug "$build")/game/$scen/$id"
+remote_pull "$id" "$dir"
+python3 -I "$BENCH_DIR/summarize.py" game "$dir" "$build" "$scen" "$note"
+echo "saved: $dir"

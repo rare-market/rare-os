@@ -1,0 +1,12 @@
+name: wifi
+task: "Connect to Wi-Fi (the networks list)"
+fix: "Up from Brightness lands on Wi-Fi; X there opens Settings on Network (it opened on System)"
+home:
+  steps: [qam, up, x]
+  done: {screen: {tab: settings}, focus: "Network"}
+  was_est: 11
+game:
+  open: quick
+  steps: [up, x]
+  done: {screen: {tab: settings}, focus: "Network"}
+  was_est: 10

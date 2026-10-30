@@ -1,0 +1,7 @@
+name: share
+task: "See and share your screenshots"
+fix: "Share is the second row of the Rare menu's first screen (it was on Home under On Sui, and in Quick settings, Capture)"
+home:
+  steps: [guide, down, a]
+  done: {screen: {overlay: share}}
+  was: [down, down, down, down, down, right, right, a]

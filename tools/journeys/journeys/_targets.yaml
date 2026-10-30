@@ -1,0 +1,8 @@
+# What the core journeys open on the owner's SuiPlay (ids from ~/.cache/rare/library.json).
+# Other devices: copy this file and change the ids. ${name} in any journey file reads from here.
+steam_game: steam:1145350        # Hades II
+steam_appid: 1145350
+emulator: app:2e462bbf61f6186a   # PPSSPP (flatpak), opens to its menu fast
+emulator_proc: org\.ppsspp\.PPSSPP|PPSSPP
+web_game: web:act                # ACT, the reference web game
+chrome_app: youtube              # YouTube TV through Chrome

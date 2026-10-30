@@ -1,0 +1,7 @@
+name: market
+task: "Buy or sell an item (the Market)"
+fix: "none needed"
+home:
+  steps: [lb, lb, lb]
+  done: {screen: {tab: market}}
+  was: [lb, lb, lb]

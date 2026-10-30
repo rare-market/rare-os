@@ -1,0 +1,18 @@
+[package]
+name = "rare-perks"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+description = "Rare's perks (Rarelings): the type, ownership detection, themes and early access; off unless built with the rarelings feature"
+
+[dependencies]
+rare-core = { path = "../rare-core" }
+rare-market = { path = "../rare-market" }
+rare-sui = { path = "../rare-sui" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1.40", features = ["rt"] }
+
+[features]
+# The one Rarelings switch (the web launcher's VITE_RARELINGS=1). Off for this release.
+rarelings = []

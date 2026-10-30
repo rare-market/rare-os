@@ -1,0 +1,24 @@
+# Android end to end: Library > Android sets Android up with one press, a small open-source game
+# from F-Droid installs and shows as a tile, plays fullscreen, quits from the Rare menu, uninstalls.
+# Needs a Rare OS image with /usr/share/waydroid-extra/channels.cfg (main 8be8909c or later).
+#
+# device checklist (a person does these, the runner cannot):
+#   - the game takes the pad natively (d-pad moves the 2048 tiles), sound plays
+#   - touch controls: set A to a spot in the editor, press A in the game: Android sees a touch there
+#   - F-Droid and Aurora Store open fullscreen and install apps; those apps show in Library > Android
+name: android-setup
+title: Library > Android sets Android up with one press (image, F-Droid, Aurora Store)
+tags: [android, device]
+needs: [probe, network]
+timeout_s: 900
+steps:
+  - goto: tab:library:android
+    expect: {screen: {tab: library}}
+  # The Android tab: Set up Android when it isn't set up yet, the stores' tiles when it is.
+  # Focus starts on the filter bar's Add: down into the tab.
+  - nav: {press: down, until: {focus: '"Set up Android"|"Aurora Store"|"F-Droid"|"Find on F-Droid"'}, max: 3, gap_ms: 350}
+  - press: a
+    continue_on_fail: true
+  # Setup: the vanilla image (about 1 GB), then F-Droid and Aurora Store. The tiles come when it is done.
+  - wait_for: {focus: '"Aurora Store"|"F-Droid"|"Find on F-Droid"', timeout_ms: 840000}
+  - mark: android-ready

@@ -1,0 +1,9 @@
+**/node_modules
+launcher/dist
+launcher/src-tauri/target
+launcher/src-tauri/gen
+out
+*.raw
+*.qcow2
+*.iso
+.git

@@ -1,0 +1,4 @@
+# No text cursor on the consoles. Between two sessions (Rare to Desktop mode and back) the screen
+# shows tty1 for a second or two after one compositor lets go and before the next one starts, and
+# its blinking "_" was all that was on it. With the cursor off that gap is plain black.
+kargs = ["vt.global_cursor_default=0"]

@@ -1,0 +1,25 @@
+name: web-game-checks
+title: "Web game, in Rare's window and in Chrome"
+tags: [games, web]
+needs: [probe, network]
+timeout_s: 60
+steps:
+  - goto: open:game:${web_game}
+  - wait_for: {focus: '"(Play|Resume|Open)', timeout_ms: 8000}
+  - name: the page is up, nothing is started
+    goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (full flow: core/web-game.yaml)
+# - Do: Sui Games, a web game, Play
+#   Expect: the game in Rare's webgame window; the pad drives it
+# - Do: hold View
+#   Expect: the panel over a dimmed frame of the game
+# - Do: B, then Home
+#   Expect: back in the game after B; Rare Home after Home; Running lists the game
+# - Do: a web game whose profile needs Chrome (or "Open in Chrome")
+#   Expect: Chrome fullscreen with the game
+#   Journal: "flatpak run com.google.Chrome --app=" in an app-steam-app scope
+#   Journal: window 0x... of pid ... tagged <id>
+# - Do: press the Rare button, then Running > the game > Quit
+#   Expect: Rare Home; Chrome gone
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

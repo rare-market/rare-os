@@ -1,0 +1,31 @@
+name: steam-game
+title: Launch a Steam game, the rescue chord (Switcher), resume, quit, back to Rare
+tags: [core, games, steam]
+needs: [probe, steam]
+timeout_s: 300
+steps:
+  - goto: open:game:${steam_game}
+  - wait_for: {focus: '"(Play|Resume)', timeout_ms: 8000}
+  - name: A on Play starts the game
+    press: a
+    allow: [black]            # Proton/Steam start goes through black; flashes still fail
+    after_ms: 500
+    wait_for: {focus_app: not_launcher, timeout_ms: 120000}
+  - name: game runs for 15 s
+    wait: 15000
+  - name: Hold Select + Start opens the Switcher over the game
+    press: exit
+    expect: {focus_app: launcher, respond_ms: 1200}
+    wait_for: {ingame: {mode: switcher}, timeout_ms: 3000}
+  - name: B resumes the game
+    press: b
+    allow: [black]
+    expect: {focus_app: not_launcher, respond_ms: 800}
+  - wait: 3000
+  - name: exit chord again
+    press: exit
+    wait_for: {ingame: {mode: switcher}, timeout_ms: 3000}
+  - name: quit the game
+    goto: quit:all
+  - name: back in Rare after the game ends
+    wait_for: {focus_app: launcher, timeout_ms: 30000}

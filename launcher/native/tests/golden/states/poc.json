@@ -1,0 +1,12 @@
+{
+  "_doc": "Golden states of the Home proof of concept (launcher/render/home-poc). Fields: id, program, title, phase, web (the scripts/shots.mjs shot it must match), fixture (else the web shot's set), screen (RR_SCREEN), script (RR_SCRIPT), res (subset of resolutions), budget (gate tools/render/budget.py on its RR_STATS log), env (extra variables). See tools/render/golden/golden.py.",
+  "programs": {
+    "home-poc": { "manifest": "launcher/render/Cargo.toml", "bin": "rare-render" }
+  },
+  "states": [
+    { "id": "poc-home", "program": "home-poc", "title": "Home, first tile focused", "phase": 0, "web": "home" },
+    { "id": "poc-home-shelf", "program": "home-poc", "title": "Home, strip moved two tiles", "phase": 0, "web": "home-shelf", "script": "right,right" },
+    { "id": "poc-library", "program": "home-poc", "title": "Library tab", "phase": 0, "web": "library", "script": "rb" },
+    { "id": "poc-home-sweep", "program": "home-poc", "title": "Budget run: along the strip and back", "phase": 0, "fixture": "default", "script": "right,right,right,right,left,left,down,up,rb,lb", "res": ["1920x1200"], "budget": true }
+  ]
+}

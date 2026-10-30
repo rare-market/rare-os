@@ -1,0 +1,169 @@
+{
+ "apps": [
+  {
+   "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_600x900.jpg",
+   "hdr": true,
+   "id": 1091500,
+   "name": "Cyberpunk 2077"
+  },
+  {
+   "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg",
+   "hdr": false,
+   "id": 1245620,
+   "name": "ELDEN RING"
+  },
+  {
+   "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg",
+   "hdr": false,
+   "id": 1086940,
+   "name": "Baldur's Gate 3"
+  },
+  {
+   "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/library_600x900.jpg",
+   "hdr": true,
+   "id": 1551360,
+   "name": "Forza Horizon 5"
+  },
+  {
+   "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/library_600x900.jpg",
+   "hdr": false,
+   "id": 1174180,
+   "name": "Red Dead Redemption 2"
+  },
+  {
+   "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/2358720/library_600x900.jpg",
+   "hdr": true,
+   "id": 2358720,
+   "name": "Black Myth: Wukong"
+  },
+  {
+   "art": null,
+   "hdr": false,
+   "id": 881448767,
+   "name": "Desktop"
+  },
+  {
+   "art": null,
+   "hdr": false,
+   "id": 1093255277,
+   "name": "Steam Big Picture"
+  }
+ ],
+ "discover": [
+  {
+   "address": "192.168.0.20",
+   "canWake": true,
+   "codecs": 197377,
+   "currentGame": 1245620,
+   "name": "Gaming-PC",
+   "online": true,
+   "paired": true,
+   "software": "Sunshine",
+   "uuid": "5F6A2B10-71C3-4E7D-9A55-0B1C2D3E4F50"
+  },
+  {
+   "address": "192.168.0.31",
+   "canWake": true,
+   "codecs": 257,
+   "currentGame": null,
+   "name": "Living-room",
+   "online": true,
+   "paired": false,
+   "software": "Sunshine",
+   "uuid": "B7E01C44-2D9A-4F10-8C3B-6A5D4E3F2A10"
+  }
+ ],
+ "hosts": [
+  {
+   "address": "192.168.0.20",
+   "canWake": true,
+   "codecs": 197377,
+   "currentGame": 1245620,
+   "name": "Gaming-PC",
+   "online": true,
+   "paired": true,
+   "software": "Sunshine",
+   "uuid": "5F6A2B10-71C3-4E7D-9A55-0B1C2D3E4F50"
+  }
+ ],
+ "status": {
+  "apps": {
+   "5F6A2B10-71C3-4E7D-9A55-0B1C2D3E4F50": [
+    {
+     "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_600x900.jpg",
+     "hdr": true,
+     "id": 1091500,
+     "name": "Cyberpunk 2077"
+    },
+    {
+     "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg",
+     "hdr": false,
+     "id": 1245620,
+     "name": "ELDEN RING"
+    },
+    {
+     "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg",
+     "hdr": false,
+     "id": 1086940,
+     "name": "Baldur's Gate 3"
+    },
+    {
+     "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/library_600x900.jpg",
+     "hdr": true,
+     "id": 1551360,
+     "name": "Forza Horizon 5"
+    },
+    {
+     "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/library_600x900.jpg",
+     "hdr": false,
+     "id": 1174180,
+     "name": "Red Dead Redemption 2"
+    },
+    {
+     "art": "https://cdn.cloudflare.steamstatic.com/steam/apps/2358720/library_600x900.jpg",
+     "hdr": true,
+     "id": 2358720,
+     "name": "Black Myth: Wukong"
+    },
+    {
+     "art": null,
+     "hdr": false,
+     "id": 881448767,
+     "name": "Desktop"
+    },
+    {
+     "art": null,
+     "hdr": false,
+     "id": 1093255277,
+     "name": "Steam Big Picture"
+    }
+   ]
+  },
+  "decode": {
+   "av1": true,
+   "h264": true,
+   "hevc": true
+  },
+  "hosts": [
+   {
+    "address": "192.168.0.20",
+    "canWake": true,
+    "codecs": 197377,
+    "currentGame": 1245620,
+    "name": "Gaming-PC",
+    "online": true,
+    "paired": true,
+    "software": "Sunshine",
+    "uuid": "5F6A2B10-71C3-4E7D-9A55-0B1C2D3E4F50"
+   }
+  ],
+  "moonlight": "flatpak",
+  "offer": null,
+  "settings": {
+   "bitrateMbps": 20,
+   "codec": "auto",
+   "fps": 60,
+   "resolution": "1920x1200"
+  }
+ }
+}

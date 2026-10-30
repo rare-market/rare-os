@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<gameList>
+	<game>
+		<path>./Jet Set Radio Future (USA)/Jet Set Radio Future (USA).iso</path>
+		<name>Jet Set Radio Future (USA)</name>
+		<playcount>1</playcount>
+		<playtime>104</playtime>
+		<lastplayed>20251228T174628</lastplayed>
+	</game>
+	<folder>
+		<path>./Jet Set Radio Future (USA)/Jet Set Radio Future (USA)(1)</path>
+		<name>Jet Set Radio Future (USA)(1)</name>
+		<lastplayed>20251228T180340</lastplayed>
+	</folder>
+	<game>
+		<path>./Jet Set Radio Future (USA)/Jet Set Radio Future (USA)(1)/Jet Set Radio Future (USA).xiso.iso</path>
+		<name>Jet Set Radio Future (USA).xiso</name>
+		<playcount>6</playcount>
+		<playtime>4</playtime>
+		<lastplayed>20251228T180340</lastplayed>
+	</game>
+	<folder>
+		<path>./Jet Set Radio Future (USA)</path>
+		<name>Jet Set Radio Future (USA)</name>
+		<lastplayed>20251228T180723</lastplayed>
+	</folder>
+	<game>
+		<path>./Jet Set Radio Future (USA)/Jet Set Radio Future (USA).xiso.iso</path>
+		<name>Jet Set Radio Future (USA).xiso</name>
+		<playcount>2</playcount>
+		<playtime>1</playtime>
+		<lastplayed>20251228T180723</lastplayed>
+	</game>
+</gameList>

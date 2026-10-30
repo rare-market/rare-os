@@ -1,0 +1,28 @@
+# Rare OS, SuiPlay0X1: runtime power management for the devices that can sleep while the device is on.
+#
+# Measured on the device: every device below already
+# autosuspends with the kernel's defaults, most of them into D3cold. This file pins that, so a base
+# image update, a tool or a stray tuning script that sets power/control=on cannot silently keep
+# them powered.
+#   USB4 hosts NHI0/1 (thunderbolt)        D3cold after 15 s idle
+#   USB4 PCIe tunnel ports 00:03.1/00:04.1  D3cold
+#   xHCI controllers with nothing plugged   D3cold (the built-in pad's xHCI stays up: its pad is
+#                                           held on by the xpad driver, which is right for latency)
+#   HDMI/DP audio (HDA at c4:00.1)          D3cold
+#   Audio coprocessor (ACP, snd_pci_ps)     D3cold (no DMIC endpoint on this board)
+#   NPU (amdxdna, 1022:1502)                D3hot after 5 s; nothing on Rare OS uses it
+#   Bluetooth (btusb)                       USB autosuspend
+# Left alone on purpose:
+#   NVMe (APST does its idle power; the driver has no runtime PM), Wi-Fi (iwlwifi runs its own
+#   power save while associated), the GPU (an APU has no runtime PM: it drives the panel), the
+#   PSP (amdgpu and the TPM use it), the card reader (already "auto", but rtsx_pci never
+#   runtime-suspends it on this kernel; its link sits in ASPM L1.2), and the unbound Phoenix
+#   dummy functions and fabric bridges.
+ACTION!="add|bind|change", GOTO="rare_rpm_end"
+ATTR{[dmi/id]product_name}!="SuiPlay0X1", GOTO="rare_rpm_end"
+
+SUBSYSTEM=="pci", DRIVER=="thunderbolt|xhci_hcd|amdxdna|snd_pci_ps|snd_hda_intel", TEST=="power/control", ATTR{power/control}="auto"
+SUBSYSTEM=="pci", KERNEL=="0000:00:03.1|0000:00:04.1", TEST=="power/control", ATTR{power/control}="auto"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", DRIVER=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="0032", TEST=="power/control", ATTR{power/control}="auto"
+
+LABEL="rare_rpm_end"

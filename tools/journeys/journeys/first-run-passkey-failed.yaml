@@ -1,0 +1,23 @@
+name: first-run-passkey-failed
+title: First run sign-in, other ways open inside setup and B comes back
+tags: [first-run, launcher, wallet]
+needs: [probe]
+timeout_s: 90
+start: as-is
+steps:
+  - wait_for: {focus: "Sign in with a passkey"}
+  - press: down
+  - press: down
+  - press: left
+    expect: {focus: "Other ways to sign in"}
+  - press: a
+    expect: {focus: "Sign in with a passkey"}
+  # Rare Wallet's Add account page is showing inside setup. B returns to the Sign in step.
+  - press: b
+    expect: {focus: "Sign in with a passkey|Other ways to sign in"}
+# device checklist
+# - Phone never scans: B or Cancel returns to the choice, nothing signed, no error.
+# - Bluetooth off: "Turn Bluetooth back on to finish with your phone." with a Turn on button.
+# - Phone without a Rare passkey: "No Rare passkey found on that phone."; Create account and a security key stay one press away.
+# - Security key PIN: PIN pad sheet with tries left, B cancels. Missing USB permission: one-line fix shown.
+# - A Ledger, Keystone, seed or watch flow lands an account and setup moves on (watch-only skips username and move).

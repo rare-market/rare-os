@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Call of Duty: Modern Warfare 2 (2009) - Multiplayer
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/10190
+Icon=steam_icon_10190
+Terminal=false
+Type=Application
+Categories=Game;

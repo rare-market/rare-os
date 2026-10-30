@@ -1,0 +1,27 @@
+[package]
+name = "rare-system"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare's device layer: performance and power profiles, per-game power, battery, fan, brightness, radios, Wi-Fi powersave, display, OS updates, frozen games, HUD toasts"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["raw_value"] }
+log = "0.4"
+dirs = "6"
+url = "2"
+rare-core = { path = "../rare-core" }
+rare-state = { path = "../rare-state" }
+rare-images = { path = "../rare-images" }
+fontdue = "0.9"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+x11rb = { version = "0.13", features = ["res", "shape"] }
+dbus = "0.9"
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,68 @@
+#!/bin/bash
+# Rare OS game mode: gamescope with Rare Launcher as the client.
+# Sourced by gamescope-session-plus with `set -a`, after device-quirks.
+
+# Take the Steam session's environment so Steam, started from the launcher,
+# behaves exactly as in Steam game mode (gamepad UI, mangoapp, VRR, keyboard).
+STEAM_SESSION_FILE=/usr/share/gamescope-session-plus/sessions.d/steam
+[[ -f "${STEAM_SESSION_FILE}" ]] && . "${STEAM_SESSION_FILE}"
+
+# If the launcher keeps failing to start, fall back to desktop mode instead of looping.
+function short_session_recover {
+    echo "rare: launcher failed to start several times, switching to desktop mode" >&2
+    command -v steamosctl >/dev/null && steamosctl switch-to-desktop-mode || true
+}
+
+# SuiPlay0X1: a portrait-native 1200x1920 panel (AYANEO 2S design), mounted right side up.
+# The OGC kernel's panel-orientation quirk for SuiPlay0X1 reports that on the connector (the
+# splash, the console and Desktop Mode use it). gamescope is told as well, in case a kernel
+# lacks the quirk: --force-orientation replaces the connector's value in gamescope, never adds
+# to it, and right is 270 degrees, the same as right_side_up, so the two cannot double-rotate.
+if [[ "${SYS_ID}" == "SuiPlay0X1" ]]; then
+    ORIENTATION=right
+fi
+
+# Docked on a TV or monitor (USB-C DP alt mode). Nothing here needs to change per display, because
+# gamescope (checked in its source, src/Backends/DRMBackend.cpp) already does all of it:
+#   - --prefer-output ranks connectors; "*,eDP-1" puts every external connector (DP-*, HDMI-A-*)
+#     ahead of the built-in panel, and on every hotplug it picks the best connected one again, so
+#     plugging in switches to the TV and unplugging switches back. The internal panel is not
+#     driven while the TV is the output (gamescope drives one connector at a time).
+#   - the mode is the TV's preferred one (3840x2160 or 1920x1080 at 60 Hz as its EDID lists it),
+#     or the one picked in Steam's display settings, remembered per display in
+#     ~/.config/gamescope/modes.cfg. No SCREEN_WIDTH/SCREEN_HEIGHT is set, so none is forced.
+#   - --force-orientation (ORIENTATION above) is applied only to connectors of type eDP, LVDS or
+#     DSI. A DP or HDMI output takes its own orientation (normal), so the TV is NOT rotated.
+#   - touch input is rotated by the orientation of the connector in use, so it follows too.
+# OUTPUT_CONNECTOR is spelled out only so the ranking is visible here; it is the base default.
+# Do not set SCREEN_WIDTH, SCREEN_HEIGHT or DRM_MODE here: they would apply to the TV as well.
+OUTPUT_CONNECTOR="*,eDP-1"
+
+# Let games that ask for tearing actually tear (Steam's "Allow tearing", low-latency mode). The
+# base session exports GAMESCOPE_DISABLE_ASYNC_FLIPS=1 as a "temporary crutch until dummy plane
+# interactions / etc are figured out" (gamescope-session-plus), so gamescope logs "Immediate flips
+# disabled from environment" and Steam's switch does nothing, although the Steam session file
+# tells Steam tearing is supported. Only the SuiPlay (fixed 60 Hz AMD panel) is changed: other
+# GPUs and panels keep the base's choice, since the crutch was for display artefacts that
+# async flips can cause next to overlay planes. Unset rather than 0: gamescope may treat any
+# value as "disabled". Revert by deleting this block.
+if [[ "${SYS_ID}" == "SuiPlay0X1" ]]; then
+    unset GAMESCOPE_DISABLE_ASYNC_FLIPS
+fi
+
+# rare-session-client runs the launcher with RARE_SESSION_CLIENT=1 (it tags its windows with an
+# app id, without which gamescope --steam never shows them; overlay/gamescope.rs; not passed to
+# Steam or games) and starts it again when asked, without ending the session. The launcher picks
+# how WebKit draws itself (render.rs): RARE_WEBKIT=gpu by default, the old
+# WEBKIT_DISABLE_DMABUF_RENDERER=1 path with `echo cpu > ~/.config/rare/webkit`.
+# RARE_WEBKIT=wayland (the launcher as a native Wayland client) needs no gamescope flag: gamescope
+# serves xdg_shell on $GAMESCOPE_WAYLAND_DISPLAY (gamescope-0) unconditionally. Do NOT add
+# --expose-wayland: it only exports WAYLAND_DISPLAY and XDG_SESSION_TYPE=wayland to every child,
+# so Steam, Proton/SDL games and Chrome would leave Xwayland. The launcher sets WAYLAND_DISPLAY
+# for itself only (render.rs) and rare-session-client gives it the app-id scope gamescope needs.
+CLIENTCMD="/usr/bin/rare-session-client"
+
+# The native launcher (Rust) is the default. It exits into the web launcher (/usr/bin/rare-launcher)
+# when it crashes, until the next boot (rare-launcher-native-run). ~/.config/rare/launcher-bin or
+# RARE_LAUNCHER_BIN in ~/.config/environment.d/*.conf picks another launcher for good.
+: "${RARE_LAUNCHER_BIN:=/usr/libexec/rare/rare-launcher-native-run}"

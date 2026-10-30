@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rare</title>
+    <link rel="icon" href="/brand/mark.png" />
+    <!-- The fonts Home draws with: Inter for text, Fira Code 400 for numbers. Fira Code 500 loads when first used. -->
+    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/brand/boot-gem.png" as="image" />
+    <!-- Same picture as Plymouth (rare.plymouth: 0x100c18, watermark 147x160, x .5, y .45), painted before any script. Boot.tsx draws the identical markup. -->
+    <style>
+      html,body{margin:0;background:#100c18}
+      .splash{position:fixed;inset:0;z-index:80;background:#100c18}
+      .splash-gem{position:absolute;left:calc((100vw - 147px) * .5);top:calc((100vh - 160px) * .45);width:147px;height:160px}
+      .splash-gem img{display:block;width:147px;height:160px}
+    </style>
+  </head>
+  <body>
+    <div id="root"><div id="splash" class="splash" aria-hidden="true"><span class="splash-gem"><img src="/brand/boot-gem.png" alt="" width="147" height="160" /></span></div></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

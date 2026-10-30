@@ -1,0 +1,24 @@
+name: settings-search
+title: Settings search finds a row and jumps to it
+tags: [settings, launcher]
+needs: [probe]
+timeout_s: 90
+steps:
+  - goto: settings
+    expect: {screen: {tab: settings}}
+  # Y opens the on-screen keyboard for the settings search.
+  - press: y
+    expect: {change: true}
+  - type: "fan"
+  - press: start
+  - wait_for: {focus: "Search"}
+  # Results are grouped by section; A on the first result jumps to that row.
+  - press: down
+    expect: {focus: "Fan"}
+  - press: a
+    expect: {focus: "Default|Cool|Quiet"}
+  # B from a result list clears the search; B again leaves Settings.
+  - press: b
+# device checklist
+# - Search "wifi", "brightness", "volume", "battery": each lists its section and A lands on the row.
+# - Search "zzzz": "No settings match" and nothing focusable except the field and the section list.

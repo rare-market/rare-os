@@ -1,0 +1,89 @@
+[2026-10-28 01:27:17] Start validating appID 1145350 on BuildID 25481925
+[2026-10-28 01:27:17] AppID 1145350 scheduler update : Priority First, not played for 25855394 seconds, update disabled for 0 seconds
+[2026-10-28 01:27:17] AppID 1145350 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:27:17] AppID 1145350 state changed : Fully Installed,Update Queued,Update Running,
+[2026-10-28 01:27:17] AppID 228980 state changed : Fully Installed,Update Running,
+[2026-10-28 01:27:17] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:17] AppID 1145350 App update changed : Running Update,Reconfiguring,
+[2026-10-28 01:27:17] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:17] AppID 1145350 App update changed : Running Update,Verifying Installed,
+[2026-10-28 01:27:41] Validation: missing file "Content\Audio\Desktop\VO\Achilles.txt"
+[2026-10-28 01:27:45] Validation: full scan in "/var/home/bazzite/.local/share/Steam/steamapps/common/Hades II" found 1/5887 mismatching files (332 bytes/11.77 GB) in 27 seconds).
+[2026-10-28 01:27:45] AppID 1145350 state changed : Fully Installed,Update Queued,Files Missing,Update Running,
+[2026-10-28 01:27:45] AppID 1145350 state changed : Update Required,Fully Installed,Update Queued,Files Missing,Update Running,
+[2026-10-28 01:27:45] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:45] AppID 1145350 App update changed : Running Update,Preallocating,
+[2026-10-28 01:27:45] AppID 1145350 preallocated 0 files (0 MB) 
+[2026-10-28 01:27:45] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:45] AppID 228980 has no changes, 3 active: 228988 (6645201662696499616),228989 (5753583882400741046),228990 (1829726630299308803), 3 target: 228988 (6645201662696499616),228989 (5753583882400741046),228990 (1829726630299308803),
+[2026-10-28 01:27:45] Start validating appID 4628710 on BuildID 25833067
+[2026-10-28 01:27:45] AppID 4628710 scheduler update : Priority First, not played for 116471 seconds, update disabled for 0 seconds
+[2026-10-28 01:27:45] AppID 4628710 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:27:45] AppID 1145350 update started : download 0/160, store 0/0, reuse 0/0, delta 0/0, stage 0/332 
+[2026-10-28 01:27:45] AppID 1145350 state changed : Update Required,Fully Installed,Update Queued,Files Missing,Update Running,Update Started,
+[2026-10-28 01:27:45] AppID 1145350 App update changed : Running Update,Staging,
+[2026-10-28 01:27:45] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:45] AppID 1145350 App update changed : Running Update,Downloading,Staging,
+[2026-10-28 01:27:45] AppID 1145350 update canceled : Priority (Suspended)
+[2026-10-28 01:27:45] AppID 1145350 App update changed : Running Update,Downloading,Staging,Stopping,
+[2026-10-28 01:27:45] Got 10 download sources and 0 caching proxies via ContentServerDirectoryService::BYieldingGetServersForSteamPipe (CellID 64 / Launcher 0)
+[2026-10-28 01:27:45] Moving to source priority class '8'
+[2026-10-28 01:27:45] Created download interface of type 'SteamCache' (7) to host cache1-sea1.steamcontent.com (cache1-sea1.steamcontent.com)
+[2026-10-28 01:27:45] Downloading 1 chunks for depot 1145352 (6846318752230433935)
+[2026-10-28 01:27:45] AppID 1145350 App update changed : Running Update,Stopping,
+[2026-10-28 01:27:45] AppID 1145350 App update changed : None
+[2026-10-28 01:27:45] AppID 228980 state changed : Fully Installed, (Suspended)
+[2026-10-28 01:27:45] AppID 1145350 state changed : Update Required,Fully Installed,Update Queued,Files Missing,Update Started, (Suspended)
+[2026-10-28 01:27:45] AppID 1145350 scheduler finished : staying in schedule (result Suspended, state 0x42e) 
+[2026-10-28 01:27:45] AppID 4628710 state changed : Fully Installed,Update Queued,Update Running,
+[2026-10-28 01:27:45] AppID 4628710 App update changed : Running Update,
+[2026-10-28 01:27:45] AppID 4628710 App update changed : Running Update,Reconfiguring,
+[2026-10-28 01:27:45] AppID 4628710 App update changed : Running Update,
+[2026-10-28 01:27:45] AppID 4628710 App update changed : Running Update,Verifying Installed,
+[2026-10-28 01:27:50] AppID 4628710 App update changed : Running Update,
+[2026-10-28 01:27:50] AppID 4628710 App update changed : None
+[2026-10-28 01:27:50] AppID 4628710 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:27:50] AppID 4628710 state changed : Fully Installed,
+[2026-10-28 01:27:50] AppID 4628710 scheduler finished : removed from schedule (result No Error, state 0xc) 
+[2026-10-28 01:27:50] Start validating appID 4183110 on BuildID 26116036
+[2026-10-28 01:27:50] AppID 4183110 scheduler update : Priority First, not played for 116476 seconds, update disabled for 0 seconds
+[2026-10-28 01:27:50] AppID 4183110 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:27:50] AppID 4183110 state changed : Fully Installed,Update Queued,Update Running,
+[2026-10-28 01:27:50] AppID 4183110 App update changed : Running Update,
+[2026-10-28 01:27:50] AppID 4183110 App update changed : Running Update,Reconfiguring,
+[2026-10-28 01:27:50] AppID 4183110 App update changed : Running Update,
+[2026-10-28 01:27:50] AppID 4183110 App update changed : Running Update,Verifying Installed,
+[2026-10-28 01:27:53] AppID 4183110 App update changed : Running Update,
+[2026-10-28 01:27:53] AppID 4183110 App update changed : None
+[2026-10-28 01:27:53] AppID 4183110 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:27:53] AppID 4183110 state changed : Fully Installed,
+[2026-10-28 01:27:53] AppID 4183110 scheduler finished : removed from schedule (result No Error, state 0xc) 
+[2026-10-28 01:27:53] AppID 1145350 state changed : Update Required,Fully Installed,Update Queued,Files Missing,Update Running,Update Started,
+[2026-10-28 01:27:53] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:53] AppID 1145350 App update changed : Running Update,Reconfiguring,
+[2026-10-28 01:27:53] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:53] Validation: read 1 files missing and 0 files corrupt for AppID 1145350
+[2026-10-28 01:27:53] AppID 1145350 App update changed : Running Update,Preallocating,
+[2026-10-28 01:27:53] AppID 1145350 preallocated 0 files (0 MB) 
+[2026-10-28 01:27:53] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:53] AppID 1145350 update started : download 0/160, store 0/0, reuse 0/0, delta 0/0, stage 0/332 
+[2026-10-28 01:27:53] AppID 1145350 App update changed : Running Update,Downloading,Staging,
+[2026-10-28 01:27:53] Downloading 1 chunks for depot 1145352 (6846318752230433935)
+[2026-10-28 01:27:53] HTTP/2 available
+[2026-10-28 01:27:53] Created ipv4-only http client
+[2026-10-28 01:27:54] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:54] AppID 1145350 App update changed : Running Update,Verifying Staged,
+[2026-10-28 01:27:54] Verified 0 MB in '/var/home/bazzite/.local/share/Steam', clean bytes tally is now 2049 MB
+[2026-10-28 01:27:54] Triggered async write of Steam library folders configuration (2 libraries).
+[2026-10-28 01:27:54] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:54] AppID 1145350 App update changed : Running Update,Committing,
+[2026-10-28 01:27:54] AppID 1145350 starting commit from "/var/home/bazzite/.local/share/Steam/steamapps/downloading/1145350" to "/var/home/bazzite/.local/share/Steam/steamapps/common/Hades II" : 1 updated, 0 moved, 0 deleted files
+[2026-10-28 01:27:54] AppID 1145350 state changed : Fully Installed,Update Queued,Update Running,
+[2026-10-28 01:27:54] AppID 1145350 finished update, 2 mounted depots (BuildID 25481925) : 1145352 (6846318752230433935),1145354 (6835783259840402797),
+[2026-10-28 01:27:54] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:54] AppID 1145350 App update changed : Running Update,Running Script,
+[2026-10-28 01:27:58] AppID 1145350 App update changed : Running Update,
+[2026-10-28 01:27:58] AppID 1145350 App update changed : None
+[2026-10-28 01:27:58] AppID 1145350 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:27:58] AppID 1145350 state changed : Fully Installed,
+[2026-10-28 01:27:58] AppID 1145350 scheduler finished : removed from schedule (result No Error, state 0xc) 

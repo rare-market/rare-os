@@ -1,0 +1,82 @@
+[2026-10-28 01:06:07] Start validating appID 1449850 on BuildID 24462996
+[2026-10-28 01:06:07] AppID 1449850 scheduler update : Priority First, not played for 25879006 seconds, update disabled for 0 seconds
+[2026-10-28 01:06:07] AppID 1449850 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:06:07] AppID 1449850 state changed : Fully Installed,Update Queued,Update Running,
+[2026-10-28 01:06:07] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:07] AppID 1449850 App update changed : Running Update,Reconfiguring,
+[2026-10-28 01:06:07] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:07] AppID 1449850 App update changed : Running Update,Verifying Installed,
+[2026-10-28 01:06:08] Validation: missing file "masterduel_Data\app.info"
+[2026-10-28 01:06:09] Validation: full scan in "/var/home/bazzite/.local/share/Steam/steamapps/common/Yu-Gi-Oh!  Master Duel" found 1/336 mismatching files (49 bytes/445.93 MB) in 1 seconds).
+[2026-10-28 01:06:09] AppID 1449850 state changed : Fully Installed,Update Queued,Files Missing,Update Running,
+[2026-10-28 01:06:09] AppID 1449850 state changed : Update Required,Fully Installed,Update Queued,Files Missing,Update Running,
+[2026-10-28 01:06:09] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:09] AppID 1449850 App update changed : Running Update,Preallocating,
+[2026-10-28 01:06:09] AppID 1449850 preallocated 0 files (0 MB) 
+[2026-10-28 01:06:09] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:09] AppID 1449850 update started : download 0/96, store 0/0, reuse 0/0, delta 0/0, stage 0/49 
+[2026-10-28 01:06:09] AppID 1449850 state changed : Update Required,Fully Installed,Update Queued,Files Missing,Update Running,Update Started,
+[2026-10-28 01:06:09] AppID 1449850 App update changed : Running Update,Downloading,Staging,
+[2026-10-28 01:06:09] Start validating appID 4628710 on BuildID 25833067
+[2026-10-28 01:06:09] AppID 4628710 scheduler update : Priority First, not played for 115175 seconds, update disabled for 0 seconds
+[2026-10-28 01:06:09] AppID 4628710 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:06:09] AppID 1449850 update canceled : Priority (Suspended)
+[2026-10-28 01:06:09] AppID 1449850 App update changed : Running Update,Downloading,Staging,Stopping,
+[2026-10-28 01:06:09] Got 10 download sources and 0 caching proxies via ContentServerDirectoryService::BYieldingGetServersForSteamPipe (CellID 64 / Launcher 0)
+[2026-10-28 01:06:09] Moving to source priority class '8'
+[2026-10-28 01:06:09] Created download interface of type 'SteamCache' (7) to host cache1-sea1.steamcontent.com (cache1-sea1.steamcontent.com)
+[2026-10-28 01:06:09] Downloading 1 chunks for depot 1449853 (2715508757752444219)
+[2026-10-28 01:06:09] AppID 1449850 App update changed : Running Update,Stopping,
+[2026-10-28 01:06:09] AppID 1449850 App update changed : None
+[2026-10-28 01:06:09] AppID 1449850 state changed : Update Required,Fully Installed,Update Queued,Files Missing,Update Started, (Suspended)
+[2026-10-28 01:06:09] AppID 1449850 scheduler finished : staying in schedule (result Suspended, state 0x42e) 
+[2026-10-28 01:06:09] AppID 4628710 state changed : Fully Installed,Update Queued,Update Running,
+[2026-10-28 01:06:09] AppID 4628710 App update changed : Running Update,
+[2026-10-28 01:06:09] AppID 4628710 App update changed : Running Update,Reconfiguring,
+[2026-10-28 01:06:09] AppID 4628710 App update changed : Running Update,
+[2026-10-28 01:06:09] AppID 4628710 App update changed : Running Update,Verifying Installed,
+[2026-10-28 01:06:15] AppID 4628710 App update changed : Running Update,
+[2026-10-28 01:06:15] AppID 4628710 App update changed : None
+[2026-10-28 01:06:15] AppID 4628710 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:06:15] AppID 4628710 state changed : Fully Installed,
+[2026-10-28 01:06:15] AppID 4628710 scheduler finished : removed from schedule (result No Error, state 0xc) 
+[2026-10-28 01:06:15] Start validating appID 4183110 on BuildID 26116036
+[2026-10-28 01:06:15] AppID 4183110 scheduler update : Priority First, not played for 115181 seconds, update disabled for 0 seconds
+[2026-10-28 01:06:15] AppID 4183110 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:06:15] AppID 4183110 state changed : Fully Installed,Update Queued,Update Running,
+[2026-10-28 01:06:15] AppID 4183110 App update changed : Running Update,
+[2026-10-28 01:06:15] AppID 4183110 App update changed : Running Update,Reconfiguring,
+[2026-10-28 01:06:15] AppID 4183110 App update changed : Running Update,
+[2026-10-28 01:06:15] AppID 4183110 App update changed : Running Update,Verifying Installed,
+[2026-10-28 01:06:18] AppID 4183110 App update changed : Running Update,
+[2026-10-28 01:06:18] AppID 4183110 App update changed : None
+[2026-10-28 01:06:18] AppID 4183110 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:06:18] AppID 4183110 state changed : Fully Installed,
+[2026-10-28 01:06:18] AppID 4183110 scheduler finished : removed from schedule (result No Error, state 0xc) 
+[2026-10-28 01:06:18] AppID 1449850 state changed : Update Required,Fully Installed,Update Queued,Files Missing,Update Running,Update Started,
+[2026-10-28 01:06:18] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:18] AppID 1449850 App update changed : Running Update,Reconfiguring,
+[2026-10-28 01:06:18] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:18] Validation: read 1 files missing and 0 files corrupt for AppID 1449850
+[2026-10-28 01:06:18] AppID 1449850 App update changed : Running Update,Preallocating,
+[2026-10-28 01:06:18] AppID 1449850 preallocated 0 files (0 MB) 
+[2026-10-28 01:06:18] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:18] AppID 1449850 update started : download 0/96, store 0/0, reuse 0/0, delta 0/0, stage 0/49 
+[2026-10-28 01:06:18] AppID 1449850 App update changed : Running Update,Downloading,Staging,
+[2026-10-28 01:06:18] Downloading 1 chunks for depot 1449853 (2715508757752444219)
+[2026-10-28 01:06:18] HTTP/2 available
+[2026-10-28 01:06:18] Created ipv4-only http client
+[2026-10-28 01:06:19] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:19] AppID 1449850 App update changed : Running Update,Verifying Staged,
+[2026-10-28 01:06:19] Verified 0 MB in '/var/home/bazzite/.local/share/Steam', clean bytes tally is now 2049 MB
+[2026-10-28 01:06:19] Triggered async write of Steam library folders configuration (1 libraries).
+[2026-10-28 01:06:19] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:19] AppID 1449850 App update changed : Running Update,Committing,
+[2026-10-28 01:06:19] AppID 1449850 starting commit from "/var/home/bazzite/.local/share/Steam/steamapps/downloading/1449850" to "/var/home/bazzite/.local/share/Steam/steamapps/common/Yu-Gi-Oh!  Master Duel" : 1 updated, 0 moved, 0 deleted files
+[2026-10-28 01:06:19] AppID 1449850 state changed : Fully Installed,Update Queued,Update Running,
+[2026-10-28 01:06:19] AppID 1449850 finished update, 1 mounted depots (BuildID 24462996) : 1449853 (2715508757752444219),
+[2026-10-28 01:06:19] AppID 1449850 App update changed : Running Update,
+[2026-10-28 01:06:19] AppID 1449850 App update changed : None
+[2026-10-28 01:06:19] AppID 1449850 state changed : Fully Installed,Update Queued,
+[2026-10-28 01:06:19] AppID 1449850 state changed : Fully Installed,
+[2026-10-28 01:06:19] AppID 1449850 scheduler finished : removed from schedule (result No Error, state 0xc) 

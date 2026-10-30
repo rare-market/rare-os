@@ -1,0 +1,8 @@
+// Rare OS: the person at the device (the active local session, where the launcher runs) sets
+// the fan preset and battery care without a prompt. rare-fand asks polkit without user
+// interaction, so anyone else is refused rather than prompted.
+polkit.addRule(function (action, subject) {
+    if (action.id === "org.rare.fan.set" || action.id === "org.rare.battery.set") {
+        return subject.local && subject.active ? polkit.Result.YES : polkit.Result.NO;
+    }
+});

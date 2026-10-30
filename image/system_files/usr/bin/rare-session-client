@@ -1,0 +1,64 @@
+#!/usr/bin/bash
+# Rare OS game mode client (CLIENTCMD in sessions.d/rare): runs the launcher and starts it again
+# when it was asked to restart, without ending the gamescope session (gamescope-session-plus tears
+# the session down when its client exits).
+#
+# How WebKit draws (launcher/src-tauri/src/render.rs) comes from RARE_WEBKIT: cpu (default, the
+# WEBKIT_DISABLE_DMABUF_RENDERER=1 path), gpu, gpuatlas, dmabuf, wayland. The setting is the first
+# word of ~/.config/rare/webkit; $XDG_RUNTIME_DIR/rare-webkit overrides it until reboot
+# (tools/webkit-ab.sh).
+#
+# wayland: the launcher is a native Wayland client of gamescope, and gamescope gives a Wayland
+# window an app id only from its process's cgroup (app-steam-app<id>-<n>.scope). So the launcher
+# runs in app-steam-app1380012613-<n>.scope (Rare's id, overlay/gamescope.rs RARE_APPID), bound to
+# this session's service so it stops with the session. If the scope cannot be made, the launcher
+# is started directly and re-executes itself into one (render.rs).
+#
+# Restart: create $XDG_RUNTIME_DIR/rare-launcher-restart, then end the launcher.
+# A test build: put its path in $XDG_RUNTIME_DIR/rare-launcher-bin (until reboot) and restart; it is
+# read on every start, so no session restart is needed. ~/.config/rare/launcher-bin does the same and
+# survives a reboot (a launcher build kept on the device until the next image ships it). The runtime
+# file wins over the config file, which wins over RARE_LAUNCHER_BIN, the session-wide default. A path
+# that is not executable is ignored, so a missing build falls back to /usr/bin/rare-launcher.
+
+run="${XDG_RUNTIME_DIR:-/tmp}"
+flag="$run/rare-launcher-restart"
+rm -f "$flag"
+rare_appid=1380012613
+# The service this runs in (gamescope-session-plus@rare.service), for BindsTo.
+service=$(sed -n 's|^0::.*/\([^/]*\.service\)$|\1|p' /proc/self/cgroup 2>/dev/null)
+n=0
+
+while :; do
+    bin="${RARE_LAUNCHER_BIN:-/usr/bin/rare-launcher}"
+    for f in "${XDG_CONFIG_HOME:-$HOME/.config}/rare/launcher-bin" "$run/rare-launcher-bin"; do
+        test_bin=""
+        [[ -r "$f" ]] && read -r test_bin _ <"$f" && [[ -x "$test_bin" ]] && bin="$test_bin"
+    done
+    mode=""
+    for f in "$run/rare-webkit" "${XDG_CONFIG_HOME:-$HOME/.config}/rare/webkit"; do
+        [[ -r "$f" ]] && read -r mode _ <"$f" && [[ -n "$mode" ]] && break
+    done
+    mode="${mode:-${RARE_WEBKIT:-cpu}}"
+    cmd=("$bin" "$@")
+    if [[ ${mode,,} == wayland ]] && command -v systemd-run >/dev/null; then
+        n=$((n + 1))
+        # gamescope reads the part after the id as a positive int (sscanf %d).
+        unit="app-steam-app${rare_appid}-$(( ($$ * 1000 + n) % 1000000000 ))"
+        cmd=(systemd-run --user --scope --collect --quiet "--unit=$unit")
+        [[ -n $service ]] && cmd+=("--property=BindsTo=$service" "--property=After=$service")
+        cmd+=(-- "$bin" "$@")
+    fi
+    echo "rare-session-client: starting $bin (RARE_WEBKIT=$mode${unit:+, scope $unit})" >&2
+    t0=$SECONDS
+    RARE_WEBKIT="$mode" RARE_SESSION_CLIENT=1 "${cmd[@]}"
+    rc=$?
+    if [[ ${cmd[0]} == systemd-run && $rc -ne 0 && $((SECONDS - t0)) -lt 3 && ! -e "$flag" ]]; then
+        echo "rare-session-client: no scope ($rc), starting the launcher directly" >&2
+        RARE_WEBKIT="$mode" RARE_SESSION_CLIENT=1 "$bin" "$@"
+        rc=$?
+    fi
+    unit=""
+    [[ -e "$flag" ]] || exit "$rc"
+    rm -f "$flag"
+done

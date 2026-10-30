@@ -1,0 +1,125 @@
+{
+ "scan": {
+  "address": "0x7f3c2a9d1b6e4f5a8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b",
+  "coins": [
+   {
+    "addressRaw": "0",
+    "amount": 42.18,
+    "coinRaw": "42180000000",
+    "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+    "decimals": 9,
+    "iconUrl": null,
+    "name": "Sui",
+    "objectBalances": [
+     "40000000000",
+     "2180000000"
+    ],
+    "objectIds": [
+     "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0000000000000000000000000000000000000000000000000000000000000002"
+    ],
+    "raw": "42180000000",
+    "symbol": "SUI"
+   },
+   {
+    "addressRaw": "0",
+    "amount": 125.5,
+    "coinRaw": "125500000",
+    "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+    "decimals": 6,
+    "iconUrl": null,
+    "name": "USD Coin",
+    "objectBalances": [
+     "125500000"
+    ],
+    "objectIds": [
+     "0x0000000000000000000000000000000000000000000000000000000000000003"
+    ],
+    "raw": "125500000",
+    "symbol": "USDC"
+   }
+  ],
+  "defaultName": "player.sui",
+  "kiosks": [
+   {
+    "capId": "0x0000000000000000000000000000000000000000000000000000000000000015",
+    "items": [
+     {
+      "collection": "Rarelings",
+      "image": null,
+      "listed": "12000000000",
+      "locked": true,
+      "name": "Rareling #77",
+      "objectId": "0x0000000000000000000000000000000000000000000000000000000000000016",
+      "transferable": true,
+      "type": "0x123::rarelings::Rareling"
+     },
+     {
+      "collection": "Rarelings",
+      "image": null,
+      "listed": null,
+      "locked": true,
+      "name": "Rareling #310",
+      "objectId": "0x0000000000000000000000000000000000000000000000000000000000000017",
+      "transferable": true,
+      "type": "0x123::rarelings::Rareling"
+     }
+    ],
+    "kioskId": "0x0000000000000000000000000000000000000000000000000000000000000014",
+    "personal": false,
+    "personalPackage": null,
+    "profits": "1500000000"
+   }
+  ],
+  "names": [
+   {
+    "domain": "player.sui",
+    "expiresMs": 1810388460000,
+    "objectId": "0x0000000000000000000000000000000000000000000000000000000000000028",
+    "subname": false
+   }
+  ],
+  "nfts": [
+   {
+    "collection": "Popkins",
+    "image": null,
+    "name": "Popkins #2231",
+    "objectId": "0x000000000000000000000000000000000000000000000000000000000000000a",
+    "type": "0xabc::popkins::Popkin"
+   },
+   {
+    "collection": "Popkins",
+    "image": null,
+    "name": "Popkins #904",
+    "objectId": "0x000000000000000000000000000000000000000000000000000000000000000b",
+    "type": "0xabc::popkins::Popkin"
+   },
+   {
+    "collection": "ACT",
+    "image": null,
+    "name": "ACT Hero: Vex",
+    "objectId": "0x000000000000000000000000000000000000000000000000000000000000000c",
+    "type": "0xdef::act::Hero"
+   }
+  ],
+  "scannedAt": 1793108460000,
+  "soulbound": [
+   {
+    "collection": "SuiPlay0X1",
+    "image": null,
+    "name": "SuiPlay0X1 Eternal",
+    "objectId": "0x0000000000000000000000000000000000000000000000000000000000000009",
+    "type": "0x8f9b::suiplay_nft::SuiPlay0x1PreorderNFT"
+   }
+  ],
+  "staked": [
+   {
+    "activationEpoch": 812,
+    "objectId": "0x000000000000000000000000000000000000000000000000000000000000001e",
+    "poolId": "0x000000000000000000000000000000000000000000000000000000000000001f",
+    "principal": "100000000000"
+   }
+  ],
+  "truncated": false
+ }
+}

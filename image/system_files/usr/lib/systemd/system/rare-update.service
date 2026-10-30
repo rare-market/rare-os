@@ -1,0 +1,13 @@
+[Unit]
+Description=Rare OS: download the next update (applied on the next reboot)
+After=network-online.target
+Wants=network-online.target
+# No ConditionACPower: os-update decides itself (charger, or battery at 30% or more, no game
+# running, no metered network) and records why it waits in /var/lib/rare/update-state.json.
+
+[Service]
+Type=oneshot
+Nice=19
+IOSchedulingClass=idle
+TimeoutStartSec=infinity
+ExecStart=/usr/libexec/rare/os-update

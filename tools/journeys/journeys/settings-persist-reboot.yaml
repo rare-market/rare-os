@@ -1,0 +1,27 @@
+name: settings-persist-reboot
+title: Settings changed here are still set after a restart (first half)
+tags: [settings, launcher]
+needs: [probe]
+timeout_s: 120
+steps:
+  - goto: settings
+    expect: {screen: {tab: settings}}
+  # Set Sounds off, Rumble off, Steam start "On Play", sleep on battery "5 min", fan Cool,
+  # brightness 50, volume 40, performance Quiet. Each press below flips one of them.
+  - nav: {press: down, until: {focus: "Sound"}}
+  - press: right
+  - press: a
+    expect: {focus: "Sounds"}
+  - nav: {press: down, until: {focus: "Controls"}}
+  - press: right
+  - press: a
+    expect: {focus: "Rumble"}
+# device checklist (the second half needs a real restart, which the runner does not do)
+# 1. Before: note brightness, volume, Sounds, Rumble, Gyro, profile, TDP, CPU boost, fan,
+#    sleep on battery and charging, battery care, Steam start mode, language, a Wi-Fi network.
+# 2. Change each one to a different value in Settings.
+# 3. Restart from Quick settings, let the launcher come up.
+# 4. Open Settings again: every value is what was set. Brightness and volume are restored by the
+#    OS and the launcher (brightness.json, WirePlumber); everything else by launcher.json,
+#    rare-fand (fan, battery care) and NetworkManager (Wi-Fi).
+# 5. Press a sound row: Sounds off means no click; Rumble off means no buzz.

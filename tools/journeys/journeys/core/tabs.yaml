@@ -1,0 +1,53 @@
+name: tabs
+title: Every top tab with RB, then all the way back with LB
+tags: [core, launcher]
+timeout_s: 120
+steps:
+  - name: RB to library
+    press: rb
+    expect: {screen: {tab: library, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: RB to games
+    press: rb
+    expect: {screen: {tab: games, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: RB to wallet
+    press: rb
+    expect: {screen: {tab: wallet, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: RB to trade
+    press: rb
+    expect: {screen: {tab: trade, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: RB to market
+    press: rb
+    expect: {screen: {tab: market, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: RB to friends
+    press: rb
+    expect: {screen: {tab: friends, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: RB to settings
+    press: rb
+    expect: {screen: {tab: settings, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: RB to home
+    press: rb
+    expect: {screen: {tab: home, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: LB to settings
+    press: lb
+    expect: {screen: {tab: settings, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: LB to friends
+    press: lb
+    expect: {screen: {tab: friends, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: LB to market
+    press: lb
+    expect: {screen: {tab: market, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: LB to trade
+    press: lb
+    expect: {screen: {tab: trade, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: LB to wallet
+    press: lb
+    expect: {screen: {tab: wallet, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: LB to games
+    press: lb
+    expect: {screen: {tab: games, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: LB to library
+    press: lb
+    expect: {screen: {tab: library, overlay: "-"}, respond_ms: 150, settle_ms: 900}
+  - name: LB to home
+    press: lb
+    expect: {screen: {tab: home, overlay: "-"}, respond_ms: 150, settle_ms: 900}

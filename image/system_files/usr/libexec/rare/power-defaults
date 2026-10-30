@@ -1,0 +1,59 @@
+#!/usr/bin/bash
+# Boot power defaults: the launcher's Balanced profile, 15 W sustained with CPU boost off.
+# The launcher applies the saved profile again when it starts; this covers boot up to then
+# and sessions without the launcher (desktop mode, Steam).
+# PowerStation keeps no settings across boots, so without this the firmware's own
+# defaults apply (on the SuiPlay0X1 about 15 W, with the CPU boosting to 5.1 GHz).
+# On a GPU-bound handheld boost mostly turns battery into heat; with it off the 7840U
+# stays at its 3.3 GHz base clock and the 780M gets more of the power budget.
+# Only the SuiPlay0X1 family for now: other handhelds keep their firmware defaults.
+set -uo pipefail
+
+PS=org.shadowblip.PowerStation
+TDP_WATTS=15
+BOOST=false
+
+product="$(cat /sys/class/dmi/id/product_name 2>/dev/null || true)"
+case "$product" in
+    SuiPlay0X1 | "AYANEO 2S") ;;
+    *) exit 0 ;;
+esac
+
+# PowerStation starts with the system; its bus name can lag the unit by a moment.
+for _ in $(seq 30); do
+    busctl --system status "$PS" >/dev/null 2>&1 && break
+    sleep 1
+done
+
+# CPU boost: through PowerStation, or straight to sysfs (it writes the same file).
+if ! busctl --system set-property "$PS" /org/shadowblip/Performance/CPU org.shadowblip.CPU BoostEnabled b "$BOOST" 2>/dev/null; then
+    [[ -w /sys/devices/system/cpu/cpufreq/boost ]] && echo 0 > /sys/devices/system/cpu/cpufreq/boost
+fi
+echo "rare: cpu boost $(cat /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || echo unknown)"
+
+# Energy preference: Balanced's balance_power (the launcher's preset). Nothing else sets it on
+# a handheld (tuned is masked), and scx_lavd's --autopower picks its mode from it.
+for epp in /sys/devices/system/cpu/cpufreq/policy*/energy_performance_preference; do
+    [[ -w "$epp" ]] && echo balance_power > "$epp" 2>/dev/null
+done
+echo "rare: energy preference $(cat /sys/devices/system/cpu/cpufreq/policy0/energy_performance_preference 2>/dev/null || echo unknown)"
+
+# TDP: the integrated card's PowerStation object (same lookup as the launcher).
+card="$(busctl --system tree --list "$PS" 2>/dev/null | grep -E '^/org/shadowblip/Performance/GPU/[cC]ard[0-9]+$' | while read -r p; do
+    busctl --system get-property "$PS" "$p" org.shadowblip.GPU.Card.TDP TDP >/dev/null 2>&1 && { echo "$p"; break; }
+done)"
+if [[ -z "$card" ]]; then
+    echo "rare: PowerStation has no TDP control here, firmware defaults stay" >&2
+    exit 0
+fi
+# Same order as the launcher's Balanced: TDP boost (slow PPT above TDP) to 0 first, because
+# RyzenAdj's TDP setter keeps the current slow-minus-STAPM gap; then RyzenAdj's
+# power-saving profile where offered; then the TDP.
+iface=org.shadowblip.GPU.Card.TDP
+busctl --system set-property "$PS" "$card" "$iface" Boost d 0 || true
+if busctl --system get-property "$PS" "$card" "$iface" PowerProfilesAvailable 2>/dev/null | grep -q '"power-saving"'; then
+    busctl --system set-property "$PS" "$card" "$iface" PowerProfile s power-saving || true
+fi
+busctl --system set-property "$PS" "$card" "$iface" TDP d "$TDP_WATTS" \
+    && echo "rare: $(busctl --system get-property "$PS" "$card" "$iface" TDP)"
+exit 0

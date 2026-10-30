@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>Rare OS</vendor>
+  <vendor_url>https://rare.market</vendor_url>
+  <action id="org.rare.wifi.powersave">
+    <description>Turn Wi-Fi power save on or off</description>
+    <message>Authentication is required to change Wi-Fi power save</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/rare/wifi-powersave</annotate>
+  </action>
+</policyconfig>

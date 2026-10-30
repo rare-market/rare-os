@@ -1,0 +1,70 @@
+# Hold the Rare button for the Switcher, and
+# quick resume: the game you leave is frozen (freeze.rs) and comes back at once.
+#
+# device checklist (a person does these, the runner cannot; read-only commands):
+#   - Switcher: Home first, then the game as a still frame of where you left it, then Recent covers
+#   - After Home from the Switcher, the game's card says Paused, and the journal has
+#     "[freeze] steam:<id> frozen (Cgroup ...)" or "(Signal ...)":
+#       journalctl --user -b | grep -E '\[freeze\]|\[switcher\]'
+#   - Frozen means frozen: for a cgroup plan,
+#       cat /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-steam-app*/cgroup.events
+#     shows "frozen 1" for the game's scope; for a signal plan, `ps -o stat= -p <game pid>` shows T.
+#     Steam (steam, steamwebhelper) is never T: `ps -o stat=,comm= -C steamwebhelper`
+#   - Battery draw while paused matches idle on Home (Quick Settings > Performance overlay, or
+#     upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep energy-rate) within 0.5 W
+#   - Resume from the Switcher: the game picks up within one second, audio comes back
+#   - Do the same with a Proton game, an emulator (PPSSPP) and Chrome (YouTube TV keeps running:
+#     apps are never paused by default; turn "Keep running in the background" off on its page to pause it)
+#   - Pause two games, then leave a third: "Close a paused game?" lists the two; closing one pauses the third
+#   - pkill rare-launcher while a game is paused: the restarted launcher logs
+#     "[freeze] thawing ... left frozen by a previous run" and the game runs again
+name: quick-resume
+title: Hold Rare for the Switcher, Home pauses the game, the Switcher resumes it
+tags: [core, overlay, games, steam]
+needs: [probe, steam]
+timeout_s: 300
+steps:
+  - goto: open:game:${steam_game}
+  - wait_for: {focus: '"(Play|Resume)', timeout_ms: 8000}
+  - name: A on Play starts the game
+    press: a
+    allow: [black]
+    after_ms: 500
+    wait_for: {focus_app: not_launcher, timeout_ms: 120000}
+  - name: game runs for 15 s
+    wait: 15000
+  - name: Holding the Rare button opens the Switcher over the game, on the game's card
+    press: guide_hold
+    expect: {focus_app: launcher, respond_ms: 1500}
+    wait_for: {ingame: {mode: switcher}, focus: 'switcher-running', timeout_ms: 3000}
+  - name: B goes back to the game
+    press: b
+    allow: [black]
+    expect: {focus_app: not_launcher, respond_ms: 800}
+  - wait: 3000
+  - name: Switcher again
+    press: guide_hold
+    wait_for: {ingame: {mode: switcher}, timeout_ms: 3000}
+  - name: Home card
+    nav: {press: left, until: {focus: '"Home'}, max: 4}
+  - name: A on Home leaves the game for Home (it pauses)
+    press: a
+    expect: {focus_app: launcher, screen: {tab: home}, respond_ms: 600}
+  - wait: 2000
+  - name: The Switcher over the launcher shows the game (Paused)
+    press: guide_hold
+    wait_for: {screen: {overlay: running}, timeout_ms: 3000}
+  - name: Its card
+    nav: {press: right, until: {focus: 'switcher-running "(?!Home)'}, max: 4}
+  - name: A resumes it at once
+    press: a
+    allow: [black]
+    expect: {focus_app: not_launcher, respond_ms: 1000}
+  - wait: 3000
+  - name: View + Menu (the rescue) is the Switcher too
+    press: exit
+    wait_for: {ingame: {mode: switcher}, timeout_ms: 3000}
+  - press: b
+  - name: quit the game
+    goto: quit:all
+  - wait_for: {focus_app: launcher, timeout_ms: 30000}

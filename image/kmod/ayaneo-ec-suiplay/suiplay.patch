@@ -1,0 +1,129 @@
+--- a/ayaneo-ec.c
++++ b/ayaneo-ec.c
+@@ -75,80 +75,34 @@
+ 	.has_magic_modules = true,
+ };
+ 
++/*
++ * Rare OS: the SuiPlay0X1 only. It is an AYANEO 2S built for Mysten Labs, but its DMI vendor
++ * is "Mysten Labs, Inc." so the AYANEO matches never bind. Same match and quirk as Bazzite's
++ * kernel (hhd-dev/patchwork bazzite-6.17, eb581f2e06d3 "add suiplay"): fan control only by
++ * default. Built as its own module (ayaneo_ec_suiplay) so real AYANEO devices keep the
++ * kernel's stock, signed ayaneo_ec.
++ */
+ static const struct dmi_system_id dmi_table[] = {
+ 	{
+ 		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_EXACT_MATCH(DMI_BOARD_NAME, "AYANEO 2S"),
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Mysten Labs, Inc."),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SuiPlay0X1"),
+ 		},
+-		.driver_data = (void *)&quirk_charge_limit,
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_MATCH(DMI_BOARD_NAME, "AYANEO 2"),
+-		},
+ 		.driver_data = (void *)&quirk_fan,
+ 	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_MATCH(DMI_BOARD_NAME, "FLIP"),
+-		},
+-		.driver_data = (void *)&quirk_fan,
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_MATCH(DMI_BOARD_NAME, "GEEK"),
+-		},
+-		.driver_data = (void *)&quirk_fan,
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_EXACT_MATCH(DMI_BOARD_NAME, "AIR"),
+-		},
+-		.driver_data = (void *)&quirk_charge_limit,
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_EXACT_MATCH(DMI_BOARD_NAME, "AIR 1S"),
+-		},
+-		.driver_data = (void *)&quirk_charge_limit,
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_EXACT_MATCH(DMI_BOARD_NAME, "AB05-Mendocino"),
+-		},
+-		.driver_data = (void *)&quirk_charge_limit,
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_EXACT_MATCH(DMI_BOARD_NAME, "AIR Pro"),
+-		},
+-		.driver_data = (void *)&quirk_charge_limit,
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_EXACT_MATCH(DMI_BOARD_NAME, "KUN"),
+-		},
+-		.driver_data = (void *)&quirk_charge_limit,
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
+-			DMI_EXACT_MATCH(DMI_BOARD_NAME, "AYANEO 3"),
+-		},
+-		.driver_data = (void *)&quirk_ayaneo3,
+-	},
+ 	{},
+ };
+ 
++/*
++ * Rare OS: charge_control=1 adds the AYANEO 2S charge quirk (EC reg 0x1e, 0xaa auto / 0x55
++ * inhibit) as BAT0 charge_behaviour, the same power_supply extension upstream registers for
++ * the 2S, Air and Kun. Off by default until the register is proven on the SuiPlay's EC. Read
++ * once at probe; refused (fan only) unless 0x1e reads 0xaa or 0x55, and the value is logged.
++ */
++static bool charge_control;
++module_param(charge_control, bool, 0444);
++MODULE_PARM_DESC(charge_control, "Expose BAT0 charge_behaviour (auto, inhibit-charge) on the SuiPlay0X1 (default off)");
++
+ /* Callbacks for hwmon interface */
+ static umode_t ayaneo_ec_hwmon_is_visible(const void *drvdata,
+ 					  enum hwmon_sensor_types type, u32 attr,
+@@ -484,6 +438,19 @@
+ 
+ 	data->pdev = pdev;
+ 	data->quirks = dmi_entry->driver_data;
++	if (charge_control && !data->quirks->has_charge_control) {
++		u8 reg = 0;
++
++		/* Only an EC whose 0x1e holds one of the two known values gets writes. */
++		ret = ec_read(AYANEO_CHARGE_REG, &reg);
++		if (!ret && (reg == AYANEO_CHARGE_VAL_AUTO || reg == AYANEO_CHARGE_VAL_INHIBIT)) {
++			dev_info(&pdev->dev, "charge control on, EC 0x1e = 0x%02x\n", reg);
++			data->quirks = (struct ayaneo_ec_quirk *)&quirk_charge_limit;
++		} else {
++			dev_warn(&pdev->dev, "charge control off: EC 0x1e = 0x%02x (%d), not 0xaa or 0x55\n",
++				 reg, ret);
++		}
++	}
+ 	ret = devm_mutex_init(&pdev->dev, &data->hwmon_lock);
+ 	if (ret)
+ 		return ret;
+@@ -596,5 +563,5 @@
+ module_exit(ayaneo_ec_exit);
+ 
+ MODULE_AUTHOR("Antheas Kapenekakis <lkml@antheas.dev>");
+-MODULE_DESCRIPTION("Ayaneo Embedded Controller (EC) platform features");
++MODULE_DESCRIPTION("Ayaneo Embedded Controller (EC) platform features, SuiPlay0X1 match (Rare OS)");
+ MODULE_LICENSE("GPL");

@@ -1,0 +1,23 @@
+#!/usr/bin/bash
+# boot-stamp check|write NAME [PATH...]
+# Lets a regenerate-on-every-boot unit skip the work when nothing it depends on changed.
+# The key is the booted ostree deployment (it changes with every image update) plus a listing of
+# the local inputs (PATH...). `check` exits 0 when the work must run (no stamp, other key, or its
+# output is missing) and 1 when the stamp is current, which ExecCondition= treats as "skip".
+set -u
+mode=${1:?}; name=${2:?}; shift 2
+dir=/var/lib/rare/stamps
+deploy=$(tr ' ' '\n' </proc/cmdline | sed -n 's/^ostree=//p')
+key=$({ echo "$deploy"; for p in "$@"; do [[ -e $p ]] && find "$p" -printf '%p %y %s %T@\n' 2>/dev/null | sort; done; } | sha256sum | cut -d' ' -f1)
+case $mode in
+    check)
+        case $name in
+            ca-trust) [[ -s /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem ]] || exit 0 ;;
+            crypto-policies) [[ -s /etc/crypto-policies/back-ends/opensslcnf.config ]] || exit 0 ;;
+        esac
+        [[ -n $deploy && -r $dir/$name && "$(cat "$dir/$name")" == "$key" ]] && exit 1
+        exit 0 ;;
+    write)
+        mkdir -p "$dir" && echo "$key" >"$dir/$name.new" && mv "$dir/$name.new" "$dir/$name" ;;
+    *) exit 2 ;;
+esac

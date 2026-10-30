@@ -1,0 +1,11 @@
+[Unit]
+Description=Rare OS: hide the boot menu after a good boot
+RequiresMountsFor=/boot
+ConditionPathExists=!/var/lib/rare/boot-menu-hidden
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/boot-menu
+
+[Install]
+WantedBy=multi-user.target

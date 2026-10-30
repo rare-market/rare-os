@@ -1,0 +1,61 @@
+"AppState"
+{
+	"appid"		"10180"
+	"Universe"		"1"
+	"name"		"Call of Duty: Modern Warfare 2 (2009)"
+	"StateFlags"		"4"
+	"installdir"		"Call of Duty Modern Warfare 2"
+	"LastUpdated"		"1793052885"
+	"LastPlayed"		"0"
+	"SizeOnDisk"		"12100050737"
+	"StagingSize"		"0"
+	"buildid"		"25374375"
+	"LastOwner"		"76561199848316363"
+	"DownloadType"		"1"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"9845173728"
+	"BytesDownloaded"		"9845173728"
+	"BytesToStage"		"9858493413"
+	"BytesStaged"		"9858493413"
+	"TargetBuildID"		"25374375"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"10182"
+		{
+			"manifest"		"4763212243329962648"
+			"size"		"4342862075"
+		}
+		"10181"
+		{
+			"manifest"		"1062961790043692801"
+			"size"		"4604997"
+		}
+		"10183"
+		{
+			"manifest"		"7912706349157053103"
+			"size"		"7752583665"
+		}
+	}
+	"InstallScripts"
+	{
+		"10181"		"installscript.vdf"
+	}
+	"SharedDepots"
+	{
+		"228989"		"228980"
+		"228990"		"228980"
+	}
+	"UserConfig"
+	{
+		"language"		"english"
+		"BetaKey"		"public"
+	}
+	"MountedConfig"
+	{
+		"language"		"english"
+		"BetaKey"		"public"
+	}
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description=Rare OS: look for updates (the updater checks once a day and retries a waiting download)
+
+[Timer]
+OnBootSec=15min
+# Hourly so a download that waited (battery, a game, a metered network) or stopped goes on soon;
+# os-update does nothing when it checked in the last 20 hours and nothing is pending.
+OnUnitInactiveSec=1h
+RandomizedDelaySec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

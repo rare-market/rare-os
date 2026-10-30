@@ -1,0 +1,11 @@
+[Unit]
+Description=Rare OS: keep the previous system in the boot menu
+After=rpm-ostreed.service
+Before=rare-signed-switch.service rare-update.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/keep-previous-os
+
+[Install]
+WantedBy=multi-user.target

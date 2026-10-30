@@ -1,0 +1,5 @@
+# Rare OS installs (USB installer and bootc install to-disk) have no separate /boot partition, so
+# systemd-gpt-auto-generator would automount the EFI partition over /boot. ostree then can't
+# remount /boot to finish a staged update at shutdown ("Remounting /boot read-write: Invalid
+# argument") and the device quietly keeps booting the old system. Seen in the VM rebase test.
+kargs = ["systemd.gpt_auto=0"]

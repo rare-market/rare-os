@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+	[Desktop Entry]
+	Name=Xenia (Proton)
+	Exec=/home/bazzite/Emulation/tools/launchers/xenia.sh
+	Icon=/home/bazzite/.local/share/icons/emudeck/Xenia.png
+	Terminal=False
+	Type=Application
+	Categories=Game;
+	StartupNotify=false

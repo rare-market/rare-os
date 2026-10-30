@@ -1,0 +1,32 @@
+[package]
+name = "rare-pin-guard"
+version = "0.1.0"
+edition = "2021"
+description = "Rare OS PIN guard: checks the PIN of a Rare Wallet PIN account's device key, counts wrong tries, locks after five, and lets a backup passkey unlock it; the record is root-only and sealed with systemd-creds (TPM2)"
+license = "MIT"
+publish = false
+
+[[bin]]
+name = "rare-pin-guard"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+argon2 = { version = "0.5", features = ["zeroize"] }
+hmac = "0.12"
+hkdf = "0.12"
+sha2 = "0.10"
+p256 = { version = "0.13", features = ["ecdsa"] }
+rand_core = { version = "0.6", features = ["getrandom"] }
+zeroize = { version = "1", features = ["derive"] }
+libc = "0.2"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[workspace]

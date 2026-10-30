@@ -1,0 +1,8 @@
+// Rare OS: the launcher (in the active local session) turns Wi-Fi power save off while a game
+// or stream has the screen, through `pkexec /usr/libexec/rare/wifi-powersave on|off`. Only that
+// action, only the person at the device; anyone else (SSH included) is refused, not prompted.
+polkit.addRule(function (action, subject) {
+    if (action.id === "org.rare.wifi.powersave") {
+        return subject.local && subject.active ? polkit.Result.YES : polkit.Result.NO;
+    }
+});

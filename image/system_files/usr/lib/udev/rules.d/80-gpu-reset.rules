@@ -1,0 +1,8 @@
+# Overrides the base image's rule of the same name, which only matches /dev/dri/card0.
+# The SuiPlay's GPU is card1, so match any DRM card node (only amdgpu sends RESET/PID/FLAGS).
+
+# If a GPU crash is caused by a specific process, kill the PID
+ACTION=="change", SUBSYSTEM=="drm", ENV{DEVNAME}=="/dev/dri/card[0-9]*", ENV{RESET}=="1", ENV{PID}!="0", RUN+="/sbin/kill -9 %E{PID}"
+
+# Kill SDDM and Gamescope if the GPU crashes and VRAM is lost
+ACTION=="change", SUBSYSTEM=="drm", ENV{DEVNAME}=="/dev/dri/card[0-9]*", ENV{RESET}=="1", ENV{FLAGS}=="1", RUN+="/usr/sbin/systemctl restart sddm"

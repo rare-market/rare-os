@@ -1,0 +1,25 @@
+# Without this file the SuiPlay matches generic.toml (no TDP, no GPU clock), so Steam's Quick
+# Access menu has no Performance sliders. Same shape as Bazzite's ayaneo-2.toml.
+# Steam's slider only sets TDP; steamos-manager has no key for PowerStation's Boost or the PPTs,
+# so the launcher's watcher must keep Boost at 0.
+# Not set here: [inputplumber] target_devices, which belongs to the controller work.
+[[device]]
+dmi.sys_vendor = "Mysten Labs, Inc."
+dmi.product_name = "SuiPlay0X1"
+device = "suiplay0x1"
+variant = "SuiPlay0X1"
+friendly_name = "SuiPlay0X1"
+
+[tdp_limit]
+method = "power_station"
+download_mode_limit = 6
+
+[tdp_limit.range]
+min = 5
+max = 28
+
+[gpu_performance]
+driver = "amdgpu"
+
+[gpu_power_profile]
+driver = "amdgpu"

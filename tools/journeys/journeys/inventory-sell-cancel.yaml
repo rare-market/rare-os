@@ -1,0 +1,36 @@
+# Inventory, item, sell, cancel. The runner walks to the sell sheet of the first item and backs out;
+# it never presses Sell, List or Cancel listing (those sign on the real chain). A person does those.
+#
+# device checklist (account with Sui game items, one with an offer, one listed):
+#   - Wallet > Collectibles: one list, a section per game with item count and floor value;
+#     each item shows its price or Not listed, last sale, and a Floor line
+#   - A on an item opens its sheet: Floor, Best offer, Last sale; Sell for X SUI is focused when an offer exists
+#   - Sell: the Rare Wallet review sheet appears; after approving, the item leaves the list at once
+#     (before the indexer), and a "sold" notice a few seconds later does not bring it back
+#   - Reject the review: the item is still there, nothing changes
+#   - List for floor: the item shows Listed at once; Cancel listing: it shows Not listed at once
+#   - An "offer received" notice shows Accept offer on Menu; pressing it opens the review sheet; with a better
+#     offer open now it opens the item sheet instead and signs nothing
+#   - Send from the sheet opens Send collectibles for that item
+name: inventory-sell-cancel
+title: Inventory to item to sell sheet and back out
+tags: [wallet, inventory, market]
+needs: [probe]
+timeout_s: 90
+steps:
+  - goto: wallet
+    expect: {screen: {tab: wallet}}
+  - press: rt
+    expect: {respond_ms: 300}
+  - wait: 600
+  - press: a
+    expect: {respond_ms: 300}
+  - wait: 800
+  - nav:
+      press: down
+      until: {focus: "Other price|Send|Cancel listing"}
+  - press: b
+    expect: {respond_ms: 300}
+  - press: b
+  - goto: home
+    expect: {screen: {tab: home}}

@@ -1,0 +1,67 @@
+#!/usr/bin/bash
+# The device's names, before the network and mDNS start.
+#
+# 1. Network name kept: a device that switched from another OS keeps the name it answered to. A
+#    device with no name of its own (empty /etc/hostname) is called by its OS's default name, so
+#    after the switch it would answer as "rare" instead of, say, "bazzite", and `ssh bazzite.local`
+#    would stop finding it. If no name was ever set, this sets the previous system's default name
+#    as the device's own. Fresh installs (no previous system) keep "rare".
+# 2. Network name changed only on request: `rare.hostname=<name>` in /etc/rare/settings.conf sets
+#    the static hostname (what Steam shows as the computer name, gethostname(), and the mDNS name:
+#    <name>.local). Nothing else ever renames a device, so ssh keeps working until someone asks.
+# 3. Display name: on a SuiPlay0X1 with no pretty hostname yet, PRETTY_HOSTNAME=SuiPlay and
+#    CHASSIS=handheld in /etc/machine-info (what desktop mode and hostnamectl show). With
+#    rare.hostname set, the pretty name follows it.
+set -uo pipefail
+valid() { [[ "$1" =~ ^[A-Za-z0-9][A-Za-z0-9-]{0,62}$ ]]; }
+
+machine_info() { # key value: set unless the key is already there (force=1: replace)
+    local f=/etc/machine-info key=$1 val=$2
+    if grep -q "^$key=" "$f" 2>/dev/null; then
+        [[ ${force:-0} == 1 ]] || return 0
+        sed -i "s|^$key=.*|$key=\"$val\"|" "$f"
+    else
+        printf '%s="%s"\n' "$key" "$val" >>"$f"
+    fi
+    echo "rare: $key=$val in /etc/machine-info"
+}
+
+want="$(sed -n 's/^[[:space:]]*rare\.hostname[[:space:]]*=[[:space:]]*//p' /etc/rare/settings.conf 2>/dev/null | tr -d "\"'[:space:]" | tail -1)"
+product="$(cat /sys/class/dmi/id/product_name 2>/dev/null)"
+
+if [[ -n "$want" ]]; then
+    if valid "$want"; then
+        if [[ "$(tr -d '[:space:]' </etc/hostname 2>/dev/null)" != "$want" ]]; then
+            printf '%s\n' "$want" >/etc/hostname
+            echo "rare: network name set to '$want' (rare.hostname)"
+        fi
+        hostname "$want"
+        force=1 machine_info PRETTY_HOSTNAME "$want"
+    else
+        echo "rare: rare.hostname '$want' is not a valid hostname (letters, digits, -), ignored" >&2
+    fi
+fi
+
+if [[ "$product" == SuiPlay0X1 ]]; then
+    machine_info PRETTY_HOSTNAME SuiPlay
+    machine_info CHASSIS handheld
+fi
+
+grep -q '[^[:space:]]' /etc/hostname 2>/dev/null && exit 0
+
+booted=""
+arg="$(tr ' ' '\n' </proc/cmdline | sed -n 's/^ostree=//p')"
+[[ -n "$arg" ]] && booted="$(readlink -f "/sysroot$arg")"
+name=""
+for d in /sysroot/ostree/deploy/*/deploy/*.[0-9]*; do
+    [[ -d "$d" && "$(readlink -f "$d")" != "$booted" ]] || continue
+    f="$d/usr/lib/os-release"
+    [[ -r "$f" ]] || continue
+    grep -qE '^NAME="?Rare OS' "$f" && continue
+    name="$(sed -n 's/^DEFAULT_HOSTNAME=//p' "$f" | tr -d "\"'" | head -1)"
+    [[ -n "$name" ]] && break
+done
+valid "$name" || exit 0
+printf '%s\n' "$name" > /etc/hostname
+hostname "$name"
+echo "rare: kept the network name '$name' from the previous system"

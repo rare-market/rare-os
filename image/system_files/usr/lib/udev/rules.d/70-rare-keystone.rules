@@ -1,0 +1,5 @@
+# Rare OS: Keystone 3 Pro (USB 1209:3001) for Rare Wallet.
+# uaccess gives the logged-in user access without sudo. Sorted before 73-seat-late.rules,
+# which applies the uaccess tag.
+# FIDO security keys need no rule here: systemd 60-fido-id.rules already tags them uaccess.
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="3001", TAG+="uaccess"

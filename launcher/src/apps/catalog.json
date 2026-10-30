@@ -1,0 +1,148 @@
+{
+  "$comment": "Media and chat apps on Home and in Library > Apps. Read by the UI (src/apps) and compiled into the native side (src-tauri/src/apps). Each app lists ways to open it, best first; the first way the device can use is the default. A way is exactly one of: webview (a URL in Rare's own sandboxed window, storage kept per app), chromeApp (a URL as a fullscreen Chrome app window with its own profile), chrome (Chrome itself), flatpak (an installed Flatpak app id) exec (a program and its arguments) or steam (a steam:// URL for Steam's own UI, shown like any app: Home comes back to Rare, the Running list has Resume and Close). controller: focus = Rare drives the page's own buttons (webview only), pointer = the pad works as a mouse and keyboard while the app is in front, gamepad = the app reads the controller itself. back: the key B sends in pointer mode (alt+left goes back in Chrome). stream (webview): a cloud game stream, so Rare's window decodes video on the GPU (VA-API). padHosts (webview with controller gamepad): on these hosts the page reads the controller itself through the Gamepad API; elsewhere (sign-in pages) the d-pad walks the page. plan: what playing needs, in plain words, shown on the app's page and its cloud games' pages. steps: plain setup steps, shown on the app's page and in Library > Streaming (chiaki and steamlink are listed there, not in Apps). drm: the app needs Widevine, so only Google Chrome or Microsoft Edge can open it. Icons are the services' own, see public/apps/NOTICE.",
+  "apps": [
+    {
+      "id": "steam",
+      "name": "Steam",
+      "icon": "apps/steam.png",
+      "about": "Steam's store, library, friends and settings. Press the Rare button to come back to Rare.",
+      "ways": [{ "steam": "steam://open/bigpicture", "label": "Steam", "controller": "gamepad" }]
+    },
+    {
+      "id": "telegram",
+      "name": "Telegram",
+      "icon": "apps/telegram.png",
+      "about": "Chats and channels.",
+      "ways": [
+        { "flatpak": "org.telegram.desktop", "label": "Telegram Desktop", "controller": "pointer", "back": "escape" },
+        { "webview": "https://web.telegram.org/k/", "label": "Telegram Web", "controller": "focus" }
+      ]
+    },
+    {
+      "id": "x",
+      "name": "X",
+      "icon": "apps/x.png",
+      "about": "Posts, news and the Sui timeline.",
+      "ways": [
+        { "webview": "https://x.com/home", "label": "Rare", "controller": "focus" },
+        { "chromeApp": "https://x.com/home", "label": "Google Chrome", "controller": "pointer", "back": "alt+left" }
+      ]
+    },
+    {
+      "id": "netflix",
+      "name": "Netflix",
+      "icon": "apps/netflix.png",
+      "about": "Films and series. Plays in Google Chrome, which has the video protection Netflix needs.",
+      "drm": true,
+      "ways": [
+        { "chromeApp": "https://www.netflix.com/browse", "label": "Google Chrome", "controller": "pointer", "back": "alt+left" }
+      ]
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "icon": "apps/youtube.png",
+      "about": "YouTube's TV layout, made for a controller.",
+      "ways": [
+        {
+          "chromeApp": "https://www.youtube.com/tv",
+          "label": "Google Chrome",
+          "controller": "gamepad",
+          "userAgent": "Mozilla/5.0 (PS4; Leanback Shell) Gecko/20100101 Firefox/65.0 LeanbackShell/01.00.01.75 Sony PS4/ (PS4, , no, CH)"
+        }
+      ]
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "icon": "apps/spotify.png",
+      "about": "Music and podcasts. Music keeps playing while you play a game, and the Rare menu and Quick settings have play, pause and skip.",
+      "ways": [
+        { "flatpak": "com.spotify.Client", "label": "Spotify", "controller": "pointer", "back": "escape" },
+        { "chromeApp": "https://open.spotify.com", "label": "Google Chrome", "controller": "pointer", "back": "alt+left" }
+      ]
+    },
+    {
+      "id": "twitch",
+      "name": "Twitch",
+      "icon": "apps/twitch.png",
+      "about": "Live streams and chat. A stream keeps playing while you play a game, and the Rare menu and Quick settings can pause it.",
+      "ways": [
+        { "chromeApp": "https://www.twitch.tv", "label": "Google Chrome", "controller": "pointer", "back": "alt+left" }
+      ]
+    },
+    {
+      "id": "discord",
+      "name": "Discord",
+      "icon": "apps/discord.png",
+      "about": "Voice and text chat with your friends and servers.",
+      "ways": [
+        { "flatpak": "com.discordapp.Discord", "label": "Discord", "controller": "pointer", "back": "escape" },
+        { "webview": "https://discord.com/app", "label": "Discord Web", "controller": "focus" }
+      ]
+    },
+    {
+      "id": "xcloud",
+      "name": "Xbox Cloud Gaming",
+      "icon": "apps/xcloud.png",
+      "about": "Xbox games streamed from the cloud. Sign in with your Microsoft account once; the controller works as on an Xbox. The Rare button opens Rare's menu; hold View for Xbox's own menu.",
+      "plan": "Playing needs a Game Pass plan with cloud gaming. Free-to-play games like Fortnite only need a Microsoft account.",
+      "ways": [
+        { "webview": "https://www.xbox.com/play", "label": "Rare", "controller": "gamepad", "stream": true, "padHosts": ["www.xbox.com"], "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0" },
+        { "chromeApp": "https://www.xbox.com/play", "label": "Google Chrome", "controller": "gamepad", "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0" }
+      ]
+    },
+    {
+      "id": "geforcenow",
+      "name": "GeForce NOW",
+      "icon": "apps/geforcenow.png",
+      "about": "Your PC games from Steam, Epic and other stores, streamed from NVIDIA's servers. Sign in with your NVIDIA account once and link your stores there. The Rare button opens Rare's menu; hold View for GeForce NOW's own menu.",
+      "plan": "The free plan has ads, a queue and one-hour sessions. Paid plans remove them. You also need to own the game in your linked store.",
+      "ways": [
+        { "webview": "https://play.geforcenow.com/mall/", "label": "Rare", "controller": "gamepad", "stream": true, "padHosts": ["play.geforcenow.com"], "userAgent": "Mozilla/5.0 (X11; CrOS x86_64 16433.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36" },
+        { "chromeApp": "https://play.geforcenow.com/mall/", "label": "Google Chrome", "controller": "gamepad", "userAgent": "Mozilla/5.0 (X11; CrOS x86_64 16433.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36" }
+      ]
+    },
+    {
+      "id": "chiaki",
+      "name": "PlayStation Remote Play",
+      "icon": "apps/chiaki.png",
+      "about": "Play your PS5 or PS4 on this screen over your home network, with chiaki-ng, a free open-source app.",
+      "plan": "Playing needs a PS5 or PS4 on the same network and your PlayStation account.",
+      "steps": [
+        "On your PlayStation, go to Settings > System > Remote Play and turn on Enable Remote Play.",
+        "Open PlayStation Remote Play here, sign in with your PlayStation account and pick your console.",
+        "On the console, choose Pair Device and type the code it shows here."
+      ],
+      "ways": [
+        { "flatpak": "io.github.streetpea.Chiaki4deck", "label": "chiaki-ng", "controller": "gamepad" }
+      ]
+    },
+    {
+      "id": "steamlink",
+      "name": "Steam Link",
+      "icon": "apps/steamlink.png",
+      "about": "Play the games on a PC running Steam, streamed to this screen over your home network.",
+      "plan": "Playing needs a PC with Steam open on the same network.",
+      "steps": [
+        "On your PC, open Steam and sign in. Leave it running.",
+        "Open Steam Link here and pick your PC.",
+        "Type the code Steam Link shows into Steam on your PC.",
+        "Signed in to the same Steam account here? Your PC's games also show in Steam's library with Stream."
+      ],
+      "ways": [
+        { "flatpak": "com.valvesoftware.SteamLink", "label": "Steam Link", "controller": "gamepad" },
+        { "steam": "steam://open/games", "label": "Steam's library", "controller": "gamepad" }
+      ]
+    },
+    {
+      "id": "chrome",
+      "name": "Google Chrome",
+      "icon": "apps/chrome.png",
+      "about": "The full web, fullscreen.",
+      "ways": [
+        { "chrome": true, "label": "Google Chrome", "controller": "pointer", "back": "alt+left" }
+      ]
+    }
+  ]
+}

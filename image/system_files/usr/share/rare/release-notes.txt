@@ -1,0 +1,7 @@
+# Release notes for the next Rare OS version. The updater shows the lines below (not these #
+# lines) in Settings > System and in the "ready" notice once this version is downloaded. Replace
+# them with the new version's notes before each release: short plain lines, newest first.
+Updates download in the background on battery too, and show their progress in Settings.
+If a new version does not start, the device goes back to the previous one by itself.
+Settings > System can go back to the previous version.
+Remote access starts off after a switch from GameOS, and the default password no longer signs in.

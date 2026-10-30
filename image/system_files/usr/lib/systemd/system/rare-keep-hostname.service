@@ -1,0 +1,13 @@
+[Unit]
+Description=Rare OS: keep the network name the device had before the switch
+DefaultDependencies=no
+After=local-fs.target ostree-remount.service
+Before=sysinit.target shutdown.target NetworkManager.service avahi-daemon.service systemd-hostnamed.service
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/keep-hostname
+
+[Install]
+WantedBy=sysinit.target

@@ -1,0 +1,103 @@
+{
+ "alerts": [
+  {
+   "active": true,
+   "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+   "createdAt": 1793104860000,
+   "dir": "above",
+   "firedAt": null,
+   "id": "a1",
+   "symbol": "SUI",
+   "target": 1.1
+  }
+ ],
+ "recent": [
+  {
+   "action": {
+    "digest": "5QDVv7YPKSPiLA959P8T1nW4phnfHHLg9XuXMP6umQRP",
+    "kind": "tx"
+   },
+   "addr": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+   "amount": {
+    "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+    "decimals": 9,
+    "raw": "25000000000",
+    "symbol": "SUI",
+    "usd": 22.65
+   },
+   "body": "From 0x3f9e...11c0",
+   "cpTs": 1793106959600,
+   "createdAt": 1793106959880,
+   "digest": "5QDVv7YPKSPiLA959P8T1nW4phnfHHLg9XuXMP6umQRP",
+   "id": "1004",
+   "imageUrl": null,
+   "item": null,
+   "kind": "coin_received",
+   "sentAt": 1793106959960,
+   "title": "You received 25 SUI"
+  },
+  {
+   "action": {
+    "itemId": "0x89d249c6a43ff4490902247a950e2e69ba61b74089151166169cfe3fbfea8611",
+    "kind": "item",
+    "slug": "popkins"
+   },
+   "addr": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+   "amount": null,
+   "body": "From a listing on rare.market",
+   "cpTs": 1793097659430,
+   "createdAt": 1793097659880,
+   "digest": "5QDVv7YPKSPiLA959P8T1nW4phnfHHLg9XuXMP6umQRP",
+   "id": "1003",
+   "imageUrl": "https://storage.claynosaurz.com/popkins/images/0x89d249c6a43ff4490902247a950e2e69ba61b74089151166169cfe3fbfea8611",
+   "item": {
+    "collection": {
+     "name": "Popkins",
+     "slug": "popkins"
+    },
+    "id": "0x89d249c6a43ff4490902247a950e2e69ba61b74089151166169cfe3fbfea8611",
+    "imageUrl": "https://storage.claynosaurz.com/popkins/images/0x89d249c6a43ff4490902247a950e2e69ba61b74089151166169cfe3fbfea8611",
+    "name": "Popkins #1187"
+   },
+   "kind": "bought",
+   "sentAt": 1793097659960,
+   "title": "You bought Popkins #1187 for 58 SUI"
+  },
+  {
+   "action": {
+    "kind": "collection",
+    "slug": "popkins"
+   },
+   "addr": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+   "amount": null,
+   "body": "Minted to you by 0x55aa...0e12",
+   "cpTs": 1793014859563,
+   "createdAt": 1793014859880,
+   "digest": "5QDVv7YPKSPiLA959P8T1nW4phnfHHLg9XuXMP6umQRP",
+   "id": "1002",
+   "imageUrl": "https://storage.claynosaurz.com/popkins/images/0x89d249c6a43ff4490902247a950e2e69ba61b74089151166169cfe3fbfea8611",
+   "item": null,
+   "kind": "airdrop",
+   "sentAt": 1793014859960,
+   "title": "Airdrop: Popkins Pass"
+  },
+  {
+   "action": {
+    "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+    "kind": "coin"
+   },
+   "addr": null,
+   "amount": null,
+   "body": "Your alert at $0.90 was hit. Now $0.89.",
+   "cpTs": 1792935659478,
+   "createdAt": 1792935659880,
+   "digest": null,
+   "id": "1001",
+   "imageUrl": null,
+   "item": null,
+   "kind": "price_alert",
+   "sentAt": 1792935659960,
+   "title": "SUI is below $0.90"
+  }
+ ]
+}

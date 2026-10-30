@@ -1,0 +1,15 @@
+[package]
+name = "rare-images"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare's image pipeline: download once, resize to the UI's sizes, WebP on disk, encoded bytes in an in-memory LRU, preloading"
+
+[dependencies]
+ureq = "2"
+base64 = "0.22"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
+webp = { version = "0.3", default-features = false }
+
+[dev-dependencies]
+tempfile = "3"

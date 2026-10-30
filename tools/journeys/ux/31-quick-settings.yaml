@@ -1,0 +1,12 @@
+name: quick-settings
+task: "Open Quick settings"
+fix: "Quick settings is also a row on the Rare menu's first screen, with the Quick button's glyph, so it is found without knowing the button"
+home:
+  steps: [qam]
+  done: {screen: {overlay: qam}}
+  was: [qam]
+game:
+  open: quick
+  steps: []
+  done: {screen: {overlay: qam}}
+  was: []

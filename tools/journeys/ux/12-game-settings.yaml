@@ -1,0 +1,7 @@
+name: game-settings
+task: "See a game's settings (Proton, launch options, performance)"
+fix: "none needed (X on its tile opens the game page with them)"
+home:
+  steps: [x]
+  done: {screen: {overlay: 'game:steam:1449850'}}
+  was: [x]

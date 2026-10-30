@@ -1,0 +1,9 @@
+name: back-from-steam
+task: "Get back to Rare from Steam"
+fix: "none needed (the Rare button works over Steam as over any app)"
+game:
+  open: menu
+  game: "app:steam"
+  steps: [guide]
+  done: {screen: {tab: home, overlay: "-"}}
+  was_same: true

@@ -1,0 +1,28 @@
+#!/usr/bin/bash
+# Hides the boot menu after a good boot, once per device: GRUB's menu_auto_hide=2, the same
+# setting as `ujust configure-grub hide`. The menu still comes up by itself after a start that
+# did not finish (boot_success is set 2 min after login by grub-boot-success.timer), and with
+# a keyboard by holding Shift or pressing Esc. Runs once, so `ujust configure-grub show`
+# afterwards sticks.
+set -euo pipefail
+marker=/var/lib/rare/boot-menu-hidden
+[[ -e "$marker" ]] && exit 0
+env=/boot/grub2/grubenv
+if [[ ! -f "$env" ]]; then
+    echo "rare: no $env, leaving the boot menu alone" >&2
+    exit 0
+fi
+if grub2-editenv "$env" list | grep -q '^menu_auto_hide='; then
+    echo "rare: boot menu already set ($(grub2-editenv "$env" list | grep '^menu_auto_hide='))"
+else
+    remounted=false
+    if [[ ! -w /boot ]] || ! touch /boot/.rare-rw-test 2>/dev/null; then
+        mount -o remount,rw /boot && remounted=true
+    fi
+    rm -f /boot/.rare-rw-test
+    grub2-editenv "$env" set menu_auto_hide=2
+    $remounted && mount -o remount,ro /boot || true
+    echo "rare: boot menu hidden after a good boot (menu_auto_hide=2)"
+fi
+mkdir -p "${marker%/*}"
+touch "$marker"

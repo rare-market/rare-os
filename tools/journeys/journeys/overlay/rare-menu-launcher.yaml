@@ -1,0 +1,33 @@
+# The Rare button with the launcher in front: the Rare menu over the launcher, with Rare (Home,
+# profile, Settings, Power, Desktop mode) instead of Game. Press again for Home; hold for the
+# Switcher. Never presses A on Power rows.
+#
+# device checklist:
+#   - With unread notices the menu opens on Notifications, otherwise on Rare
+#   - Friends tab: signed in with friends on, Playing and Online list them; A on a friend's game joins it
+name: rare-menu-launcher
+title: Rare menu over the launcher, tabs, Home, Switcher
+tags: [core, overlay, launcher]
+needs: [probe]
+timeout_s: 90
+steps:
+  - goto: home
+    expect: {screen: {tab: home}}
+  - name: The Rare button opens the Rare menu
+    press: guide
+    expect: {respond_ms: 300}
+    wait_for: {screen: {overlay: raremenu}, timeout_ms: 2000}
+  - name: RT through Friends and Notifications
+    press: rt
+    repeat: 2
+    gap_ms: 350
+    expect: {respond_ms: 300}
+  - name: The Rare button again goes Home
+    press: guide
+    expect: {screen: {tab: home, overlay: '-'}, respond_ms: 300}
+  - name: Holding it opens the Switcher, Home card first
+    press: guide_hold
+    wait_for: {screen: {overlay: running}, focus: 'switcher-running "Home', timeout_ms: 2000}
+  - name: B closes it
+    press: b
+    expect: {screen: {overlay: '-'}, respond_ms: 300}

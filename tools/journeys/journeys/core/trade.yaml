@@ -1,0 +1,31 @@
+name: trade
+title: Trade sections and a coin page (browse only, never an order)
+tags: [core, trade]
+needs: [probe, network]
+timeout_s: 120
+steps:
+  - goto: tab:trade
+  - wait_for: {settled: 800, timeout_ms: 15000}
+  - name: RT through sections
+    press: rt
+    repeat: 3
+    gap_ms: 500
+    expect: {respond_ms: 150}
+  - name: LT back to the first section
+    press: lt
+    repeat: 3
+    gap_ms: 500
+  - name: down to the coin list
+    press: down
+    repeat: 2
+  - name: A opens the focused coin
+    press: a
+    settle_timeout_ms: 8000
+    expect: {respond_ms: 200}
+  - name: RT through the coin's sections
+    press: rt
+    repeat: 2
+    gap_ms: 500
+  - name: B back to Trade
+    press: b
+    expect: {screen: {tab: trade}, respond_ms: 150}

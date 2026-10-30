@@ -1,0 +1,107 @@
+[package]
+name = "rare-launcher"
+version = "0.1.0"
+description = "Rare Launcher: the controller-first home screen of Rare OS"
+edition = "2021"
+rust-version = "1.80"
+
+[lib]
+name = "rare_launcher_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "rare-launcher"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-single-instance = "2"
+# rare:// links (docs/LOCAL-API.md): scheme registration and delivery on macOS.
+tauri-plugin-deep-link = "2"
+# Desktop notifications when the launcher is in the background (npm @tauri-apps/plugin-notification 2.7.0).
+tauri-plugin-notification = "=2.7.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["raw_value"] }
+# The instant layer (instant.rs): data cache and image pipeline, shared with the native UI.
+rare-core = { path = "../crates/rare-core" }
+rare-library = { path = "../crates/rare-library" }
+rare-launch = { path = "../crates/rare-launch" }
+rare-emu = { path = "../crates/rare-emu" }
+rare-state = { path = "../crates/rare-state" }
+rare-images = { path = "../crates/rare-images" }
+rare-stream = { path = "../crates/rare-stream" }
+rare-share = { path = "../crates/rare-share" }
+rare-localapi = { path = "../crates/rare-localapi" }
+rare-trophies = { path = "../crates/rare-trophies" }
+rare-webgame = { path = "../crates/rare-webgame" }
+rare-overlay = { path = "../crates/rare-overlay" }
+rare-store = { path = "../crates/rare-store" }
+rare-system = { path = "../crates/rare-system" }
+# Rare Wallet (vault, hardware wallets, passkeys): src/wallet holds only the Tauri command wrappers.
+rare-wallet = { path = "../crates/rare-wallet", default-features = false, features = ["hw", "passkey"] }
+rare-input = { path = "../crates/rare-input" }
+# Sui core; offline parts only here (cloud save packing and restore), no gRPC or HTTP.
+rare-sui = { path = "../crates/rare-sui", default-features = false }
+dirs = "6"
+gilrs = "0.11"
+log = "0.4"
+ureq = { version = "2", features = ["json"] }
+url = "2"
+base64 = "0.22"
+tar = "0.4"
+# Rare Store installs: SHA-256 of the build archive, pure-Rust zstd for .tar.zst.
+sha2 = "0.10"
+ruzstd = "0.8"
+flate2 = "1"
+# Wallet command wrappers: secrets arriving from the webview are zeroized here (the vault,
+# hardware wallets and passkeys are in rare-wallet).
+zeroize = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["rt-multi-thread", "time", "sync", "macros"] }
+# Share button: decode grabbed PNG/JPEG frames, rotate and scale them, save as lossy WebP
+# (libwebp, built from source by webp's sys crate).
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+webp = { version = "0.3", default-features = false }
+# HUD toasts (hud.rs): text drawn from the system's sans font, pure Rust.
+fontdue = "0.9"
+# PC streaming: finds Sunshine and GeForce Experience hosts on the network (mDNS _nvstream._tcp).
+mdns-sd = "=0.21.4"
+
+[target.'cfg(unix)'.dependencies]
+# Signals and process groups for the clip recorder; Apps: the pad as a mouse and keyboard through /dev/uinput.
+libc = "0.2"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# tauri-plugin-deep-link 2.6.2 builds on Linux only against rust-ini 0.21.1 (0.21.2 added fields to
+# ini::ParseOption that the plugin's struct literal lacks).
+rust-ini = "=0.21.1"
+# Share button: asks gamescope for a screenshot through a root window property on its Xwayland.
+# res: the pid behind an X window (XRes), to tag app windows for gamescope (overlay/appid.rs).
+x11rb = { version = "0.13", features = ["res"] }
+# The launcher window's X11 id for gamescope's base-layer control (in-game overlay). Same
+# versions Tauri already links.
+gtk = "0.18"
+gdkx11 = "0.18"
+
+[dev-dependencies]
+tempfile = "3"
+
+# Argon2 at 64 MiB is unusably slow unoptimized; keep dev and test builds fast.
+[profile.dev.package.argon2]
+opt-level = 3
+[profile.dev.package.blake2]
+opt-level = 3
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4
+strip = true
+panic = "abort"
+
+[patch.crates-io]
+webauthn-authenticator-rs = { path = "vendor/webauthn-authenticator-rs" }
+# gilrs-core: skip idle zero force-feedback uploads (vendor/gilrs-core/src/platform/linux/ff.rs).
+gilrs-core = { path = "vendor/gilrs-core" }

@@ -1,0 +1,775 @@
+{
+ "batteryCare": {
+  "available": true,
+  "on": false,
+  "state": "off"
+ },
+ "bluetooth": {
+  "blocked": false,
+  "powered": true,
+  "present": true
+ },
+ "brightnessInfo": {
+  "dimIdle": false,
+  "pos": 70
+ },
+ "config": {
+  "gameFolders": [],
+  "onboarded": true,
+  "webGames": []
+ },
+ "device": {
+  "battery": {
+   "charging": false,
+   "health": 92,
+   "minutes": 190,
+   "percent": 82
+  },
+  "hostname": "rare",
+  "isSuiplay": true,
+  "isVm": false,
+  "name": "SuiPlay0X1",
+  "osName": "Rare OS",
+  "osVersion": "0.1 (dev)",
+  "platform": "linux",
+  "product": "SuiPlay0X1",
+  "underGamescope": false,
+  "vendor": "Mysten Labs, Inc.",
+  "wifi": "Home"
+ },
+ "displayState": {
+  "active": "eDP-1",
+  "docked": false,
+  "outputs": [
+   {
+    "connected": true,
+    "internal": true,
+    "label": null,
+    "lit": true,
+    "mode": "1200x1920",
+    "name": "eDP-1"
+   }
+  ]
+ },
+ "gamePower": {
+  "id": "app:telegram",
+  "saved": false
+ },
+ "hud": "off",
+ "levels": {
+  "brightness": 70,
+  "muted": false,
+  "volume": 55
+ },
+ "library": {
+  "emulation": {
+   "recent": [
+    {
+     "lastPlayed": 1792935660,
+     "name": "Pokemon Violet",
+     "playCount": 3,
+     "playtime": 5400,
+     "system": "switch"
+    },
+    {
+     "lastPlayed": 1792849260,
+     "name": "Jet Set Radio Future",
+     "playCount": 9,
+     "playtime": 6540,
+     "system": "xbox"
+    }
+   ],
+   "romDir": "/home/bazzite/Emulation/roms",
+   "systems": [
+    {
+     "count": 2,
+     "id": "switch",
+     "lastPlayed": 1792935660,
+     "name": "Switch"
+    },
+    {
+     "count": 1,
+     "id": "xbox",
+     "lastPlayed": 1792849260,
+     "name": "Xbox"
+    },
+    {
+     "count": 12,
+     "id": "gc",
+     "lastPlayed": null,
+     "name": "GameCube"
+    },
+    {
+     "count": 10,
+     "id": "ps2",
+     "lastPlayed": null,
+     "name": "PlayStation 2"
+    },
+    {
+     "count": 1,
+     "id": "wii",
+     "lastPlayed": null,
+     "name": "Wii"
+    }
+   ]
+  },
+  "emulationApp": "apps:esde",
+  "foreignSteamLibraries": [
+   "/var/home/playtron/.local/share/Steam"
+  ],
+  "games": [
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:1145350",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Hades II",
+    "installed": true,
+    "lastPlayed": 1793091180,
+    "origin": "Steam",
+    "playtimeMinutes": 2950,
+    "sizeBytes": 9800000000,
+    "source": "steam",
+    "title": "Hades II"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:2379780",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Balatro",
+    "installed": true,
+    "lastPlayed": 1793022060,
+    "origin": "Steam",
+    "playtimeMinutes": 4380,
+    "sizeBytes": 200000000,
+    "source": "steam",
+    "title": "Balatro"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:1245620",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/ELDEN RING",
+    "installed": true,
+    "lastPlayed": 1792849260,
+    "origin": "Steam",
+    "playtimeMinutes": 4220,
+    "sizeBytes": 48000000000,
+    "source": "steam",
+    "title": "ELDEN RING"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1868140/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1868140/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1868140/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1868140/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:1868140",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/DAVE THE DIVER",
+    "installed": true,
+    "lastPlayed": 1792590060,
+    "origin": "Steam",
+    "playtimeMinutes": 5740,
+    "sizeBytes": 9000000000,
+    "source": "steam",
+    "title": "DAVE THE DIVER"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1794680/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1794680/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1794680/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1794680/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:1794680",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Vampire Survivors",
+    "installed": true,
+    "lastPlayed": 1792330860,
+    "origin": "Steam",
+    "playtimeMinutes": 4280,
+    "sizeBytes": 600000000,
+    "source": "steam",
+    "title": "Vampire Survivors"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/504230/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/504230/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/504230/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/504230/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:504230",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Celeste",
+    "installed": true,
+    "lastPlayed": 1791898860,
+    "origin": "Steam",
+    "playtimeMinutes": 830,
+    "sizeBytes": 1200000000,
+    "source": "steam",
+    "title": "Celeste"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/367520/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/367520/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/367520/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/367520/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:367520",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Hollow Knight",
+    "installed": true,
+    "lastPlayed": 1790516460,
+    "origin": "Steam",
+    "playtimeMinutes": 8120,
+    "sizeBytes": 9000000000,
+    "source": "steam",
+    "title": "Hollow Knight"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/413150/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/413150/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/413150/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/413150/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:413150",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Stardew Valley",
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Steam",
+    "playtimeMinutes": null,
+    "sizeBytes": 600000000,
+    "source": "steam",
+    "title": "Stardew Valley"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:1086940",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Baldur's Gate 3",
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Steam",
+    "playtimeMinutes": null,
+    "sizeBytes": 122000000000,
+    "source": "steam",
+    "title": "Baldur's Gate 3"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:1091500",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Cyberpunk 2077",
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Steam",
+    "playtimeMinutes": null,
+    "sizeBytes": 70000000000,
+    "source": "steam",
+    "title": "Cyberpunk 2077"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/578080/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/578080/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/578080/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/578080/logo.png"
+     ]
+    },
+    "foreign": false,
+    "id": "steam:578080",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/PUBG: BATTLEGROUNDS",
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Steam",
+    "playtimeMinutes": null,
+    "sizeBytes": 40000000000,
+    "source": "steam",
+    "title": "PUBG: BATTLEGROUNDS"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1244090/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1244090/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1244090/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1244090/logo.png"
+     ]
+    },
+    "foreign": true,
+    "id": "steam:1244090",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Sea of Stars",
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Steam library on /var/home/playtron/.local/share/Steam",
+    "playtimeMinutes": null,
+    "sizeBytes": 5000000000,
+    "source": "steam",
+    "title": "Sea of Stars"
+   },
+   {
+    "art": {
+     "cover": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/library_600x900_2x.jpg"
+     ],
+     "header": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/header.jpg"
+     ],
+     "hero": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/library_hero.jpg"
+     ],
+     "logo": [
+      "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/logo.png"
+     ]
+    },
+    "foreign": true,
+    "id": "steam:1145360",
+    "installDir": "/home/rare/.local/share/Steam/steamapps/common/Hades",
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Steam library on /var/home/playtron/.local/share/Steam",
+    "playtimeMinutes": null,
+    "sizeBytes": 15000000000,
+    "source": "steam",
+    "title": "Hades"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "epic:Fortnite",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Epic Games",
+    "sizeBytes": null,
+    "source": "epic",
+    "title": "Alan Wake 2"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "gog:1207658924",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "GOG",
+    "sizeBytes": null,
+    "source": "gog",
+    "title": "The Witcher 3"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "itch:a1",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "itch.io",
+    "sizeBytes": null,
+    "source": "itch",
+    "title": "A Short Hike"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "local:b2",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Games folder",
+    "sizeBytes": null,
+    "source": "local",
+    "title": "SuperTuxKart"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "apps:esde",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "EmuDeck",
+    "sizeBytes": null,
+    "source": "apps",
+    "title": "ES-DE"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "apps:retroarch",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Desktop app",
+    "sizeBytes": null,
+    "source": "apps",
+    "title": "RetroArch"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "apps:dolphin",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Desktop app",
+    "sizeBytes": null,
+    "source": "apps",
+    "title": "Dolphin Emulator"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "apps:ppsspp",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Desktop app",
+    "sizeBytes": null,
+    "source": "apps",
+    "title": "PPSSPP"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "apps:xemu",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Steam shortcut",
+    "sizeBytes": null,
+    "source": "apps",
+    "title": "xemu"
+   },
+   {
+    "art": {
+     "cover": [],
+     "header": [],
+     "hero": [],
+     "logo": []
+    },
+    "foreign": false,
+    "id": "apps:chrome",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": null,
+    "origin": "Steam shortcut",
+    "sizeBytes": null,
+    "source": "apps",
+    "title": "Google Chrome"
+   },
+   {
+    "art": {
+     "cover": [
+      "games/act/cover.jpg"
+     ],
+     "header": [],
+     "hero": [
+      "games/act/hero.jpg"
+     ],
+     "logo": [
+      "games/act/logo.svg"
+     ]
+    },
+    "foreign": false,
+    "id": "web:act",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": 1793104860,
+    "launch": {
+     "kind": "web",
+     "url": "https://play.actuniverse.com/"
+    },
+    "origin": "Web game",
+    "sizeBytes": null,
+    "source": "web",
+    "title": "ACT"
+   }
+  ],
+  "scannedAt": 1793108460,
+  "sources": [
+   {
+    "available": true,
+    "count": 13,
+    "note": "Steam",
+    "source": "steam"
+   },
+   {
+    "available": true,
+    "count": 1,
+    "note": "legendary",
+    "source": "epic"
+   },
+   {
+    "available": true,
+    "count": 1,
+    "note": "GOG installs from Heroic",
+    "source": "gog"
+   },
+   {
+    "available": true,
+    "count": 1,
+    "note": "itch.io downloads",
+    "source": "itch"
+   },
+   {
+    "available": true,
+    "count": 1,
+    "note": "Games folders",
+    "source": "local"
+   },
+   {
+    "available": true,
+    "count": 1,
+    "note": "Browser games",
+    "source": "web"
+   },
+   {
+    "available": true,
+    "count": 6,
+    "note": "Emulators",
+    "source": "apps"
+   }
+  ]
+ },
+ "netStatus": {
+  "managed": true,
+  "online": true,
+  "wifi": "Home"
+ },
+ "osRestoreAvailable": true,
+ "osUpdate": {
+  "bootedVersion": "43.20261020.0",
+  "checkError": null,
+  "checkOk": true,
+  "checkedAt": 1793097660,
+  "staged": false,
+  "stagedVersion": null
+ },
+ "perf": {
+  "available": true,
+  "backend": "hhd",
+  "cpuBoost": false,
+  "fan": "default",
+  "fpsLimit": null,
+  "note": "",
+  "profile": "balanced",
+  "profileWatts": {
+   "balanced": 15,
+   "performance": 25,
+   "quiet": 10
+  },
+  "tdp": 15,
+  "tdpMax": 28,
+  "tdpMin": 5
+ },
+ "radios": {
+  "airplane": false,
+  "bluetooth": true,
+  "wifi": true
+ },
+ "running": [
+  "app:telegram"
+ ],
+ "steamAccount": null,
+ "upscale": {
+  "height": 0,
+  "mode": "off",
+  "sharpness": 10,
+  "width": 0
+ },
+ "wifiScan": [
+  {
+   "active": true,
+   "secure": true,
+   "signal": 86,
+   "ssid": "Home"
+  },
+  {
+   "active": false,
+   "secure": true,
+   "signal": 71,
+   "ssid": "Home 5G"
+  },
+  {
+   "active": false,
+   "secure": false,
+   "signal": 54,
+   "ssid": "Cafe Guest"
+  },
+  {
+   "active": false,
+   "secure": true,
+   "signal": 22,
+   "ssid": "Neighbour"
+  }
+ ]
+}

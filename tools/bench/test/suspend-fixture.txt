@@ -1,0 +1,7 @@
+1790000000.100000 bazzite kernel: PM: suspend entry (s2idle)
+1790000000.300000 bazzite kernel: Freezing user space processes
+1790000000.500000 bazzite kernel: printk: Suspending console(s) (use no_console_suspend to debug)
+1790003590.500000 bazzite kernel: ACPI: PM: Wakeup from s2idle
+1790003590.800000 bazzite kernel: amdgpu 0000:c4:00.0: amdgpu: resume of IP block <gfx_v11_0> done
+1790003591.400000 bazzite kernel: PM: suspend exit
+1790003592.000000 bazzite systemd-sleep[900]: System returned from sleep operation 'suspend'.

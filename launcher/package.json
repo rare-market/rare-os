@@ -1,0 +1,67 @@
+{
+  "name": "rare-launcher",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev:ui": "vite --port 5180 --strictPort",
+    "build:ui": "tsc --noEmit && vite build && node scripts/check-no-demo.mjs",
+    "build:mock": "VITE_MOCK=1 vite build --outDir dist-mock",
+    "check:demo": "node scripts/check-no-demo.mjs",
+    "preview": "vite preview --port 5180",
+    "preview:mock": "vite preview --port 5180 --outDir dist-mock",
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "test": "vitest run",
+    "shots": "node scripts/shots.mjs",
+    "tablecheck": "node scripts/table-check.mjs",
+    "e2e:localapi": "node scripts/localapi-e2e.mjs",
+    "navcheck": "node scripts/nav-check.mjs",
+    "transcheck": "node scripts/transition-check.mjs"
+  },
+  "dependencies": {
+    "@keystonehq/bc-ur-registry": "0.7.0",
+    "@keystonehq/bc-ur-registry-sui": "0.4.0-alpha.0",
+    "@ledgerhq/hw-transport": "6.36.0",
+    "@mysten/ledgerjs-hw-app-sui": "0.9.1",
+    "@mysten/sui": "2.38.0",
+    "@mysten/walrus": "1.2.37",
+    "@ngraveio/bc-ur": "1.1.13",
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.0.1",
+    "@scure/bip39": "^2.4.0",
+    "@tauri-apps/api": "2.12.4",
+    "@tauri-apps/plugin-notification": "2.7.0",
+    "buffer": "6.0.3",
+    "lightweight-charts": "5.2.0",
+    "lucide-react": "^1.61.0",
+    "qrcode": "^1.5.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zustand": "5.0.16"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.3",
+    "@tauri-apps/cli": "2.12.4",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "playwright-core": "1.63.0",
+    "puppeteer-core": "^25.16.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5.9.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  },
+  "overrides": {
+    "@mysten/ledgerjs-hw-app-sui": {
+      "@ledgerhq/devices": "8.18.0",
+      "@ledgerhq/hw-transport": "6.36.0"
+    },
+    "@keystonehq/bc-ur-registry-sui": {
+      "@keystonehq/bc-ur-registry": "$@keystonehq/bc-ur-registry"
+    }
+  }
+}

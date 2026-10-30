@@ -1,0 +1,54 @@
+# Android end to end: Library > Android sets Android up with one press, a small open-source game
+# from F-Droid installs and shows as a tile, plays fullscreen, quits from the Rare menu, uninstalls.
+# Needs a Rare OS image with /usr/share/waydroid-extra/channels.cfg (main 8be8909c or later).
+#
+# device checklist (a person does these, the runner cannot):
+#   - the game takes the pad natively (d-pad moves the 2048 tiles), sound plays
+#   - touch controls: set A to a spot in the editor, press A in the game: Android sees a touch there
+#   - F-Droid and Aurora Store open fullscreen and install apps; those apps show in Library > Android
+name: android-game
+title: A game from F-Droid installs, plays fullscreen, quits from the Rare menu and uninstalls
+tags: [android, device]
+needs: [probe, network]
+timeout_s: 900
+steps:
+  - goto: tab:library:android
+    expect: {screen: {tab: library}}
+  # Focus starts on the filter bar's Add: down into the tab.
+  - nav: {press: down, until: {focus: '"Aurora Store"|"F-Droid"|"Find on F-Droid"'}, max: 3, gap_ms: 350}
+  - nav: {press: up, until: {focus: '"Find on F-Droid"'}, max: 4, gap_ms: 300}
+  - press: a
+    after_ms: 1200
+  - type: "privacy friendly 2048"
+  - press: start
+  # F-Droid's results sheet; the first result is the game.
+  - wait_for: {focus: '2048', timeout_ms: 60000}
+  - press: a
+  - mark: install-started
+  - wait: 150000
+  - nav: {press: down, until: {focus: '"Aurora Store"|"F-Droid"|"2048"'}, max: 3, gap_ms: 300}
+  - nav: {press: right, until: {focus: '"2048"'}, max: 6, gap_ms: 300}
+  - press: a
+    expect: {screen: {overlay: game}}
+  - mark: play
+  - press: a
+    allow: [black]
+  - wait_for: {focus_app: not_launcher, timeout_ms: 120000}
+  # Android boots in the window, then the game opens.
+  - wait: 60000
+  - mark: android-game-running
+  - press: guide
+    after_ms: 1500
+  - nav: {press: down, until: {focus: 'Quit'}, max: 12, gap_ms: 300}
+  - press: a
+  - wait_for: {focus_app: launcher, timeout_ms: 90000}
+  - mark: quit
+  - goto: open:game:android:org.secuso.privacyfriendly2048
+    expect: {screen: {overlay: game}}
+  - nav: {press: right, until: {focus: 'Uninstall'}, max: 6, gap_ms: 300}
+  - press: a
+    after_ms: 1500
+  - nav: {press: left, until: {focus: '"Uninstall"'}, max: 3, gap_ms: 300}
+  - press: a
+  - wait: 120000
+  - mark: uninstalled

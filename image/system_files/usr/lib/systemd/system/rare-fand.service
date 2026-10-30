@@ -1,0 +1,28 @@
+[Unit]
+Description=Rare OS: fan curve and battery care (ayaneo_ec, SuiPlay0X1)
+# Started by 70-rare-fand.rules when the ayaneo_ec fan driver appears, and at boot when it
+# is already there. Other devices: ExecCondition skips it, nothing touches a fan.
+ConditionVirtualization=!vm
+After=dbus.service
+
+[Service]
+Type=simple
+ExecCondition=/usr/libexec/rare/rare-fand check
+ExecStart=/usr/libexec/rare/rare-fand run
+# Whatever happened (crash, kill, stop), the EC gets the fan back and BAT0 charge_behaviour
+# goes back to auto.
+ExecStopPost=/usr/libexec/rare/rare-fand release
+Restart=on-failure
+RestartSec=2
+StateDirectory=rare
+# Writes only /sys (hwmon, power_supply) and /var/lib/rare; talks only to the system bus.
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateNetwork=yes
+NoNewPrivileges=yes
+RestrictAddressFamilies=AF_UNIX
+MemoryMax=64M
+
+[Install]
+WantedBy=multi-user.target

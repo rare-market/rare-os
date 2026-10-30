@@ -1,0 +1,13 @@
+[package]
+name = "rare-fixtures"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "The web launcher's TS mocks as fixtures for the native launcher: RR_FIXTURE in golden runs, sets by name in tests"
+
+[dependencies]
+serde = "1"
+serde_json = "1"
+
+[dev-dependencies]
+serde = { version = "1", features = ["derive"] }

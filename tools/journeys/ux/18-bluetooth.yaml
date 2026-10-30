@@ -1,0 +1,8 @@
+name: bluetooth
+task: "Pair Bluetooth (the devices list)"
+fix: "X on the Bluetooth tile opens Settings on Devices (it opened on System)"
+max: 4
+home:
+  steps: [qam, up, right, x]
+  done: {screen: {tab: settings}, focus: "Devices"}
+  was_est: 12

@@ -1,0 +1,38 @@
+"AppState"
+{
+	"appid"		"4183110"
+	"Universe"		"1"
+	"name"		"Steam Linux Runtime 4.0"
+	"StateFlags"		"4"
+	"installdir"		"SteamLinuxRuntime_4"
+	"LastUpdated"		"1793049860"
+	"LastPlayed"		"0"
+	"SizeOnDisk"		"711197025"
+	"StagingSize"		"0"
+	"buildid"		"26116036"
+	"LastOwner"		"76561199848316363"
+	"DownloadType"		"1"
+	"UpdateResult"		"40"
+	"BytesToDownload"		"250976848"
+	"BytesDownloaded"		"133398944"
+	"BytesToStage"		"711197025"
+	"BytesStaged"		"366867022"
+	"TargetBuildID"		"26116036"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"1793049532"
+	"InstalledDepots"
+	{
+		"4183111"
+		{
+			"manifest"		"622183911945836103"
+			"size"		"711197025"
+		}
+	}
+	"UserConfig"
+	{
+	}
+	"MountedConfig"
+	{
+	}
+}

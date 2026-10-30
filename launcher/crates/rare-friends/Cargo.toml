@@ -1,0 +1,28 @@
+[package]
+name = "rare-friends"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare's friends logic: device-key auth, friends/party/presence API, usernames, live updates"
+
+[features]
+# Sample friends, a party and chat in memory (the web launcher's `?friends=mock`), for screen work
+# and golden images without a wallet signature.
+mock = []
+
+[dependencies]
+rare-core = { path = "../rare-core" }
+rare-market = { path = "../rare-market" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ed25519-dalek = "2"
+sha2 = "0.10"
+blake2 = "0.10"
+hex = "0.4"
+base64 = "0.22"
+getrandom = "0.2"
+bech32 = "0.11"
+url = "2"
+
+[dev-dependencies]
+ureq = "2"

@@ -1,0 +1,33 @@
+#!/usr/bin/bash
+# Boot mic gain for the SuiPlay0X1. The codec powers up with Capture +30 dB and Internal Mic
+# Boost +30 dB (+60 dB in all), which clips 55 to 60 % of samples. Set boost +10 dB and
+# capture +5.25 dB (63 -> 30), about +15 dB, once per boot.
+# Only touches a card still at the factory maximum (boost 3 and capture 63): if the user or
+# alsactl restore already holds another value, it stays. The card is found by its control
+# names, not its index or id (both HD-Audio cards are called "Generic" and their order can change).
+set -uo pipefail
+
+[ "$(cat /sys/class/dmi/id/product_name 2>/dev/null)" = SuiPlay0X1 ] || exit 0
+
+BOOST=1
+CAPTURE=30
+
+card=
+for _ in $(seq 1 20); do
+    for d in /proc/asound/card[0-9]*; do
+        n=${d##*card}
+        if amixer -c "$n" sget 'Internal Mic Boost' >/dev/null 2>&1; then card=$n; break 2; fi
+    done
+    sleep 0.5
+done
+[ -n "$card" ] || { echo "no card with Internal Mic Boost"; exit 0; }
+
+b=$(amixer -c "$card" sget 'Internal Mic Boost' | grep -o 'Front Left: [0-9]*' | grep -o '[0-9]*$')
+c=$(amixer -c "$card" sget Capture | grep -o 'Front Left: Capture [0-9]*' | grep -o '[0-9]*$')
+if [ "${b:-}" = 3 ] && [ "${c:-}" = 63 ]; then
+    amixer -c "$card" -q sset 'Internal Mic Boost' "$BOOST"
+    amixer -c "$card" -q sset Capture "$CAPTURE"
+    echo "card $card: Internal Mic Boost $BOOST, Capture $CAPTURE"
+else
+    echo "card $card: boost=$b capture=$c already changed, left alone"
+fi

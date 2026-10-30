@@ -1,0 +1,36 @@
+# Every top tab by RB and then back by LB: each switch answers within 200 ms and leaves something focused.
+# Checks docs/CONTROLS.md: LB/RB are always the tabs (Home, Library, Sui, Market, Wallet). Friends and Settings are
+# destinations reached from Rare menu / Home, and LB/RB still work from them. Also measures frame pacing across the tour.
+name: tab-tour
+title: LB/RB walk every tab and back, focus is never lost
+tags: [navigation, launcher, smoothness]
+needs: [probe]
+timeout_s: 120
+steps:
+  - goto: home
+    expect: {screen: {tab: home}}
+  - press: rb
+    expect: {screen: {tab: library}, respond_ms: 200}
+  - press: rb
+    expect: {screen: {tab: games}, respond_ms: 200}
+  - press: rb
+    expect: {screen: {tab: market}, respond_ms: 200}
+  - press: rb
+    expect: {screen: {tab: wallet}, respond_ms: 200}
+  - press: rb
+    expect: {screen: {tab: home}, respond_ms: 200}
+  # LB from Home wraps to Wallet and walks back down.
+  - press: lb
+    expect: {screen: {tab: wallet}, respond_ms: 200}
+  - press: lb
+    expect: {screen: {tab: market}, respond_ms: 200}
+  - press: lb
+    expect: {screen: {tab: games}, respond_ms: 200}
+  - press: lb
+    expect: {screen: {tab: library}, respond_ms: 200}
+  - press: lb
+    expect: {screen: {tab: home}, respond_ms: 200}
+# device checklist
+# - Watch each switch: the old screen stays until the next one is drawn, no empty frame, no cover art blinking out.
+# - First visit of Market and Wallet (a fresh boot) draws as fast as the second.
+# - Nothing is left unfocused after a switch: press A on every tab and something happens (or nothing is armed).

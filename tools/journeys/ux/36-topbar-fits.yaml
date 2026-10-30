@@ -1,0 +1,8 @@
+name: topbar-fits
+task: "Every top tab readable next to a long account name"
+fix: "the tabs never shrink; the right group does, the profile chip's name truncating first"
+env: {RR_ACCOUNT: "1", RR_ACCOUNT_LABEL: "A very long account name that goes on and on", RR_ACCOUNT_USD: "123456.78", RR_DOWNLOADS: "1"}
+home:
+  steps: [lb]
+  done: {screen: {tab: friends}, log: "topbar .*fits=true", nolog: "topbar .*fits=false"}
+  was_same: true

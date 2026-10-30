@@ -1,0 +1,20 @@
+App icons in this folder are the services' own icons, downloaded unchanged (except for
+resizing or format conversion) from each service's website. They are used only as shortcuts
+that open the service, as a home screen does. Each logo is a trademark of its owner; Rare OS
+is not affiliated with or endorsed by them.
+
+telegram.png  Telegram FZ-LLC     https://telegram.org/img/apple-touch-icon.png
+x.png         X Corp.             https://x.com/apple-touch-icon.png (1024 px, resized to 256)
+netflix.png   Netflix, Inc.       https://assets.nflxext.com/en_us/layout/ecweb/netflix-app-icon_152.jpg (JPEG to PNG)
+chrome.png    Google LLC          https://www.google.com/chrome/static/images/favicons/android-icon-192x192.png
+youtube.png   Google LLC          https://m.youtube.com/static/apple-touch-icon-180x180-precomposed.png
+steam.png     Valve Corp.         https://store.steampowered.com/apple-touch-icon.png
+discord.png   Discord Inc.        discord.com apple-touch-icon (.ico, 256 px entry, BMP to PNG)
+xcloud.png    Microsoft Corp.     https://assets.play.xbox.com/playxbox/static/media/apple-icon-180.8db22303.png
+geforcenow.png NVIDIA Corp.       https://play.geforcenow.com/mall/assets/img/GFN_logo1024_v2.png (1024 px, resized to 256)
+spotify.png   Spotify AB          https://open.spotifycdn.com/cdn/images/icons/Spotify_256.17e41e58.png
+twitch.png    Twitch Interactive  https://www.twitch.tv/apple-touch-icon.png
+chiaki.png    chiaki-ng project   Flathub icon of io.github.streetpea.Chiaki4deck (128 px)
+steamlink.png Valve Corp.         Flathub icon of com.valvesoftware.SteamLink (128 px)
+
+Fetched 2026-10-26 (steam.png, xcloud.png, geforcenow.png, spotify.png, twitch.png, chiaki.png and steamlink.png 2026-10-27).

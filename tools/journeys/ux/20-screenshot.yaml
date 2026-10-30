@@ -1,0 +1,8 @@
+name: screenshot
+task: "Take a screenshot in a game"
+fix: "none needed (second row of the Rare menu, under Resume)"
+game:
+  open: menu
+  steps: [down, a]
+  done: {act: 'ingame:screenshot'}
+  was: [down, a]

@@ -1,0 +1,13 @@
+[package]
+name = "rare-tw-macros"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+publish = false
+description = "The tw! proc macro: parses a Tailwind class string at compile time (rare-tw-core) into a static rare_tw::Tw"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+rare-tw-core = { path = "../core" }

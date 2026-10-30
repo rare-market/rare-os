@@ -1,0 +1,33 @@
+# Rare OS, SuiPlay0X1: what may wake the device from sleep.
+#
+# The firmware arms 11 ACPI wake sources (GPP1 GPP6 GPP7 GP11 GP12 XHC0 XHC1 XHC3 XHC4 NHI0 NHI1)
+# plus the charger, all for S4. In s2idle each one is a way to be woken in a bag: a USB-C plug
+# or unplug, a USB4 tunnel event, a PCIe link blip on the NVMe, Wi-Fi or card reader bridge, the
+# audio coprocessor, or the charger. A handheld should wake for:
+#   - the power button (PNP0C0C, not touched here),
+#   - the RTC alarm (rtcwake, scheduled wake; not touched),
+#   - the built-in buttons (i8042, not touched),
+#   - the battery (PNP0C0A, low-battery events; not touched).
+# The USB4 ports and USB root hubs stay out of the list on purpose: a dock or keyboard wakes
+# nothing, the power button does. Console-style: the device sleeps until you ask. Wi-Fi WoWLAN
+# stays off (NetworkManager conf next to this), and the Goodix touch panel and the IMU already
+# have wakeup disabled by their drivers.
+#
+# This only changes what is armed for system sleep. Runtime power management of these devices
+# (hot-plug while awake) is unaffected. To get a dock or keyboard wake back, override this file
+# with an empty /etc/udev/rules.d/72-rare-wakeup.rules, or re-enable one device:
+#   echo enabled | sudo tee /sys/bus/pci/devices/0000:c4:00.4/power/wakeup
+#
+# Matches the SuiPlay0X1 by DMI so the PCI addresses below are never applied to other hardware.
+ACTION!="add|change", GOTO="rare_wakeup_end"
+SUBSYSTEM!="pci|power_supply", GOTO="rare_wakeup_end"
+ATTR{[dmi/id]product_name}!="SuiPlay0X1", GOTO="rare_wakeup_end"
+
+# PCIe bridges: GPP1 (NVMe), GPP6 (Wi-Fi), GPP7 (card reader), GP11/GP12 (USB4 downstream).
+SUBSYSTEM=="pci", KERNEL=="0000:00:01.2|0000:00:02.2|0000:00:02.3|0000:00:03.1|0000:00:04.1", ATTR{power/wakeup}="disabled"
+# USB controllers XHC0/1 (c4) and XHC3/4 (c6), USB4 hosts NHI0/1, and the audio coprocessor.
+SUBSYSTEM=="pci", KERNEL=="0000:c4:00.3|0000:c4:00.4|0000:c4:00.5|0000:c6:00.3|0000:c6:00.4|0000:c6:00.5|0000:c6:00.6", ATTR{power/wakeup}="disabled"
+# Plugging or unplugging the charger.
+SUBSYSTEM=="power_supply", KERNEL=="ACAD", ATTR{power/wakeup}="disabled"
+
+LABEL="rare_wakeup_end"

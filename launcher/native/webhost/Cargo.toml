@@ -1,0 +1,34 @@
+# rare-webgame-host: the window a web game runs in, as its own process, on Chromium (CEF through
+# the `cef` crate). The native launcher starts one per game and drives it over a Unix socket
+# (launcher/crates/rare-webgame/src/process.rs has the protocol); the launcher itself never loads
+# web content. The same binary is CEF's renderer, GPU and utility subprocess.
+#   CEF_PATH=<cache dir> cargo build --release --manifest-path launcher/native/webhost/Cargo.toml
+# The build downloads the matching CEF distribution into CEF_PATH (keep it cached). At run time the
+# host needs that runtime: libcef.so on its library path and the resources in RARE_CEF_DIR
+# (tools/render/cef-runtime.sh lays it out; the launcher sets both when it starts the host).
+[package]
+name = "rare-webgame-host"
+version = "0.2.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+# Its own workspace: launcher/native is not one, and the CEF build stays out of the crates workspace.
+[workspace]
+
+[[bin]]
+name = "rare-webgame-host"
+path = "src/main.rs"
+
+[dependencies]
+serde_json = "1"
+cef = "=156.2.0"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+x11rb = "0.13"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4
+debug = "line-tables-only"

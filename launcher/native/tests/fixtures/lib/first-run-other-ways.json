@@ -1,0 +1,262 @@
+{
+ "batteryCare": {
+  "available": true,
+  "on": false,
+  "state": "off"
+ },
+ "bluetooth": {
+  "blocked": false,
+  "powered": true,
+  "present": true
+ },
+ "brightnessInfo": {
+  "dimIdle": false,
+  "pos": 70
+ },
+ "config": {
+  "gameFolders": [],
+  "onboarded": true,
+  "webGames": []
+ },
+ "device": {
+  "battery": {
+   "charging": false,
+   "health": 92,
+   "minutes": 190,
+   "percent": 82
+  },
+  "hostname": "rare",
+  "isSuiplay": true,
+  "isVm": false,
+  "name": "SuiPlay0X1",
+  "osName": "Rare OS",
+  "osVersion": "0.1 (dev)",
+  "platform": "linux",
+  "product": "SuiPlay0X1",
+  "underGamescope": false,
+  "vendor": "Mysten Labs, Inc.",
+  "wifi": "Home"
+ },
+ "displayState": {
+  "active": "eDP-1",
+  "docked": false,
+  "outputs": [
+   {
+    "connected": true,
+    "internal": true,
+    "label": null,
+    "lit": true,
+    "mode": "1200x1920",
+    "name": "eDP-1"
+   }
+  ]
+ },
+ "gamePower": null,
+ "hud": "off",
+ "levels": {
+  "brightness": 70,
+  "muted": false,
+  "volume": 55
+ },
+ "library": {
+  "emulation": {
+   "recent": [
+    {
+     "lastPlayed": 1792935660,
+     "name": "Pokemon Violet",
+     "playCount": 3,
+     "playtime": 5400,
+     "system": "switch"
+    },
+    {
+     "lastPlayed": 1792849260,
+     "name": "Jet Set Radio Future",
+     "playCount": 9,
+     "playtime": 6540,
+     "system": "xbox"
+    }
+   ],
+   "romDir": "/home/bazzite/Emulation/roms",
+   "systems": [
+    {
+     "count": 2,
+     "id": "switch",
+     "lastPlayed": 1792935660,
+     "name": "Switch"
+    },
+    {
+     "count": 1,
+     "id": "xbox",
+     "lastPlayed": 1792849260,
+     "name": "Xbox"
+    },
+    {
+     "count": 12,
+     "id": "gc",
+     "lastPlayed": null,
+     "name": "GameCube"
+    },
+    {
+     "count": 10,
+     "id": "ps2",
+     "lastPlayed": null,
+     "name": "PlayStation 2"
+    },
+    {
+     "count": 1,
+     "id": "wii",
+     "lastPlayed": null,
+     "name": "Wii"
+    }
+   ]
+  },
+  "emulationApp": "apps:esde",
+  "foreignSteamLibraries": [
+   "/var/home/playtron/.local/share/Steam"
+  ],
+  "games": [
+   {
+    "art": {
+     "cover": [
+      "games/act/cover.jpg"
+     ],
+     "header": [],
+     "hero": [
+      "games/act/hero.jpg"
+     ],
+     "logo": [
+      "games/act/logo.svg"
+     ]
+    },
+    "foreign": false,
+    "id": "web:act",
+    "installDir": null,
+    "installed": true,
+    "lastPlayed": 1793104860,
+    "launch": {
+     "kind": "web",
+     "url": "https://play.actuniverse.com/"
+    },
+    "origin": "Web game",
+    "sizeBytes": null,
+    "source": "web",
+    "title": "ACT"
+   }
+  ],
+  "scannedAt": 1793108460,
+  "sources": [
+   {
+    "available": true,
+    "count": 0,
+    "note": "Steam",
+    "source": "steam"
+   },
+   {
+    "available": true,
+    "count": 0,
+    "note": "legendary",
+    "source": "epic"
+   },
+   {
+    "available": true,
+    "count": 0,
+    "note": "GOG installs from Heroic",
+    "source": "gog"
+   },
+   {
+    "available": true,
+    "count": 0,
+    "note": "itch.io downloads",
+    "source": "itch"
+   },
+   {
+    "available": true,
+    "count": 0,
+    "note": "Games folders",
+    "source": "local"
+   },
+   {
+    "available": true,
+    "count": 1,
+    "note": "Browser games",
+    "source": "web"
+   },
+   {
+    "available": true,
+    "count": 0,
+    "note": "Emulators",
+    "source": "apps"
+   }
+  ]
+ },
+ "netStatus": {
+  "managed": true,
+  "online": true,
+  "wifi": "Home"
+ },
+ "osRestoreAvailable": true,
+ "osUpdate": {
+  "bootedVersion": "43.20261020.0",
+  "checkError": null,
+  "checkOk": true,
+  "checkedAt": 1793097660,
+  "staged": false,
+  "stagedVersion": null
+ },
+ "perf": {
+  "available": true,
+  "backend": "hhd",
+  "cpuBoost": false,
+  "fan": "default",
+  "fpsLimit": null,
+  "note": "",
+  "profile": "balanced",
+  "profileWatts": {
+   "balanced": 15,
+   "performance": 25,
+   "quiet": 10
+  },
+  "tdp": 15,
+  "tdpMax": 28,
+  "tdpMin": 5
+ },
+ "radios": {
+  "airplane": false,
+  "bluetooth": true,
+  "wifi": true
+ },
+ "running": [],
+ "steamAccount": null,
+ "upscale": {
+  "height": 0,
+  "mode": "off",
+  "sharpness": 10,
+  "width": 0
+ },
+ "wifiScan": [
+  {
+   "active": true,
+   "secure": true,
+   "signal": 86,
+   "ssid": "Home"
+  },
+  {
+   "active": false,
+   "secure": true,
+   "signal": 71,
+   "ssid": "Home 5G"
+  },
+  {
+   "active": false,
+   "secure": false,
+   "signal": 54,
+   "ssid": "Cafe Guest"
+  },
+  {
+   "active": false,
+   "secure": true,
+   "signal": 22,
+   "ssid": "Neighbour"
+  }
+ ]
+}

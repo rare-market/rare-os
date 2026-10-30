@@ -1,0 +1,47 @@
+"AppState"
+{
+	"appid"		"10190"
+	"Universe"		"1"
+	"name"		"Call of Duty: Modern Warfare 2 (2009) - Multiplayer"
+	"StateFlags"		"6"
+	"installdir"		"Call of Duty Modern Warfare 2"
+	"LastUpdated"		"1767237069"
+	"LastPlayed"		"1767239624"
+	"SizeOnDisk"		"4828879"
+	"StagingSize"		"0"
+	"buildid"		"11843771"
+	"LastOwner"		"76561199848316363"
+	"DownloadType"		"4"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"2848176"
+	"BytesDownloaded"		"0"
+	"BytesToStage"		"0"
+	"BytesStaged"		"0"
+	"TargetBuildID"		"25374019"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"1793270194"
+	"InstalledDepots"
+	{
+		"10184"
+		{
+			"manifest"		"908433931108303658"
+			"size"		"4828879"
+		}
+	}
+	"SharedDepots"
+	{
+		"228989"		"228980"
+		"228990"		"228980"
+		"10182"		"10180"
+		"10183"		"10180"
+	}
+	"UserConfig"
+	{
+		"language"		"english"
+	}
+	"MountedConfig"
+	{
+		"language"		"english"
+	}
+}

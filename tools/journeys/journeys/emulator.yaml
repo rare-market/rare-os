@@ -1,0 +1,25 @@
+name: emulator-checks
+title: "Emulator game (AppImage or Flatpak emulator)"
+tags: [games]
+needs: [probe]
+timeout_s: 60
+steps:
+  - goto: open:game:${emulator}
+  - wait_for: {focus: '"(Play|Resume|Open)', timeout_ms: 8000}
+  - name: the page is up, nothing is started
+    goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (full flow: core/emulator.yaml)
+# - Precondition: a ROM in a game folder with its emulator installed
+# - Do: the game's tile, press A
+#   Expect: the emulator fullscreen
+#   Journal: Started app-steam-app<id>-<n>.scope
+#   Journal: base-layer apps ... -> [<id>, 1380012613, ...]
+# - Do: press the Rare button
+#   Expect: Rare Home; <id> leaves the base-layer list
+# - Do: Running, Resume; then quit from the emulator's own menu
+#   Expect: Rare Home within 3 s
+# - Do: launch an emulator that fails at once (missing BIOS, broken AppImage)
+#   Expect: Toast: <game> closed right after it started (exit code N). Try again, or check it in Desktop mode.
+#   Journal: ended without starting (quick
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

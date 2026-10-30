@@ -1,0 +1,8 @@
+name: back-to-rare
+task: "Get back to Rare (Home) from a game"
+fix: "none needed (the Rare button, twice); the menu's left side says so"
+game:
+  open: menu
+  steps: [guide]
+  done: {screen: {tab: home, overlay: "-"}}
+  was_same: true

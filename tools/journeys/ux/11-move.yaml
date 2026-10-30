@@ -1,0 +1,7 @@
+name: move
+task: "Move a game to another drive"
+fix: "Move is on the game page right after Play (it was only in Settings, Storage)"
+home:
+  steps: [x, right, a]
+  done: {act: 'storage:move-game:steam:1449850'}
+  was_est: 19

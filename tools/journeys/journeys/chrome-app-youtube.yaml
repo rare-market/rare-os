@@ -1,0 +1,29 @@
+name: chrome-app-youtube
+title: "YouTube (TV layout in Chrome)"
+tags: [apps, chrome]
+needs: [probe, network]
+timeout_s: 60
+steps:
+  - goto: open:app:${chrome_app}
+  - wait_for: {focus: '"Open"|"Resume"', timeout_ms: 8000}
+  - name: the page is up, nothing is started
+    goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (full flow: core/chrome-app.yaml (same app); not automated: Chrome-uninstalled toast)
+# - Precondition: com.google.Chrome installed (Flathub)
+# - Do: Apps, YouTube, press A
+#   Expect: Toast: Opening YouTube. YouTube's TV layout fullscreen
+#   Journal: flatpak run com.google.Chrome --app=https://www.youtube.com/tv --user-data-dir=/home/<user>/.var/app/com.google.Chrome/data/rare-apps/youtube
+# - Do: d-pad, A, B on the pad
+#   Expect: YouTube TV moves, plays, goes back (Chrome reads the pad through the Gamepad API; Rare sends nothing in gamepad mode)
+# - Do: hold View
+#   Expect: the panel for YouTube
+# - Do: in the panel, Quit (A twice)
+#   Expect: Rare Home; YouTube gone from Running
+# - Do: on Home press View right after
+#   Expect: nothing opens (before the fix this opened Steam Big Picture)
+# - Do: open YouTube again, press the Rare button
+#   Expect: Rare Home; YouTube in Running; Resume brings it back
+# - Do: open YouTube with Chrome uninstalled
+#   Expect: Toast: YouTube needs Google Chrome. Get it from the app's page.
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

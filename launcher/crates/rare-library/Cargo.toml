@@ -1,0 +1,19 @@
+[package]
+name = "rare-library"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare's unified game library: Steam, Epic, GOG, itch, folders, web games, shortcuts, apps and ES-DE merged into one list"
+
+[dependencies]
+rare-core = { path = "../rare-core" }
+rare-state = { path = "../rare-state" }
+rare-images = { path = "../rare-images" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["raw_value"] }
+dirs = "6"
+url = "2"
+libc = "0.2"
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,22 @@
+name: first-run-offline
+title: First run offline, join Wi-Fi with the on-screen keyboard or continue without
+tags: [first-run, launcher]
+needs: [probe]
+timeout_s: 120
+start: as-is
+steps:
+  - wait_for: {focus: "Get started"}
+  - press: a
+    expect: {screen: {}}
+  # Offline: the Wi-Fi step is shown. Continue offline leads to Sign in, which says a phone passkey needs the internet.
+  - nav: {press: down, until: {focus: "Continue offline"}, max: 20}
+  - press: a
+    expect: {focus: "Connect to Wi-Fi|Sign in with a passkey"}
+  - press: b
+    expect: {focus: "Continue offline|Join"}
+# device checklist
+# - Pick a secured network: keyboard "Password for <name>" (secret), Start finishes, B cancels without joining.
+# - Wrong password: "Couldn't join <name>. Check the password and try again." and the list stays focusable.
+# - Success: "Connected to <name>", moves on after about 1.4 s.
+# - Not now, then Steam offline: "Skip Steam for now" finishes setup.
+# - No NetworkManager: "Wi-Fi is managed outside Rare" with Continue. No networks: Scan again and Continue offline.

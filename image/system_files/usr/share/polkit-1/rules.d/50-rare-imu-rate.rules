@@ -1,0 +1,8 @@
+// Rare OS: the launcher (in the active local session) reads the IMU at 200 Hz only while the pad
+// target carries motion (deck-uhid), through `pkexec /usr/libexec/rare/imu-rate full|idle`.
+// Only that action, only the person at the device; anyone else (SSH included) is refused.
+polkit.addRule(function (action, subject) {
+    if (action.id === "org.rare.imu.rate") {
+        return subject.local && subject.active ? polkit.Result.YES : polkit.Result.NO;
+    }
+});

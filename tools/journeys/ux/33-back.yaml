@@ -1,0 +1,7 @@
+name: back
+task: "Go back (B) from a game page"
+fix: "none needed (B is back on every page and sheet; the hint bar says it)"
+home:
+  steps: [x, b]
+  done: {screen: {tab: home, overlay: "-"}}
+  was_same: true

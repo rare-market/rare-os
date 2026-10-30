@@ -1,0 +1,8 @@
+# Valve's amdgpu arguments for the Steam Deck (jupiter-hw-support grub-steamos, mirrored with
+# Valve's comments in Jovian-NixOS modules/steamos/boot.nix). bootc kargs.d has no DMI match
+# (only match-architectures), so these apply to the whole image. Rare OS images are AMD-handheld
+# builds, and both values are safe on any RDNA2/RDNA3 part.
+#   sched_hw_submission=4: avoids bubbles of lack of work with the default (2); 4 is the
+#                          maximum supported across RDNA2 and RDNA3.
+#   lockup_timeout:        GFX, compute, SDMA, video. Detect a hung ring in 5 s instead of 10 s.
+kargs = ["amdgpu.sched_hw_submission=4", "amdgpu.lockup_timeout=5000,10000,10000,5000"]

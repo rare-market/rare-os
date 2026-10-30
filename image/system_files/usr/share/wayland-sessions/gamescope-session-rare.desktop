@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Rare
+Comment=Rare OS game mode with Rare Launcher
+Exec=/usr/bin/rare-session
+Type=Application
+DesktopNames=gamescope

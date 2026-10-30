@@ -1,0 +1,31 @@
+name: emulator
+title: Launch an emulator, the Rare menu, Home, the Switcher, quit
+tags: [core, games]
+needs: [probe]
+timeout_s: 180
+steps:
+  - goto: open:game:${emulator}
+  - wait_for: {focus: '"(Play|Resume|Open)', timeout_ms: 8000}
+  - name: A starts the emulator
+    press: a
+    allow: [black]
+    after_ms: 300
+    wait_for: {focus_app: not_launcher, timeout_ms: 45000}
+  - name: emulator idles for 5 s
+    wait: 5000
+  - name: The Rare button opens the Rare menu over the emulator
+    press: guide
+    expect: {focus_app: launcher, respond_ms: 1200}
+    wait_for: {ingame: {mode: menu}, timeout_ms: 3000}
+  - name: The Rare button again brings Rare Home in front
+    press: guide
+    expect: {focus_app: launcher, screen: {tab: home}, respond_ms: 300, settle_ms: 1200}
+  - name: Holding the Rare button opens the Switcher
+    press: guide_hold
+    expect: {respond_ms: 1200}
+    wait_for: {screen: {overlay: running}, timeout_ms: 3000}
+  - name: B closes it
+    press: b
+  - name: quit the emulator
+    goto: quit:all
+  - wait_for: {focus_app: launcher, timeout_ms: 20000}

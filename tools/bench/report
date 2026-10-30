@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Compare two labelled builds from bench/runs.
+#   report <baseline-label> <other-label> [--runs DIR] [--out PREFIX]
+# Writes <PREFIX>.md and <PREFIX>.csv (default bench/reports/<baseline>-vs-<other>). Works for any two labels.
+# n=1 cells are marked preliminary; a "headline" needs at least 2 runs of that cell on both sides.
+exec python3 -I "$(dirname "$0")/report.py" "$@"

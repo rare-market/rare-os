@@ -1,0 +1,15 @@
+[Unit]
+Description=Rare OS: speaker EQ only on the internal speaker port
+After=pipewire.service pipewire-pulse.service wireplumber.service
+Wants=pipewire.service pipewire-pulse.service
+PartOf=pipewire.service
+ConditionUser=!root
+ConditionPathExists=/etc/pipewire/pipewire.conf.d/50-rare-speaker-eq.conf
+
+[Service]
+ExecStart=/usr/libexec/rare/speaker-eq-route
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,13 @@
+#!/bin/sh
+# Adaptive backlight (amdgpu ABM): off on AC, level 2 of 4 on battery.
+# Level 2 trims backlight a few percent and compensates in the pixel path,
+# so the colour shift is hard to see; 3 and 4 get visibly washed out.
+ac=0
+for p in /sys/class/power_supply/*; do
+    [ "$(cat "$p/type" 2>/dev/null)" = Mains ] && [ "$(cat "$p/online" 2>/dev/null)" = 1 ] && ac=1
+done
+if [ "$ac" = 1 ]; then level=0; else level=2; fi
+for f in /sys/class/drm/card*-eDP-*/amdgpu/panel_power_savings; do
+    [ -w "$f" ] && echo "$level" > "$f"
+done
+exit 0

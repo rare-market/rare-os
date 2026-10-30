@@ -1,0 +1,17 @@
+name: game-page
+title: Library, open a game page with A, back with B
+tags: [core, launcher]
+needs: [probe]
+timeout_s: 60
+steps:
+  - goto: tab:library
+  - wait_for: {settled: 500, timeout_ms: 5000}
+  - name: A opens the focused game's page
+    press: a
+    expect: {screen: {overlay: game}, respond_ms: 150, settle_ms: 900}
+  - name: down through the page
+    press: down
+    repeat: 3
+  - name: B back to the Library
+    press: b
+    expect: {screen: {tab: library, overlay: "-"}, respond_ms: 150, settle_ms: 900}

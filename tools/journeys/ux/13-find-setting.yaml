@@ -1,0 +1,12 @@
+name: find-setting
+task: "Find a setting"
+fix: "Y in the Rare menu searches Settings from anywhere, over a game too"
+home:
+  steps: [guide, y]
+  done: {osk: "Search settings"}
+  was: [guide, down, down, a, up, a]
+game:
+  open: menu
+  steps: [y]
+  done: {osk: "Search settings"}
+  was_none: true

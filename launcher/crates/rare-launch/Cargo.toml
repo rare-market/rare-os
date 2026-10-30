@@ -1,0 +1,29 @@
+[package]
+name = "rare-launch"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare's launch path: the runner (start, track, quit), Steam handoff and defaults, Proton tools, and the Apps tiles (catalog, front, pointer, Flathub installs)"
+
+[dependencies]
+rare-discord = { path = "../rare-discord" }
+rare-core = { path = "../rare-core" }
+rare-library = { path = "../rare-library" }
+rare-localapi = { path = "../rare-localapi" }
+rare-overlay = { path = "../rare-overlay" }
+rare-system = { path = "../rare-system" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["raw_value"] }
+dirs = "6"
+url = "2"
+ureq = { version = "2", features = ["json"] }
+sha2 = "0.10"
+flate2 = "1"
+tar = "0.4"
+ruzstd = "0.8"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[dev-dependencies]
+tempfile = "3"

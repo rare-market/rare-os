@@ -1,0 +1,7 @@
+name: back-quick
+task: "Close Quick settings (B)"
+fix: "none needed"
+home:
+  steps: [qam, b]
+  done: {screen: {tab: home, overlay: "-"}}
+  was_same: true

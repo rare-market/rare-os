@@ -1,0 +1,14 @@
+node_modules/
+launcher/dist/
+launcher/src-tauri/target/
+launcher/src-tauri/gen/
+*.qcow2
+*.raw
+*.iso
+/out/
+.DS_Store
+image/rare-fand/target/
+launcher/dist-mock/
+launcher/crates/target/
+launcher/crates/Cargo.lock
+.leakcheck-terms

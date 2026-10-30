@@ -1,0 +1,5 @@
+# Rare OS: Ledger hardware wallets (USB vendor 2c97, every model) for Rare Wallet.
+# uaccess gives the logged-in user access without sudo. Sorted before 73-seat-late.rules,
+# which applies the uaccess tag.
+SUBSYSTEM=="usb", ATTRS{idVendor}=="2c97", TAG+="uaccess"
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="2c97", TAG+="uaccess"

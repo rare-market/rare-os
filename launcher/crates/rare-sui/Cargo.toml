@@ -1,0 +1,49 @@
+[package]
+name = "rare-sui"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+description = "Rare's Sui core: gRPC reads, gas, status, ownership, licences, kiosks, balances, names, prices and live feeds, transaction building, and cloud saves"
+
+[features]
+# Everything that talks to the network (gRPC, rare.market, the Trade API, Walrus). Without it only the
+# offline parts build: cloud save packing/restore and encryption (what src-tauri links).
+default = ["chain", "walrus-write"]
+chain = ["dep:sui-rpc", "dep:sui-sdk-types", "dep:sui-transaction-builder", "dep:prost-types", "dep:tonic", "dep:tokio", "dep:futures", "dep:reqwest", "dep:bcs", "dep:hex"]
+# Writing cloud save backups to Walrus: blob ids from MystenLabs' walrus-core (git, no crates.io release).
+walrus-write = ["chain", "dep:walrus-core"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+# cloud saves: tar.gz packing and restore, AES-256-GCM with an HKDF-SHA256 key
+tar = "0.4"
+flate2 = "1"
+aes-gcm = "0.10"
+hkdf = "0.12"
+sha2 = "0.10"
+dirs = "6"
+
+sui-rpc = { version = "0.4", optional = true }
+sui-sdk-types = { version = "0.4", features = ["serde", "hash"], optional = true }
+sui-transaction-builder = { version = "0.4", optional = true }
+prost-types = { version = "0.14", optional = true }
+tonic = { version = "0.14", default-features = false, features = ["channel", "tls-ring", "tls-webpki-roots"], optional = true }
+tokio = { version = "1.40", features = ["rt", "time", "sync", "macros"], optional = true }
+futures = { version = "0.3", optional = true }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"], optional = true }
+bcs = { version = "0.1.6", optional = true }
+hex = { version = "0.4", optional = true }
+walrus-core = { git = "https://github.com/MystenLabs/walrus", tag = "mainnet-v1.58.1", default-features = false, optional = true }
+
+[dev-dependencies]
+tokio = { version = "1.40", features = ["rt-multi-thread", "macros"] }
+
+[[example]]
+name = "smoke"
+required-features = ["chain"]
+
+[[example]]
+name = "walprobe"
+required-features = ["walrus-write"]

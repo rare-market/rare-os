@@ -1,0 +1,57 @@
+#!/usr/bin/bash
+# rare-undo: start the system this device ran before Rare OS (GameOS, or any other image) again.
+#
+#   sudo rare-undo            next start is the previous system
+#   sudo rare-undo --reboot   and restart now
+#   rare-undo --check         exit 0 if a previous system exists to go back to, else 1; changes
+#                             nothing and needs no root (the launcher uses it to show the button)
+#
+# `bootc rollback` isn't enough after a switch: the first start of Rare OS can add its own new
+# version (hardware kernel arguments, the move to signed updates), so "rollback" may only reach an
+# earlier Rare OS. The system you switched from is pinned on Rare OS's first start
+# (rare-keep-previous-os), and this makes it the default again. Rare OS stays installed; your
+# files and games are shared by both.
+set -euo pipefail
+REPO="$(cat /usr/lib/rare/image-repo 2>/dev/null || echo rare-os)"
+
+if [[ "${1:-}" == --check ]]; then
+    jq -e --arg repo "$REPO" '[.deployments[] | (.["container-image-reference"] // .origin // "") | select((contains($repo) or contains("rare-os")) | not)] | length > 0' \
+        < <(rpm-ostree status --json 2>/dev/null) >/dev/null
+    exit $?
+fi
+[[ $EUID -eq 0 ]] || { echo "Run it with sudo:  sudo rare-undo" >&2; exit 1; }
+
+# A kernel-argument change from Rare OS's first start may still be running; set-default would wait
+# for it and then count its new staged version, picking Rare OS again (seen in the VM rehearsal).
+# Stop it and drop anything staged first, so the positions counted below are the ones it uses.
+rpm-ostree cancel >/dev/null 2>&1 || true
+rpm-ostree cleanup -p >/dev/null
+
+json="$(rpm-ostree status --json)"
+n="$(jq '.deployments | length' <<<"$json")"
+target=""
+for ((i = 0; i < n; i++)); do
+    ref="$(jq -r ".deployments[$i][\"container-image-reference\"] // .deployments[$i].origin // empty" <<<"$json")"
+    [[ "$ref" == *"$REPO"* || "$ref" == *rare-os* ]] && continue
+    target=$i
+    break
+done
+
+if [[ -z "$target" ]]; then
+    echo "The system you switched from is no longer installed on this device."
+    echo "To go back to the previous Rare OS version instead, run:  sudo bootc rollback"
+    exit 1
+fi
+
+if [[ "$target" == 0 ]]; then
+    echo "The previous system is already set to start next."
+else
+    name="$(jq -r ".deployments[$target].version // empty" <<<"$json")"
+    ostree admin set-default "$target" >/dev/null
+    echo "Done. The next start is the system you switched from${name:+ ($name)}."
+fi
+echo "Rare OS stays installed. To come back to it, pick it in the boot menu (hold Shift while"
+echo "powering on), or run  sudo ostree admin set-default 1  on the old system."
+if [[ "${1:-}" == --reboot ]]; then
+    systemctl reboot
+fi

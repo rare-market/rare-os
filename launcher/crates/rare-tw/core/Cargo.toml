@@ -1,0 +1,15 @@
+[package]
+name = "rare-tw-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+publish = false
+description = "rare-tw's parser: Tailwind v4 class strings (the subset launcher/src uses) into layout and look declarations, with tokens generated from launcher/src/styles/app.css"
+
+
+[features]
+# Tw::style(rem) -> taffy::Style (the rare-tw crate turns it on).
+taffy = ["dep:taffy"]
+
+[dependencies]
+taffy = { version = "0.15", optional = true }

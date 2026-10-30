@@ -1,0 +1,29 @@
+[package]
+name = "rare-fand"
+version = "0.1.0"
+edition = "2021"
+description = "Rare OS fan curve service: drives the ayaneo_ec fan (SuiPlay0X1) from the GPU edge temperature"
+license = "MIT"
+publish = false
+
+[lib]
+name = "rare_fand"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rare-fand"
+path = "src/main.rs"
+
+[dependencies]
+libc = "0.2"
+
+# The bus side only builds on Linux; the curve, controller and sysfs code (and their tests)
+# build everywhere. zbus is pure Rust: no libdbus to link in the image.
+[target.'cfg(target_os = "linux")'.dependencies]
+zbus = "5"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

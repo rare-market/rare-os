@@ -1,0 +1,8 @@
+name: install
+task: "Install a game you own"
+fix: "Not installed is the Library tab left of All (LT); A on a game that isn't installed installs it (picks the drive)"
+home:
+  env: {RR_DOWNLOADS: "1"}
+  steps: [rb, lt, a]
+  done: {act: 'Install\("steam:'}
+  was: [rb, lt, a, a]

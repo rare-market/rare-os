@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+	[Desktop Entry]
+	Name=Cemu AppImage
+	Exec=/home/bazzite/Emulation/tools/launchers/cemu.sh
+	Icon=/home/bazzite/.local/share/icons/emudeck/Cemu.png
+	Terminal=false
+	Type=Application
+	Categories=Game;
+	StartupNotify=false

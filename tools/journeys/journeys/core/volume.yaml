@@ -1,0 +1,17 @@
+name: volume
+title: Volume keys (the runner puts the volume back afterwards)
+tags: [core, system]
+timeout_s: 40
+steps:
+  - name: volume down
+    press: volume_down
+    after_ms: 800
+  - name: volume up
+    press: volume_up
+    after_ms: 800
+  - name: volume up again
+    press: volume_up
+    after_ms: 800
+  - name: volume down again
+    press: volume_down
+    after_ms: 800

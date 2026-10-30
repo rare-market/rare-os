@@ -1,0 +1,19 @@
+name: os-restore-previous
+title: Restore previous system is offered in Settings > System and cancels with B
+tags: [settings, system]
+needs: [probe]
+timeout_s: 90
+steps:
+  - goto: settings
+  - nav:
+      press: right
+      until: {focus: "Restore"}
+  - press: a
+    expect: {focus: "Restore and restart|Restore, restart later|Cancel"}
+  - press: b
+    expect: {screen: {tab: settings}}
+# device checklist
+# - The row is shown only when `rare-undo --check; echo $?` is 0 (no row when no previous system).
+# - Restore, restart later: toast says the next start is the previous system, rpm-ostree status lists
+#   the old system first. Restore and restart: the device restarts into it (owner's yes).
+# - pkexec os-admin undo from SSH is refused by polkit.

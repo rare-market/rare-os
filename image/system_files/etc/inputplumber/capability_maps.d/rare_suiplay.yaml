@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ShadowBlip/InputPlumber/main/rootfs/usr/share/inputplumber/schema/capability_map_v1.json
+# Rare OS: the SuiPlay0X1's four extra buttons as InputPlumber D-Bus actions.
+#
+# The AT keyboard sends them as F15-F18 on this image (the base's /usr/lib/udev/hwdb.d/59-sui.hwdb
+# remaps scancodes 0x6c 0x6d 0x6e 0x76, BIOS 2.19_S20, and 0x66-0x69 on older BIOS) and as
+# F21-F24 without that hwdb (atkbd's default set-1 keymap). Both are mapped.
+#
+# A D-Bus action goes only to InputPlumber's DBusDevice target (composite_device write_event),
+# whatever the intercept mode, so Steam, games and the virtual pad never see these buttons. The
+# launcher listens for them:
+#   Rare (Aya Space) -> ui_guide       press: Rare menu / Home, hold: Switcher
+#   Quick            -> ui_quick       Quick Settings
+#   LC               -> ui_screenshot  press: screenshot, hold 1 s: last 30 s
+#   RC               -> ui_osk         on-screen keyboard
+version: 1
+kind: CapabilityMap
+name: Rare SuiPlay0X1
+id: rare_suiplay
+
+mapping:
+  - name: LC
+    source_events:
+      - keyboard: KeyF15
+    target_event:
+      dbus: ui_screenshot
+  - name: RC
+    source_events:
+      - keyboard: KeyF16
+    target_event:
+      dbus: ui_osk
+  - name: Rare
+    source_events:
+      - keyboard: KeyF17
+    target_event:
+      dbus: ui_guide
+  - name: Quick
+    source_events:
+      - keyboard: KeyF18
+    target_event:
+      dbus: ui_quick
+  - name: LC (no hwdb)
+    source_events:
+      - keyboard: KeyF21
+    target_event:
+      dbus: ui_screenshot
+  - name: RC (no hwdb)
+    source_events:
+      - keyboard: KeyF22
+    target_event:
+      dbus: ui_osk
+  - name: Rare (no hwdb)
+    source_events:
+      - keyboard: KeyF23
+    target_event:
+      dbus: ui_guide
+  - name: Quick (no hwdb)
+    source_events:
+      - keyboard: KeyF24
+    target_event:
+      dbus: ui_quick
+
+filtered_events: []

@@ -1,0 +1,99 @@
+# bootc-image-builder config for the Rare OS USB installer (anaconda-iso). Run the result through
+# image/installer/finish-iso.sh (no GRUB menu wait, the splash).
+# One step: boot the stick, the installer finds the internal drive, shows what it is
+# about to erase with a 20-second countdown (power off to cancel), installs, reboots.
+# Anaconda runs without its own screens (cmdline): Rare's screen on tty6 shows the countdown, then
+# what is happening and the time so far, in a font a 7-inch 1920x1200 panel can show; a failure
+# says so there too. Backslashes are doubled below (TOML).
+[customizations.installer.kickstart]
+contents = """
+%pre --erroronfail
+exec < /dev/tty6 > /dev/tty6 2>&1
+chvt 6
+# A handheld panel is 1920x1200 at about 7 inches: the 8x16 console font is unreadable there.
+setfont -C /dev/tty6 latarcyrheb-sun32 2>/dev/null || setfont latarcyrheb-sun32 2>/dev/null || true
+printf '\\033[?25l'
+# The internal drive: the largest non-removable, non-USB disk.
+best=""; bestsize=0
+for d in /sys/block/*; do
+    n=$(basename "$d")
+    case "$n" in loop*|ram*|zram*|sr*|dm-*|md*) continue ;; esac
+    [ "$(cat "$d/removable" 2>/dev/null)" = 1 ] && continue
+    readlink -f "$d" | grep -q "/usb" && continue
+    s=$(cat "$d/size")
+    [ "$s" -gt "$bestsize" ] && { best=$n; bestsize=$s; }
+done
+[ -n "$best" ] || { echo "No internal drive found."; sleep 600; exit 1; }
+model=$(cat /sys/block/$best/device/model 2>/dev/null | xargs)
+gb=$((bestsize * 512 / 1000000000))
+printf '\\033[2J\\033[H'
+echo
+echo "   Rare OS installer"
+echo
+echo "   This erases ${model:-the internal drive} ($best, ${gb} GB) and installs Rare OS."
+echo "   Everything on that drive is removed. The USB stick is not touched."
+echo
+for i in $(seq 20 -1 1); do printf "\r   Starting in %2d s. Hold the power button to cancel. " "$i"; sleep 1; done
+
+# Rare's install screen until the restart: the step, the time so far, a dot that moves every second.
+echo "$best" > /tmp/rare-target
+cat > /tmp/rare-progress <<'SCREEN'
+exec < /dev/tty6 > /dev/tty6 2>&1
+dmesg -n 1 2>/dev/null
+t0=$(date +%s); n=0; e=0; dev=$(cat /tmp/rare-target)
+w0=$(awk '{print $7}' /sys/block/$dev/stat)
+while :; do
+    [ "$(cat /sys/class/tty/tty0/active 2>/dev/null)" = tty6 ] || chvt 6
+    # the console font resets when the GPU driver takes over from the firmware's framebuffer
+    [ $(( e % 5 )) = 0 ] && setfont -C /dev/tty6 latarcyrheb-sun32 2>/dev/null
+    e=$(( $(date +%s) - t0 )); n=$(( (n + 1) % 4 )); dots=$(printf '%*s' $n '' | tr ' ' '.')
+    # what has been written to the drive so far (the copy is most of the install), in tenths of a GB
+    w=$(( ($(awk '{print $7}' /sys/block/$dev/stat) - w0) * 512 / 100000000 ))
+    printf '\\033[H\\033[K\\n\\033[K\\n   Rare OS installer\\033[K\\n\\033[K\\n'
+    if grep -qsE "CRT exception|exception report" /tmp/anaconda.log; then
+        printf '   The install stopped with an error.\\033[K\\n\\033[K\\n   Hold the power button to turn off, then start the installer again.\\033[K\\n   If it stops again, the drive may need replacing.\\033[K\\n'
+        sleep 3600; continue
+    fi
+    printf '   Installing Rare OS. This takes about 5 minutes.\\033[K\\n   It restarts by itself when it is done.\\033[K\\n\\033[K\\n'
+    if [ $w -lt 2 ]; then
+        printf '   Preparing the drive%s\\033[K\\n' "$dots"
+    else
+        printf '   Copying Rare OS to the drive%s\\033[K\\n   %d.%d GB so far\\033[K\\n' "$dots" $((w / 10)) $((w % 10))
+    fi
+    printf '\\033[K\\n   %d:%02d\\033[K\\n' $((e / 60)) $((e % 60))
+    printf '\\033[J'
+    sleep 1
+done
+SCREEN
+# Its own unit: anaconda ends whatever a %pre script leaves running.
+systemd-run --unit=rare-install-screen --collect bash /tmp/rare-progress
+
+cat > /tmp/part-include <<PART
+ignoredisk --only-use=$best
+zerombr
+clearpart --all --initlabel --drives=$best --disklabel=gpt
+reqpart --add-boot
+part btrfs.01 --grow --ondisk=$best
+btrfs none --label=rare-os btrfs.01
+btrfs / --subvol --name=root LABEL=rare-os
+PART
+%end
+
+%include /tmp/part-include
+cmdline
+lang en_US.UTF-8
+keyboard us
+timezone UTC --utc
+network --bootproto=dhcp --activate
+firstboot --disable
+reboot --eject
+
+# Anaconda leaves a text-mode install (cmdline, above) on multi-user.target: game mode never starts.
+%post --erroronfail
+systemctl set-default graphical.target
+%end
+"""
+
+[customizations.installer.modules]
+# No user or root screens: Rare OS creates its game-mode user on first boot.
+disable = ["org.fedoraproject.Anaconda.Modules.Users"]

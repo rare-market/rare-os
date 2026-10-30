@@ -1,0 +1,22 @@
+#!/usr/bin/bash
+# The native Rare launcher (Rust, /usr/libexec/rare/native), the default launcher of the Rare OS
+# session: sessions.d/rare sets RARE_LAUNCHER_BIN to this script and rare-session-client runs it.
+# A normal exit (0, SIGINT, SIGTERM) starts it again. A crash puts the web launcher
+# (/usr/bin/rare-launcher) in $XDG_RUNTIME_DIR/rare-launcher-bin, which is gone at the next boot,
+# so the session never loops on a broken build. To stay on the web launcher for good:
+#   echo /usr/bin/rare-launcher > ~/.config/rare/launcher-bin
+run=${XDG_RUNTIME_DIR:-/tmp}
+log=${XDG_STATE_HOME:-$HOME/.local/state}/rare/native.log
+mkdir -p "${log%/*}"
+[[ -s $log && $(stat -c %s "$log") -gt 4194304 ]] && mv -f "$log" "$log.prev"
+RUST_BACKTRACE=1 /usr/libexec/rare/native/rare-launcher-native "$@" >>"$log" 2>&1
+rc=$?
+case $rc in
+0 | 130 | 143) ;;
+*)
+    echo "[$(date +%T)] native exited $rc: web launcher until reboot" >>"$log"
+    echo /usr/bin/rare-launcher >"$run/rare-launcher-bin"
+    ;;
+esac
+touch "$run/rare-launcher-restart"
+exit $rc

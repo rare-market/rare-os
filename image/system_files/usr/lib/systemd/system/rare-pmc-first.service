@@ -1,0 +1,13 @@
+[Unit]
+Description=Rare OS: let amd_pmc map the SMU log before ryzen_smu (s0ix sleep stats)
+Documentation=file:///usr/libexec/rare/pmc-first
+ConditionVirtualization=!vm
+After=systemd-modules-load.service systemd-udev-trigger.service sys-kernel-debug.mount
+Before=powerstation.service rare-power-defaults.service steamos-manager.service display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/pmc-first
+
+[Install]
+WantedBy=multi-user.target

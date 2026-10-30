@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+# Keeps the system Rare OS was switched from (GameOS, or any other image) in the boot menu.
+# Normally only two systems stay installed, so the first Rare OS update (and the move to
+# signed updates right after the switch) would push the old one out. People coming from a
+# SuiPlay's GameOS may still need it to sign the move of their Playtron wallet, so it is
+# pinned until they remove it:  sudo ostree admin pin --unpin <index>  (see `rpm-ostree status`).
+set -euo pipefail
+REPO="$(cat /usr/lib/rare/image-repo 2>/dev/null || echo rare-os)"
+json="$(rpm-ostree status --json)"
+n="$(jq '.deployments | length' <<<"$json")"
+for ((i = 0; i < n; i++)); do
+    d="$(jq ".deployments[$i]" <<<"$json")"
+    [[ "$(jq -r '.booted // false' <<<"$d")" == true ]] && continue
+    [[ "$(jq -r '.pinned // false' <<<"$d")" == true ]] && continue
+    ref="$(jq -r '.["container-image-reference"] // .origin // empty' <<<"$d")"
+    [[ "$ref" == *"$REPO"* || "$ref" == *rare-os* ]] && continue
+    echo "rare: keeping the previous system in the boot menu (deployment $i, ${ref:-unknown})"
+    # Retry while another ostree operation holds the system lock.
+    for t in 1 2 3 4 5 6 7 8 9 10; do
+        ostree admin pin "$i" && break
+        [[ $t == 10 ]] && exit 1
+        sleep 3
+    done
+done

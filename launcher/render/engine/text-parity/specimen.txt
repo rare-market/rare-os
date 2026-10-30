@@ -1,0 +1,40 @@
+# Text parity specimen: the launcher's text styles at 1920x1200 (rem 24) and 1280x800 (rem 16).
+# One line each: family weight size line tracking features color | text
+# family inter|fira, size and line in px, tracking in em, features - or tnum, color fg|muted|pos|neg|white.
+# A text starting with @<width>t is truncated in a box that wide (Tailwind truncate), @<width>w<n>
+# wraps (n lines reserved) and @<width>c<n> is clamped to n lines (line-clamp-n).
+# web.mjs renders it in headless browsers, `cargo run --example text_parity` natively, same layout.
+inter 600 66 72 -0.03 - fg | Continue playing
+inter 600 48 54 -0.02 - fg | Modern Warfare II
+inter 600 33 42 -0.01 - fg | Your Rare 2,481 items
+inter 500 25.5 36 0 - fg | Home Library Sui Market Wallet
+inter 500 25.5 36 0 - muted | Settings Notifications Storage
+inter 400 22.5 33 0 - fg | The quick brown fox jumps over the lazy dog 0123456789
+inter 400 22.5 33 0 - muted | Played 2 hours ago on Steam, 14.2 GB, controller ready
+inter 600 22.5 33 0 - fg | Play Details Sign in Continue
+inter 400 21 30 0 - fg | Sphinx of black quartz, judge my vow. AVAWAY Tj fi fl
+inter 400 21 30 0 - muted | Hollow Keep is installing, 42% of 3.1 GB
+inter 400 19.5 27 0 - muted | Last played yesterday at 21:04
+inter 500 18 24 0 - muted | LB RB A B X Y Start Select
+inter 400 18 24 0 tnum fg | 1,234,567.89 +12.40% 0.000123 SUI $3.4812
+inter 600 25.5 36 0 tnum pos | +$1,204.56 +4.21%
+inter 600 25.5 36 0 tnum neg | -$88.12 -0.73%
+fira 400 22.5 33 0 - fg | 0xa049...887e 1,234,567.89 TPS 4,812
+fira 500 21 30 0 - muted | gas 750 MIST 0xabcd
+inter 600 44 48 -0.03 - fg | Continue playing
+inter 600 32 36 -0.02 - fg | Modern Warfare II
+inter 600 22 28 -0.01 - fg | Your Rare 2,481 items
+inter 500 17 24 0 - fg | Home Library Sui Market Wallet
+inter 400 15 22 0 - fg | The quick brown fox jumps over the lazy dog 0123456789
+inter 400 15 22 0 - muted | Played 2 hours ago on Steam, 14.2 GB, controller ready
+inter 400 14 20 0 - fg | Sphinx of black quartz, judge my vow. AVAWAY Tj fi fl
+inter 400 13 18 0 - muted | Last played yesterday at 21:04
+inter 500 12 16 0 - muted | LB RB A B X Y Start Select
+inter 400 12 16 0 tnum fg | 1,234,567.89 +12.40% 0.000123 SUI $3.4812
+fira 400 15 22 0 - fg | 0xa049...887e 1,234,567.89 TPS 4,812
+inter 600 22.5 33 0 - fg | @260t Call of Duty: Modern Warfare II Campaign Remastered
+inter 400 19.5 27 0 - muted | @300t Last played yesterday at 21:04 on the Rare dock
+fira 400 21 30 0 - fg | @220t 0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5
+inter 400 21 30 0 - fg | @420w3 Hollow Keep is a quiet game about a lighthouse keeper who restores the lamps of a drowned coast, one season at a time.
+inter 400 21 30 0 - muted | @420c2 Hollow Keep is a quiet game about a lighthouse keeper who restores the lamps of a drowned coast, one season at a time.
+inter 400 14 20 0 - fg | @260c2 Hollow Keep is a quiet game about a lighthouse keeper who restores the lamps of a drowned coast, one season at a time.

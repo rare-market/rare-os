@@ -1,0 +1,8 @@
+# What bazzite-hardware-setup.service adds on the first boot of every handheld, already there at
+# install: it found them missing, ran `rpm-ostree kargs`, showed "Preparing System - Please wait"
+# and rebooted, and that reboot left GRUB's menu up with its countdown on the next start (seen in
+# the first-install VM walk: about 90 s and a keyboard-only screen before Rare's first run).
+#   bluetooth.disable_ertm=1   Xbox and other Bluetooth pads (added on every machine)
+#   amdgpu.ppfeaturemask       the kernel default 0xfff7bfff plus overdrive (0x4000), what the script
+#                              computes on Valve, non-Valve handheld and PowerStation hardware
+kargs = ["bluetooth.disable_ertm=1", "amdgpu.ppfeaturemask=0xfff7ffff"]

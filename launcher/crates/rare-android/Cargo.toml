@@ -1,0 +1,20 @@
+[package]
+name = "rare-android"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Android apps and games on Rare OS through Waydroid: one-press setup (vanilla image, no Google), F-Droid and Aurora Store, installed apps as library entries, fullscreen runs in gamescope, uninstall, sizes, and touch controls (pad buttons as screen taps) per game"
+
+[dependencies]
+rare-library = { path = "../rare-library" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "6"
+log = "0.4"
+ureq = { version = "2", features = ["json"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+evdev = "0.13"
+
+[dev-dependencies]
+tempfile = "3"

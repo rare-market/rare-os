@@ -1,0 +1,12 @@
+name: notifications
+task: "Read notifications"
+fix: "none needed (LT in the Rare menu: the tabs wrap to Notifications)"
+home:
+  steps: [guide, lt]
+  done: {focus: "."}
+  was: [guide, lt]
+game:
+  open: menu
+  steps: [lt]
+  done: {focus: "."}
+  was: [lt]

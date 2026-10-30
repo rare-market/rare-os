@@ -1,0 +1,11 @@
+[Unit]
+Description=Rare OS: sane internal mic gain (SuiPlay0X1)
+After=sound.target alsa-restore.service
+ConditionVirtualization=!vm
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/audio-defaults
+
+[Install]
+WantedBy=multi-user.target

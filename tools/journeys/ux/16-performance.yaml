@@ -1,0 +1,15 @@
+name: performance
+task: "Change the performance mode"
+fix: "the modes are two rows under where Quick settings opens, and Left or Right picks the next one at once (it took A before); it opened on them before, so this is one press more, for Brightness two fewer"
+max: 4
+home:
+  steps: [qam, down, down, right]
+  done: {act: 'Local\(102\)', focus: "Performance 25 W"}
+  was: [qam, right, a]
+  was_done: {focus: "Performance 25 W"}
+game:
+  open: quick
+  steps: [down, down, right]
+  done: {act: 'Local\(102\)', focus: "Performance 25 W"}
+  was: [right, a]
+  was_done: {focus: "Performance 25 W"}

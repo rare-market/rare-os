@@ -1,0 +1,24 @@
+[Unit]
+Description=Rare OS: PIN guard for Rare Wallet PIN accounts (wrong-PIN count and lock, sealed with the TPM)
+After=local-fs.target
+
+[Service]
+Type=simple
+ExecCondition=/usr/libexec/rare/rare-pin-guard check
+ExecStart=/usr/libexec/rare/rare-pin-guard
+Restart=always
+RestartSec=1
+StateDirectory=rare-pin-guard
+StateDirectoryMode=0700
+# Root only for the sealed records and the socket; nothing else.
+ProtectSystem=strict
+ReadWritePaths=/run /var/lib/systemd
+ProtectHome=yes
+PrivateTmp=yes
+PrivateNetwork=yes
+NoNewPrivileges=yes
+RestrictAddressFamilies=AF_UNIX
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target

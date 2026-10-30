@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Game 424004941485572097
+Exec=/tmp/.mount_Pl5Qjogc/usr/bin/rpcs3 %u
+Type=Application
+NoDisplay=true
+Categories=Discord;Games;
+MimeType=x-scheme-handler/discord-424004941485572097;

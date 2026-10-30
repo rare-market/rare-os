@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ShadowBlip/InputPlumber/main/rootfs/usr/share/inputplumber/schema/composite_device_v1.json
+# Rare OS override of /usr/share/inputplumber/devices/50-suiplay_0x1.yaml (InputPlumber 0.83).
+# Copy of upstream with these changes:
+# - the IMU group also matches the chip this device really has (iio name "bmi323-imu"; upstream
+#   only lists bmi160/bmi260, so the gyro never bound), sampled at 200 Hz instead of 25 Hz, with a
+#   mount matrix derived from the board (see below) instead of upstream's unverified guess;
+# - the four side buttons also arrive as F15-F18: the base image ships Bazzite's
+#   /usr/lib/udev/hwdb.d/59-sui.hwdb, which remaps the AT scancodes 0x6c/0x6d/0x6e/0x76 (BIOS
+#   2.19_S20) from F21-F24 to F15-F18. Upstream only lets F21-F24 through, so LC, RC, the home
+#   button and Quick Access were swallowed (InputPlumber grabs the keyboard). Both sets are kept so
+#   the profile works with and without that hwdb;
+# - capability map rare_suiplay (/etc/inputplumber/capability_maps.d) instead of aya7: all four
+#   buttons become D-Bus actions for the launcher, which Steam and games never see (aya7's
+#   LeftTop/RightTop for LC/RC exist on neither the xbox-elite nor the Deck target anyway).
+# The "49-" prefix sorts before upstream's "50-" so this file is picked first; /etc is searched
+# alongside /usr/share, the same place 60-cec.yaml lives.
+version: 1
+kind: CompositeDevice
+name: SuiPlay 0X1
+single_source: false
+
+matches:
+  - dmi_data:
+      product_name: SuiPlay0X1
+      sys_vendor: Mysten Labs, Inc.
+
+source_devices:
+  - group: gamepad
+    evdev:
+      name: Nintendo Co., Ltd. Pro Controller
+      phys_path: usb-0000:c4:00.3-4/input0
+      handler: event*
+  - group: gamepad
+    evdev:
+      name: Microsoft X-Box 360 pad
+      phys_path: usb-0000:c4:00.3-4/input0
+      handler: event*
+  - group: keyboard
+    evdev:
+      name: AT Translated Set 2 keyboard
+      phys_path: isa0060/serio0/input0
+      handler: event*
+    events:
+      exclude:
+        - "*"
+      include:
+        - Keyboard:KeyF15
+        - Keyboard:KeyF16
+        - Keyboard:KeyF17
+        - Keyboard:KeyF18
+        - Keyboard:KeyF21
+        - Keyboard:KeyF22
+        - Keyboard:KeyF23
+        - Keyboard:KeyF24
+        - Keyboard:KeyVolumeDown
+        - Keyboard:KeyVolumeUp
+  - group: imu
+    iio:
+      name: "{bmi323-imu,i2c-BMI0160:00,bmi260}"
+    config:
+      imu:
+        sample_rate: 200
+        # Rows are InputPlumber's (SDL) axes over the raw chip axes: x = right edge, y = out of
+        # the screen, z = toward the player (bottom edge), device held in landscape.
+        # Derived from the firmware's ACPI ROTM (sysfs in_accel_mount_matrix "1,0,0; 0,-1,0;
+        # 0,0,-1", Windows frame relative to the panel's native portrait orientation) and the
+        # panel being mounted right side up (DRM quirk, gamescope --force-orientation right):
+        # top edge = chip +x, right edge = chip +y, out of screen = chip -z. A flat, face-up
+        # reading (chip z = -4042 = -1 g) gives y = +1 g as SDL expects. Upstream's matrix (the
+        # BMI260 2S guess) reads -1 g there. Check: tools/hw/drivers-check imu.
+        mount_matrix:
+          x: [0, 1, 0]
+          y: [0, 0, -1]
+          z: [-1, 0, 0]
+  - group: led
+    udev: # Legacy
+      sys_name: multicolor:chassis
+      subsystem: leds
+  - group: led
+    udev: # Updated
+      sys_name: ayaneo:rgb:joystick_rings
+      subsystem: leds
+
+options:
+  auto_manage: true
+
+# Kept as the plain Xbox pad: the launcher (launcher/src-tauri/src/gamepad.rs) and most games
+# expect an Xbox-named pad (the launcher swaps X/Y by the "xbox" name). A Deck-style target
+# would carry motion for Steam but renames the pad; see the doc for the runtime switch.
+target_devices:
+  - xbox-elite
+  - mouse
+  - keyboard
+
+# LC, RC, Rare and Quick -> D-Bus ui_screenshot, ui_osk, ui_guide, ui_quick (F15-F18 and F21-F24).
+capability_map_id: rare_suiplay

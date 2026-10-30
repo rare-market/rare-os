@@ -1,0 +1,8 @@
+name: quit-game
+task: "Quit a game"
+fix: "the Rare menu's list wraps, so Up from Resume lands on Quit game; A asks once more (Quit now)"
+game:
+  open: menu
+  steps: [up, a]
+  done: {focus: "Quit now"}
+  was: [down, down, down, down, down, down, a]

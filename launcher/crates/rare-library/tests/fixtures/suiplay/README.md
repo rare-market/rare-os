@@ -1,0 +1,1 @@
+Copies of the SuiPlay0X1 test device's real library files (read-only scp, 2026-10-26): Steam manifests, libraryfolders.vdf, shortcuts.vdf, the apps part of localconfig.vdf, desktop entries, ES-DE settings and gamelists. ROM files and Steam art are empty placeholders with the device's real names and layout. Used by src-tauri/src/library/fixture_tests.rs.

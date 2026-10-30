@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Battery rundown logger. The logger runs ON the device (setsid nohup, /tmp/rare-bench/<id>), so an ssh drop does not stop it.
+#   rundown run    <build> <scenario> [--to PCT] [--for MIN] [--every SEC] [--note TEXT]   start, wait, pull, summarise
+#   rundown start  <build> <scenario> [same flags]                                         start and return (prints the run id)
+#   rundown status <id>                                                                    last sample + whether finished
+#   rundown pull   <id> <build> <scenario>                                                 pull and summarise (also works mid-run)
+#   rundown stop   <id>                                                                    ask the logger to stop
+# scenario: idle-menu | video | game (free text allowed). Default stop: 5 % or 10 h. Default interval 30 s.
+. "$(dirname "$0")/common.sh"
+cmd="${1:-}"; shift || true
+parse() { build="${1:?build label}"; scen="${2:?scenario}"; shift 2; to=5; secs=36000; every=30; note=""
+  while (($#)); do case "$1" in --to) to="$2";; --for) secs=$(( $2 * 60 ));; --secs) secs="$2";; --every) every="$2";; --note) note="$2";; *) die "unknown flag $1";; esac; shift 2; done; }
+finish() { # id build scen note
+  local dir="$OUTROOT/$(slug "$2")/rundown/$(slug "$3")/$1"
+  remote_pull "$1" "$dir"; python3 -I "$BENCH_DIR/summarize.py" rundown "$dir" "$2" "$3" "$4"; echo "saved: $dir"; }
+case "$cmd" in
+  start|run)
+    parse "$@"; id="rundown-$(slug "$build")-$(date +%Y%m%dT%H%M%S)"
+    remote_start "$id" --interval "$every" --secs $secs --target-pct "$to"
+    echo "run id: $id   (pull later: rundown pull $id $build $scen)"
+    if [[ $cmd == run ]]; then remote_wait "$id" $((secs+120)) || die "timed out; run is still going on the device"; finish "$id" "$build" "$scen" "$note"; fi ;;
+  status) rrun "tail -n 2 /tmp/rare-bench/$1/samples.csv; cat /tmp/rare-bench/$1/done 2>/dev/null || echo running" ;;
+  pull) finish "$1" "${2:?build}" "${3:?scenario}" "" ;;
+  stop) rrun "touch /tmp/rare-bench/$1/STOP" ;;
+  *) sed -n '2,9p' "$0"; exit 2 ;;
+esac

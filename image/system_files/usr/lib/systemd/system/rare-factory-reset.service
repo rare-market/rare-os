@@ -1,0 +1,17 @@
+[Unit]
+Description=Rare OS: factory reset asked for in Settings
+Documentation=file:///usr/libexec/rare/factory-reset
+# Only after Settings > System > Factory reset (os-admin factory-reset). Runs before anyone logs in.
+ConditionPathExists=/var/lib/rare/factory-reset
+After=local-fs.target systemd-tmpfiles-setup.service
+Before=display-manager.service bazzite-autologin.service systemd-user-sessions.service rare-user-setup.service bluetooth.service NetworkManager.service
+RequiresMountsFor=/var/home /var/lib
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/factory-reset
+# Erasing a home full of games can take a while.
+TimeoutStartSec=30min
+
+[Install]
+WantedBy=multi-user.target

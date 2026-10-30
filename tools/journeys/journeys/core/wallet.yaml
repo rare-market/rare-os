@@ -1,0 +1,23 @@
+name: wallet
+title: Wallet sections (no signing, no sending)
+tags: [core, wallet]
+needs: [probe]
+timeout_s: 60
+steps:
+  - goto: tab:wallet
+  - wait_for: {settled: 800, timeout_ms: 10000}
+  - name: RT to the next section
+    press: rt
+    expect: {respond_ms: 150}
+  - name: RT again
+    press: rt
+    expect: {respond_ms: 150}
+  - name: down the list
+    press: down
+    repeat: 3
+  - name: LT back
+    press: lt
+    expect: {respond_ms: 150}
+  - name: LT back to the first section
+    press: lt
+    expect: {respond_ms: 150}

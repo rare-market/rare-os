@@ -1,0 +1,18 @@
+// Rare OS: the person at the device (the active local session, where the launcher runs) may
+// switch the pad's InputPlumber target devices and its intercept mode without a prompt.
+// - SetTargetDevices: Steam games get the gyro (deck-uhid), everything else the Xbox pad
+//   (xbox-elite), launcher/src-tauri/src/gyro.rs.
+// - SetInterceptMode: while a Rare surface is over a game every press goes to Rare and none to
+//   the game (Always), otherwise Pass, launcher/src-tauri/src/inputplumber.rs.
+// - LoadProfilePath: Settings > Controls > Button layout loads the profile Rare writes to
+//   ~/.config/rare/inputplumber/layout.yaml, or InputPlumber's default one on reset
+//   (launcher/crates/rare-input/src/remap.rs).
+// InputPlumber's own policy asks for admin authentication for these; other sessions keep that.
+polkit.addRule(function (action, subject) {
+    if ((action.id === "org.shadowblip.Input.CompositeDevice.SetTargetDevices" ||
+         action.id === "org.shadowblip.Input.CompositeDevice.SetInterceptMode" ||
+         action.id === "org.shadowblip.Input.CompositeDevice.LoadProfilePath") &&
+        subject.local && subject.active) {
+        return polkit.Result.YES;
+    }
+});

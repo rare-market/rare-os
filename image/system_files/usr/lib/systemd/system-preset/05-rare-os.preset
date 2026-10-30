@@ -1,0 +1,93 @@
+# Rare OS unit presets. First match wins and this file sorts before Fedora's and the
+# base's, so these hold whenever presets are applied again (preset-all, a systemd first
+# boot). build.sh applies them to the image.
+
+# Rare OS
+enable rare-user-setup.service
+enable rare-keep-previous-os.service
+enable rare-signed-switch.timer
+enable rare-power-defaults.service
+enable rare-pmc-first.service
+enable rare-audio-defaults.service
+enable rare-boot-menu.service
+enable rare-fand.service
+enable rare-update.timer
+enable rare-update-recover.service
+enable rare-factory-reset.service
+
+# scx_lavd through scx_loader (config in /etc/scx_loader/config.toml). The base disables it.
+enable scx_loader.service
+
+# Virtual machines (libvirt, VMware): no VMs on a handheld. `ujust setup-virtualization`
+# still turns libvirt back on.
+disable libvirtd.service
+disable libvirtd*.socket
+disable virtqemud.service
+disable virtqemud*.socket
+disable virtlxcd.service
+disable virtlxcd*.socket
+disable virtxend.service
+disable virtxend*.socket
+disable virtvboxd.service
+disable virtvboxd*.socket
+disable virtchd.service
+disable virtchd*.socket
+disable virtnetworkd.service
+disable virtnetworkd*.socket
+disable virtnodedevd.service
+disable virtnodedevd*.socket
+disable virtnwfilterd.service
+disable virtnwfilterd*.socket
+disable virtsecretd.service
+disable virtsecretd*.socket
+disable virtstoraged.service
+disable virtstoraged*.socket
+disable virtinterfaced.service
+disable virtinterfaced*.socket
+disable virtproxyd.service
+disable virtproxyd*.socket
+disable virtlogd.service
+disable virtlogd*.socket
+disable virtlockd.service
+disable virtlockd*.socket
+disable ublue-os-libvirt-workarounds.service
+disable vmtoolsd.service
+disable vgauthd.service
+disable vboxservice.service
+
+# Storage the device does not have: iSCSI, md RAID, LVM, SMART mail alerts.
+disable iscsi-onboot.service
+disable iscsi-starter.service
+disable iscsid.socket
+disable iscsiuio.socket
+disable mdmonitor.service
+disable raid-check.timer
+disable lvm2-monitor.service
+disable smartd.service
+
+# No modem, no HDMI-CEC adapter, no printer. `ujust cec-mode` still turns CEC back on.
+disable ModemManager.service
+disable cups.socket
+disable cups.path
+disable cec-onboot.service
+disable cec-onpoweroff.service
+disable cec-onsleep.service
+
+# Wrong hardware or unused: Intel thermal and low-power daemons, mcelog (AMD uses
+# edac_mce_amd), network logins, incus, akmods (kernel modules ship prebuilt).
+disable thermald.service
+disable intel_lpmd.service
+disable mcelog.service
+disable sssd.service
+disable incus-workaround.service
+disable akmods.service
+
+# Periodic background jobs.
+disable plocate-updatedb.timer
+disable rpm-ostree-countme.timer
+
+# Wi-Fi is NetworkManager with wpa_supplicant (iwd is not installed). Bazzite's iwd migration
+# only unmasks wpa_supplicant and deletes two files, but it ran before NetworkManager on every boot
+# (0.8 s) and so before anything that waits for the network. build.sh removes the one file it
+# deleted, so behaviour is unchanged.
+disable bazzite-iwd-migration.service

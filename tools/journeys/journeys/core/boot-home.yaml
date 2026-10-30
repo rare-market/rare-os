@@ -1,0 +1,20 @@
+name: boot-home
+title: Launcher cold start to Home (session client restarts it), then idle
+tags: [core, launcher]
+needs: [session_client]
+timeout_s: 90
+steps:
+  - name: launcher restarts and shows Home
+    restart_launcher: true
+    allow: [black]             # the launcher window is gone for a moment; reported, not failed
+    expect: {focus_app: launcher, settle_ms: 8000}
+  - wait_for: {focus_app: launcher, settled: 1000, timeout_ms: 20000}
+  - name: The Rare button wakes the probe on the new launcher (the Rare menu opens)
+    press: guide
+    wait_for: {screen: {overlay: raremenu}, timeout_ms: 2000}
+  - name: B closes the menu
+    press: b
+    expect: {screen: {overlay: '-'}}
+  - name: Home holds still (no change, no black)
+    press: b
+    expect: {change: false}

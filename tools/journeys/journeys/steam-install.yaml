@@ -1,0 +1,50 @@
+name: steam-install
+title: "Install a free Steam game from Rare, pause, resume, play it, uninstall it"
+tags: [steam, install, downloads]
+needs: [probe, steam, network]
+timeout_s: 900
+# Precondition: the account owns Spacewar (480, Valve's free Steamworks example, ~30 MB) and it is
+# not installed: it shows under Library > Not installed.
+steps:
+  - goto: open:game:steam:480
+  - name: the page offers Install
+    wait_for: {focus: 'Install', timeout_ms: 15000}
+  - name: Install opens the drive sheet
+    press: a
+    wait_for: {focus: 'This device', timeout_ms: 10000}
+  - name: the drive starts the install in Steam, no Steam window
+    press: a
+    wait_for: {focus: '(Pause|Resume|Starting|Play)', timeout_ms: 120000}
+    expect: {focus_app: launcher}
+  - goto: open:downloads
+  - name: the queue lists it
+    wait_for: {focus: 'Spacewar', timeout_ms: 60000}
+    continue_on_fail: true
+  - name: X pauses
+    press: x
+    after_ms: 4000
+    continue_on_fail: true
+  - name: X resumes
+    press: x
+    after_ms: 3000
+    continue_on_fail: true
+  - goto: open:game:steam:480
+  - name: it finishes and the page offers Play
+    wait_for: {focus: 'Play', timeout_ms: 600000}
+  - name: Play starts it
+    press: a
+    wait_for: {focus_app: not_launcher, timeout_ms: 90000}
+    allow: [black]
+  - wait: 5000
+  - goto: quit:all
+  - wait_for: {focus_app: launcher, timeout_ms: 30000}
+  - goto: open:game:steam:480
+  - nav: {press: right, until: {focus: 'Uninstall'}, max: 8}
+  - name: Uninstall asks first
+    press: a
+    wait_for: {focus: 'Cancel', timeout_ms: 8000}
+  - nav: {press: left, until: {focus: 'Uninstall'}, max: 3}
+  - name: Steam removes it, Rare keeps the screen
+    press: a
+    wait_for: {focus: 'Install', timeout_ms: 300000}
+    expect: {focus_app: launcher}

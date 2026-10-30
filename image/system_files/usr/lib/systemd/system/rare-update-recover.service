@@ -1,0 +1,12 @@
+[Unit]
+Description=Rare OS: check that the last staged update was not lost to a power-off
+After=rpm-ostreed.service
+Wants=rpm-ostreed.service
+ConditionPathExists=/var/lib/rare/update-staged
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/os-update --recover
+
+[Install]
+WantedBy=multi-user.target

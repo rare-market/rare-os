@@ -1,0 +1,25 @@
+#!/usr/bin/bash
+# Wi-Fi power save on or off on every wireless interface, without touching the connection.
+# The launcher runs it through pkexec while a game or stream has the screen (polkit:
+# org.rare.wifi.powersave, active local session only).
+#
+# `iw ... set power_save` is nl80211 SET_POWER_SAVE: no reassociation, so SSH over Wi-Fi stays
+# up. NetworkManager has no way to do this at runtime: its Wi-Fi Reapply refuses
+# 802-11-wireless.powersave, and `nmcli connection modify` plus `up` reconnects.
+set -uo pipefail
+
+case "${1:-}" in
+    on | off) ;;
+    *)
+        echo "usage: wifi-powersave on|off" >&2
+        exit 2
+        ;;
+esac
+
+rc=1
+for w in /sys/class/net/*/wireless; do
+    [[ -d "$w" ]] || continue
+    dev="$(basename "$(dirname "$w")")"
+    iw dev "$dev" set power_save "$1" && rc=0
+done
+exit "$rc"

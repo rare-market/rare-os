@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+# Rare OS: the speaker chain in /etc/pipewire/pipewire.conf.d is tuned for, and targets the sink of,
+# the SuiPlay0X1 only. On any other machine remove it before the user's PipeWire reads it.
+[ "$(cat /sys/class/dmi/id/product_name 2>/dev/null)" = SuiPlay0X1 ] && exit 0
+rm -f /etc/pipewire/pipewire.conf.d/50-rare-speaker-eq.conf

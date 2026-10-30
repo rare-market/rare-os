@@ -1,0 +1,15 @@
+name: first-run-skip-and-resume
+title: First run, Y skips setup and Settings can run it again
+tags: [first-run, launcher]
+needs: [probe]
+timeout_s: 90
+start: as-is
+steps:
+  - wait_for: {focus: "Get started"}
+  - press: y
+    expect: {screen: {tab: home}}
+  - goto: settings
+    expect: {screen: {tab: settings}}
+# device checklist
+# - Restart the launcher on the Sign in step: setup reopens there (config onboardingStep).
+# - Settings > Accounts > Run setup opens Welcome again; LB, RB, Start, Guide and Quick settings are ignored until setup is done.

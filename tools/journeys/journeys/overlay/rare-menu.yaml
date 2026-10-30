@@ -1,0 +1,57 @@
+# The Rare button over a game: press for the Rare menu, which
+# opens on Game with Resume focused; A is back in the game; press again for Home. The game under it
+# keeps its place (and, being a single-player Steam game, is paused: see quick-resume.yaml).
+#
+# device checklist (a person does these, the runner cannot):
+#   - The Rare button over Hades II: the menu slides in from the right over a dimmed still of the
+#     game within about 1 s; the game does not react to anything pressed in the menu (A, d-pad)
+#   - Tabs with LT / RT: Game, Trophies, Friends, Notifications (a Sui game also has Items and Market)
+#   - Steam row (Steam game only): Steam's own overlay comes up over the game; B in Steam's overlay
+#     goes back to the game
+#   - Screenshot from the Game tab saves a picture of the game, not of the menu
+#   - Quit game asks once more, then the game ends and Home is on screen
+#   - A Sui game (Warped Universe or a web game with items): Your items line shows the count and worth;
+#     A opens Items
+name: rare-menu
+title: Rare button over a game, Resume, Rare again to Home
+tags: [core, overlay, games, steam]
+needs: [probe, steam]
+timeout_s: 300
+steps:
+  - goto: open:game:${steam_game}
+  - wait_for: {focus: '"(Play|Resume)', timeout_ms: 8000}
+  - name: A on Play starts the game
+    press: a
+    allow: [black]
+    after_ms: 500
+    wait_for: {focus_app: not_launcher, timeout_ms: 120000}
+  - name: game runs for 15 s
+    wait: 15000
+  - name: The Rare button opens the Rare menu over the game, Resume focused
+    press: guide
+    expect: {focus_app: launcher, respond_ms: 1200}
+    wait_for: {ingame: {mode: menu}, focus: 'menu-resume "Resume"', timeout_ms: 3000}
+  - name: A on Resume is back in the game
+    press: a
+    allow: [black]
+    expect: {focus_app: not_launcher, respond_ms: 800}
+  - wait: 3000
+  - name: Rare menu again
+    press: guide
+    wait_for: {ingame: {mode: menu}, timeout_ms: 3000}
+  - name: RT walks the tabs
+    press: rt
+    repeat: 3
+    gap_ms: 350
+    expect: {respond_ms: 300}
+  - name: LT walks back
+    press: lt
+    repeat: 3
+    gap_ms: 350
+  - name: The Rare button again goes Home; the game keeps its place
+    press: guide
+    expect: {focus_app: launcher, screen: {tab: home}, respond_ms: 600}
+    wait_for: {ingame: {mode: '-'}, timeout_ms: 3000}
+  - name: quit the game
+    goto: quit:all
+  - wait_for: {focus_app: launcher, timeout_ms: 30000}

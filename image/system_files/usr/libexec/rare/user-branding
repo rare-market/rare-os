@@ -1,0 +1,73 @@
+#!/usr/bin/bash
+# Rare branding in the user's home, at every session start (rare-user-branding.service, a user unit).
+# The image replaces the base's files under /usr; this fixes the copies the base already made in
+# the home folder of a device that ran Bazzite first. Idempotent, and it only replaces files that
+# are byte for byte the base's (or missing), so anything the user chose stays.
+#
+#  1. Steam's startup and suspend clips in ~/.local/share/Steam/config/uioverrides/movies.
+#     The base's steam-tweaks copies its clips there when a file is missing; the image's copies of
+#     those clips are Rare's, so it can only put Rare's back. Bazzite's originals are kept once in
+#     movies/.bazzite-backup. `ujust configure-override-videos disable` (bazzite_novideo) is respected.
+#  2. The desktop mode "Return" shortcut, the wallpaper and the Kickoff icon set by the base.
+set -uo pipefail
+
+BRAND="${RARE_BRAND:-/usr/share/rare/brand}"
+KNOWN="$BRAND/bazzite-files.sha256"   # sha256 of every Bazzite clip/poster seen (image + devices)
+
+is_bazzite() { [[ -f "$1" ]] && grep -q "^$(sha256sum "$1" | cut -d' ' -f1)\$" "$KNOWN" 2>/dev/null; }
+
+# ---- 1. Steam clips ----
+movies="$HOME/.local/share/Steam/config/uioverrides/movies"
+if [[ -d "$HOME/.local/share/Steam" && ! -e "$movies/bazzite_novideo" && -f "$BRAND/steam-movies/rare-startup.webm" ]]; then
+    mkdir -p "$movies"
+    startup=(bigpicture_startup deck_startup oled_startup steam_os_startup)
+    suspend=(deck-suspend-animation deck-suspend-animation-from-throbber oled-suspend-animation
+             oled-suspend-animation-from-throbber steam_os_suspend steam_os_suspend_from_throbber)
+    backup="$movies/.bazzite-backup"
+    put() { # put <name> <rare clip base>
+        local name="$1" src="$BRAND/steam-movies/$2" ext
+        for ext in webm jpg; do
+            local dst="$movies/$name.$ext"
+            [[ -f "$src.$ext" ]] || continue
+            cmp -s "$src.$ext" "$dst" && continue
+            # The poster follows the clip: replaced whenever the clip is Rare's, never next to the user's own.
+            if [[ $ext == jpg ]] && ! cmp -s "$src.webm" "$movies/$name.webm"; then continue; fi
+            if [[ $ext == jpg || ! -e "$dst" ]] || is_bazzite "$dst"; then
+                if [[ -f "$dst" && ! -e "$backup/$name.$ext" ]]; then
+                    mkdir -p "$backup" && cp -p "$dst" "$backup/$name.$ext"
+                fi
+                cp "$src.$ext" "$dst.rare-tmp" && mv -f "$dst.rare-tmp" "$dst"
+                echo "rare: $name.$ext is Rare's now"
+            fi
+        done
+    }
+    for n in "${startup[@]}"; do put "$n" rare-startup; done
+    for n in "${suspend[@]}"; do put "$n" rare-suspend; done
+fi
+
+# ---- 2. Desktop mode ----
+ret="$HOME/Desktop/Return.desktop"
+if [[ -f "$ret" ]] && grep -q '^Name=Return to Gaming Mode$' "$ret"; then
+    sed -i -e 's/^Name=Return to Gaming Mode$/Name=Return to Rare/' \
+           -e 's/^Icon=steamdeck-gaming-return$/Icon=rare-logo/' "$ret"
+    echo "rare: desktop shortcut says Return to Rare"
+fi
+
+# Wallpaper and Kickoff icon, only where they are still the base's. Plasma rewrites this file while
+# it runs, so it is left alone during a desktop session (the next game mode start fixes it).
+applets="$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc"
+if [[ -f "$applets" ]] && ! pgrep -u "$UID" -x plasmashell >/dev/null; then
+    if grep -qE '^Image=(file://)?/usr/share/wallpapers/(convergence\.jxl|bazzite)' "$applets" \
+       || grep -qE '^icon=(distributor-logo-steamdeck|bazzite-logo.*)$' "$applets"; then
+        sed -i -E \
+            -e 's#^Image=(file://)?/usr/share/wallpapers/(convergence\.jxl|bazzite[^[:space:]]*)$#Image=/usr/share/wallpapers/Rare/#' \
+            -e 's#^icon=(distributor-logo-steamdeck|bazzite-logo[^[:space:]]*)$#icon=rare-logo#' \
+            "$applets"
+        echo "rare: desktop wallpaper and menu icon are Rare's"
+    fi
+fi
+lock="$HOME/.config/kscreenlockerrc"
+if [[ -f "$lock" ]] && grep -qE '^Image=(file://)?/usr/share/wallpapers/(convergence\.jxl|bazzite)' "$lock"; then
+    sed -i -E 's#^Image=(file://)?/usr/share/wallpapers/(convergence\.jxl|bazzite[^[:space:]]*)$#Image=/usr/share/wallpapers/Rare/#' "$lock"
+fi
+exit 0

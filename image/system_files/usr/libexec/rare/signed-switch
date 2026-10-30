@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+# The first switch to Rare OS from another OS cannot check our signature (that OS does
+# not have our key). Once Rare OS runs, it has the key and the signature policy, so this
+# moves the update source to the signature-checked one. It pulls nothing new (same image)
+# and takes effect on the next reboot. Images from anywhere else are left alone.
+set -euo pipefail
+REPO="$(cat /usr/lib/rare/image-repo 2>/dev/null || echo rare-os)"
+ref="$(rpm-ostree status --booted --json | jq -r '.deployments[0]["container-image-reference"] // empty')"
+case "$ref" in
+    ostree-image-signed:*) exit 0 ;;
+    *"$REPO"*)
+        tag="${ref##*:}"
+        [[ "$tag" == "$ref" || "$tag" == */* ]] && tag=stable
+        echo "rare: moving updates to the signed source ($REPO:$tag)"
+        rpm-ostree rebase "ostree-image-signed:docker://$REPO:$tag"
+        ;;
+esac

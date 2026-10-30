@@ -1,0 +1,22 @@
+[package]
+name = "rare-webgame"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Browser games as installed web apps: the Rare Wallet bridge, controller routing, per-game storage and the Local API grant, over a pluggable browser-engine host (WebKitGTK now, CEF later)."
+
+[dependencies]
+rare-core = { path = "../rare-core" }
+rare-library = { path = "../rare-library" }
+rare-system = { path = "../rare-system" }
+rare-overlay = { path = "../rare-overlay" }
+rare-localapi = { path = "../rare-localapi" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+url = "2"
+dirs = "6"
+
+[dev-dependencies]
+# examples/sign_in_smoke.rs
+rare-stores = { path = "../rare-stores" }

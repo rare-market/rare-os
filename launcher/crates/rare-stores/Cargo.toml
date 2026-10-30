@@ -1,0 +1,20 @@
+[package]
+name = "rare-stores"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Epic Games and GOG without Heroic: sign-in, owned games, installs, updates, repairs and cloud saves through legendary and gogdl (separate GPL programs)"
+
+[dependencies]
+rare-core = { path = "../rare-core" }
+# Heroic's folders, the umu prefix and Proton of a game.
+rare-library = { path = "../rare-library" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "6"
+log = "0.4"
+libc = "0.2"
+ureq = { version = "2", features = ["json"] }
+
+[dev-dependencies]
+tempfile = "3"

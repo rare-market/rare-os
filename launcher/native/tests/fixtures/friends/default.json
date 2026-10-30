@@ -1,0 +1,160 @@
+{
+ "code": {
+  "code": "K7Q4MX",
+  "expiresAt": 1793109360000,
+  "url": "https://rare.market/v1/friends/qr/K7Q4MX"
+ },
+ "overview": {
+  "blocked": [],
+  "friends": [
+   {
+    "address": "0xe80c2f785b2e1630c98d06c0eb0171061f4528446bde46b693e9681f496f69e3",
+    "avatarUrl": "https://storage.claynosaurz.com/popkins/images/0x817dac94fff3a567b80e23a3b55fca2fd108641e0dd06fc614e5ecc0acbb4e03",
+    "name": "mira",
+    "presence": {
+     "game": {
+      "id": "web:act",
+      "kind": "web",
+      "title": "ACT",
+      "url": "https://play.actuniverse.com/"
+     },
+     "lastSeen": 1793108460000,
+     "since": 1793105940000,
+     "state": "online"
+    },
+    "since": 1791380460000,
+    "suins": "mira.sui",
+    "username": "mira"
+   },
+   {
+    "address": "0xee0c38ea4b3d078a57136f128e987ea1460f9b245991189de76a35389631e37e",
+    "avatarUrl": "https://img.pawtato.app/hero/7842.png",
+    "name": "kenji",
+    "presence": {
+     "game": {
+      "appid": 2379780,
+      "id": "steam:2379780",
+      "kind": "steam",
+      "title": "Balatro"
+     },
+     "lastSeen": 1793108460000,
+     "since": 1793107380000,
+     "state": "online"
+    },
+    "since": 1791380460000,
+    "suins": "kenji.sui",
+    "username": "kenji"
+   },
+   {
+    "address": "0xe90c310b4331c1ff5153ac3e5cb84b62f91e15b9ef5c451f0540f59526431133",
+    "avatarUrl": "https://byzantion.mypinata.cloud/ipfs/QmbUWeu1ryJX5aKz8wF3bnoYyabw9A2abCfjDsJVDdJtio/5822.png",
+    "name": "lowkey",
+    "presence": {
+     "game": {
+      "appid": 1145360,
+      "id": "steam:1145360",
+      "kind": "steam",
+      "title": "Hades II"
+     },
+     "lastSeen": 1793108460000,
+     "since": 1793103960000,
+     "state": "online"
+    },
+    "since": 1791380460000,
+    "suins": "lowkey.sui",
+    "username": "lowkey"
+   },
+   {
+    "address": "0xea0c329e5c3427f1ad1a3985634920597b1da9fd66b1f8b5712aa1455c1bc802",
+    "avatarUrl": null,
+    "name": "otter",
+    "presence": {
+     "game": null,
+     "lastSeen": 1793108460000,
+     "since": 1793107920000,
+     "state": "online"
+    },
+    "since": 1791380460000,
+    "suins": null,
+    "username": "otter"
+   },
+   {
+    "address": "0xf30c40c94949d0578c32b6d7add60b8ea0f4d8fbec70e2d1f3b4f11a10d80b71",
+    "avatarUrl": "https://indexer.mypinata.cloud/ipfs/bafkreid6owvnhp2v2muf4yrk4v3hjonhposfgsnd5zirfzgbyutxoasxay",
+    "name": "vex.sui",
+    "presence": {
+     "game": null,
+     "lastSeen": 1793108460000,
+     "since": 1793097660000,
+     "state": "away"
+    },
+    "since": 1791380460000,
+    "suins": "vex.sui",
+    "username": null
+   },
+   {
+    "address": "0xf60c4582375202c6bc1a2b525a32110762d16392489ffc3ba1da2eca82778ba8",
+    "avatarUrl": null,
+    "name": "sable.sui",
+    "presence": {
+     "game": null,
+     "lastSeen": 1793097660000,
+     "since": null,
+     "state": "offline"
+    },
+    "since": 1791380460000,
+    "suins": "sable.sui",
+    "username": null
+   },
+   {
+    "address": "0xf40c425c574c24f8ffdd9369cfce72723bfd9eee3540f01f3f3a76de3508d0c4",
+    "avatarUrl": "https://img.pawtato.app/land/15439.png",
+    "name": "quill.sui",
+    "presence": {
+     "game": null,
+     "lastSeen": 1792935660000,
+     "since": null,
+     "state": "offline"
+    },
+    "since": 1791380460000,
+    "suins": "quill.sui",
+    "username": null
+   }
+  ],
+  "me": {
+   "address": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+   "presence": {
+    "game": null,
+    "lastSeen": 1793108460000,
+    "since": 1793106660000,
+    "state": "online"
+   },
+   "settings": {
+    "appearOffline": false,
+    "showPlaying": true,
+    "visibility": "friends"
+   }
+  },
+  "parties": [],
+  "received": [
+   {
+    "address": "0xe10c24734d1cb705cd34ba4b370114d793b40a47b56c0b23e915cef08b5442ba",
+    "at": 1793108100000,
+    "avatarUrl": null,
+    "name": "dune",
+    "suins": null,
+    "username": "dune"
+   }
+  ],
+  "sent": [
+   {
+    "address": "0xf50c43ef494e4d856544c86d7646e9516aa124bb6bac8eb045a4c01f0f5aeb97",
+    "at": 1792935660000,
+    "avatarUrl": null,
+    "name": "pixel.sui",
+    "suins": "pixel.sui",
+    "username": null
+   }
+  ]
+ }
+}

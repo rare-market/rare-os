@@ -1,0 +1,7 @@
+name: wallet
+task: "Check your wallet"
+fix: "none needed (LB twice from Home: the tabs wrap)"
+home:
+  steps: [lb, lb]
+  done: {screen: {tab: wallet}}
+  was: [lb, lb]

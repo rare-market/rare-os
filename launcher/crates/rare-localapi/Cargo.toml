@@ -1,0 +1,15 @@
+[package]
+name = "rare-localapi"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "The Rare Local API for games (loopback HTTP, per-launch tokens) and rare:// deep links. UI-independent."
+
+[dependencies]
+rare-core = { path = "../rare-core" }
+rare-overlay = { path = "../rare-overlay" }
+# MCP: Ask Rare's tool catalog and the JSON-RPC handler.
+rare-agent = { path = "../rare-agent" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["raw_value"] }
+url = "2"

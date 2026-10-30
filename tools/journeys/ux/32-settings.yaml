@@ -1,0 +1,8 @@
+name: settings
+task: "Open Settings"
+fix: "Settings is the second-last row of the Rare menu (Up twice from the top)"
+max: 4
+home:
+  steps: [guide, up, up, a]
+  done: {screen: {tab: settings}}
+  was: [guide, down, down, a]

@@ -1,0 +1,8 @@
+[Unit]
+Description=Rare OS: use signature-checked updates, a minute after boot
+
+[Timer]
+OnBootSec=1min
+
+[Install]
+WantedBy=timers.target

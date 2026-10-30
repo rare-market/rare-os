@@ -1,0 +1,18 @@
+# A game in a Steam library folder that "Add to Steam" registered starts from Rare. Setup (by hand,
+# reverted after): the game's folder and manifest moved to ~/SteamLibraryTest, then
+# rare-launch's steam_add_library example (the same call as the Library's Add to Steam).
+name: deadends-steam-library-play
+title: "Game from a library added with Add to Steam starts from Rare"
+tags: [deadends]
+needs: [probe, steam]
+timeout_s: 200
+steps:
+  - goto: open:game:steam:1449850
+  - wait_for: {focus: '"(Play|Resume)', timeout_ms: 8000}
+  - name: A on Play starts the game from the added library
+    press: a
+    allow: [black]
+    after_ms: 500
+    wait_for: {focus_app: not_launcher, timeout_ms: 150000}
+  - name: game runs
+    wait: 8000

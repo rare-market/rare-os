@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+	[Desktop Entry]
+	Name=ShadPS4 AppImage
+	Exec=/home/bazzite/Emulation/tools/launchers/shadps4.sh
+	Icon=/home/bazzite/.local/share/icons/emudeck/ShadPS4.png
+	Terminal=false
+	Type=Application
+	Categories=Game;
+	StartupNotify=false

@@ -1,0 +1,25 @@
+name: os-update-staged
+title: Settings > System shows the OS update state and the restart notice
+tags: [settings, system, update]
+needs: [probe]
+timeout_s: 90
+steps:
+  - goto: settings
+  - wait_for: {focus: "System", timeout_ms: 4000}
+  - nav:
+      press: right
+      until: {focus: "Update now|Restart now"}
+    expect: {screen: {tab: settings}}
+  # The Updates row says "Update <version> is ready" with Restart now when staged, else
+  # "Rare OS is up to date" with Update now.
+  - press: b
+# device checklist
+# - Stage a newer image. Quick settings has "Restart to update to <version>" (toast the first time).
+# - A on the notice opens the Restart to update sheet, Restart now focused. Later closes it and the
+#   update stays staged (rpm-ostree status shows Staged); it is announced again after a launcher restart.
+# - Restart now: clean systemctl reboot, new version runs, /var/lib/rare/update-staged is gone,
+#   journalctl -b -t rare-update says it was applied.
+# - Forced power-off with an update staged (owner's yes): after boot journalctl -b -t rare-update says
+#   the update was lost and downloads it again; Staged returns within minutes.
+# - Offline: the row says "Could not check for updates" and nothing is staged. On battery the daily
+#   check is skipped, Update now still runs. A running game: nothing restarts by itself.

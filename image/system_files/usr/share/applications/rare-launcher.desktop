@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Rare
+Comment=Rare Launcher: games, items and the Rare Wallet
+Exec=/usr/bin/rare-launcher %u
+Icon=rare-logo
+Terminal=false
+Categories=Game;
+# rare:// links (docs/LOCAL-API.md). A second start hands the link to the running launcher.
+MimeType=x-scheme-handler/rare;
+StartupWMClass=rare-launcher

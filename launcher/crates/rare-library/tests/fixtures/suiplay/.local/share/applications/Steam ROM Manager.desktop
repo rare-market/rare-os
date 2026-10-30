@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+	[Desktop Entry]
+	Name=Steam-ROM-Manager AppImage
+	Exec=/home/bazzite/Emulation/tools/launchers/srm/steamrommanager.sh
+	Icon=/home/bazzite/.local/share/icons/emudeck/Steam-ROM-Manager.png
+	Terminal=false
+	Type=Application
+	Categories=Game;
+	StartupNotify=false

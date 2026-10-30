@@ -1,0 +1,26 @@
+# The Rare menu over an emulator shows its rows (Save state, Load state, Emulator menu); A on one
+# does it. DuckStation is in the device's library as an EmuDeck app.
+name: deadends-emulator-rows
+title: "Emulator rows in the Rare menu"
+tags: [deadends]
+needs: [probe]
+timeout_s: 150
+steps:
+  - goto: open:game:app:c465b4ebbc4618ad
+  - wait_for: {focus: '"(Play|Resume|Open)', timeout_ms: 8000}
+  - name: A starts DuckStation
+    press: a
+    allow: [black]
+    after_ms: 500
+    wait_for: {focus_app: not_launcher, timeout_ms: 60000}
+  - wait: 6000
+  - name: The Rare button opens the Rare menu over it
+    press: guide
+    wait_for: {ingame: {mode: menu}, timeout_ms: 4000}
+  - name: the emulator's Save state row
+    nav: {press: down, until: {focus: '"Save state'}, max: 10}
+  - name: A on Save state
+    press: a
+    allow: [black]
+    after_ms: 1500
+  - wait: 3000

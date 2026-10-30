@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<alternativeEmulator>
+	<label>Citron Canary (Standalone)</label>
+</alternativeEmulator>
+<gameList>
+	<game>
+		<path>./Pokemon Violet [01008F6008C5E000][v0][US].nsp</path>
+		<name>Pokemon Violet [01008F6008C5E000][v0][US]</name>
+		<playcount>3</playcount>
+		<playtime>90</playtime>
+		<lastplayed>20251229T093432</lastplayed>
+	</game>
+</gameList>

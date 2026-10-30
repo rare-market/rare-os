@@ -1,0 +1,137 @@
+#!/usr/bin/bash
+# Rare OS: keep the SuiPlay0X1's sound on one volume path.
+#
+# 1. Route: the speaker and headphones are two ports of one ALSA sink, so the "Rare Speakers"
+#    chain's mixer does the switching: wet = In 1 (EQ + limiter), dry = In 2 (untouched).
+# 2. Hardware level: the user's volume is the "Rare Speakers" sink (Quick settings, the volume
+#    keys, Steam). The ALSA sink under it is pinned: 0 dB on the speaker port (Master, Speaker
+#    and PCM at 100 %), HP_DB on the headphone port. Without this WirePlumber restores whatever
+#    the ALSA sink last held (a stale 30 % from before the chain existed left Master at -31 dB
+#    under a "100 %" slider), and a new route starts at its default of 0.064 (-24 dB).
+#    If the raw ALSA sink is made the default it is moved back to the chain.
+# 3. Louder speakers (~/.config/rare/speakers.json, {"louder": true} is the default): the
+#    chain's trim and limiter makeup gain. The launcher writes the file and sets the same values.
+#
+# Runs as a user service on `pactl subscribe` (no polling) plus logind's PrepareForSleep for
+# resume. Environment overrides, for tests:
+#   RARE_EQ_NODE (default rare_speaker_eq)  RARE_EQ_ONCE=1 (apply once, then exit)
+#   RARE_HP_DB (default -6)
+set -uo pipefail
+export LC_ALL=C
+SINK=${RARE_EQ_SINK:-alsa_output.pci-0000_c4_00.6.analog-stereo}
+NODE=${RARE_EQ_NODE:-rare_speaker_eq}
+HP_DB=${RARE_HP_DB:--6}
+CONF=${XDG_CONFIG_HOME:-$HOME/.config}/rare/speakers.json
+# Louder on / off: trim (linear) and limiter makeup (dB). Keep in step with
+# launcher/crates/rare-system/src/speakers.rs and the defaults in 50-rare-speaker-eq.conf.
+LOUD_TRIM=1.0 LOUD_GAIN=9.0
+SOFT_TRIM=0.841 SOFT_GAIN=2.5
+
+port_of_sink() {
+    pactl list sinks | awk -v s="$SINK" '
+        /^[ \t]*Name:/ { n = $2 }
+        /^[ \t]*Active Port:/ && n == s { print $3; exit }'
+}
+node_id() {
+    pw-dump 2>/dev/null | jq -r --arg n "$NODE" \
+        '[.[] | select(.type == "PipeWire:Interface:Node" and .info.props["node.name"] == $n)][0].id // empty'
+}
+sink_index() { pactl list sinks short | awk -v s="$SINK" '$2 == s { print $1; exit }'; }
+alsa_card() {
+    pactl list sinks | awk -v s="$SINK" '
+        /^[ \t]*Name:/ { n = $2 }
+        n == s && /^[ \t]*alsa.card = / { gsub(/"/, "", $3); print $3; exit }'
+}
+louder() {
+    local v
+    v=$(jq -r 'if .louder == false then "0" else "1" end' "$CONF" 2>/dev/null) || v=1
+    [ "$v" = 0 ] && echo 0 || echo 1
+}
+
+# The ALSA sink's volume in dB (first channel), "-inf" when silent.
+sink_db() { pactl get-sink-volume "$SINK" 2>/dev/null | grep -o -- '-\?[0-9.inf]* dB' | head -1 | cut -d' ' -f1; }
+
+# Pin the ALSA sink for this port. Only while the chain exists: without it the ALSA sink is the
+# user's volume and must be left alone.
+pin() {
+    local port=$1 want cur card bad=0 c
+    case "$port" in *headphone*|*headset*|*lineout*) want=$HP_DB ;; *) want=0 ;; esac
+    cur=$(sink_db)
+    if [ -z "$cur" ] || awk -v a="$cur" -v b="$want" 'BEGIN { exit !(a == "-inf" || (a - b) > 0.1 || (b - a) > 0.1) }'; then
+        pactl set-sink-volume "$SINK" "${want}dB" && echo "hardware: ${cur:-?} dB -> ${want} dB ($port)"
+    fi
+    pactl get-sink-mute "$SINK" 2>/dev/null | grep -q yes && pactl set-sink-mute "$SINK" 0
+    # The speaker path, checked on the codec itself (catches a change PipeWire did not see).
+    case "$port" in *headphone*|*headset*|*lineout*) return 0 ;; esac
+    card=$(alsa_card)
+    [ -n "$card" ] || return 0
+    for c in Master Speaker PCM; do
+        amixer -c "$card" sget "$c" 2>/dev/null | grep -q 'Playback.*\[' || continue
+        amixer -c "$card" sget "$c" | grep 'Playback.*dB' | grep -qv '\[0.00dB\]' && bad=1
+        amixer -c "$card" sget "$c" | grep -q '\[off\]' && bad=1
+    done
+    if [ "$bad" = 1 ]; then
+        for c in Master Speaker PCM; do amixer -c "$card" -q sset "$c" 100% unmute 2>/dev/null || amixer -c "$card" -q sset "$c" 100% 2>/dev/null; done
+        echo "hardware: speaker controls were below 0 dB, set to 100 %"
+    fi
+}
+
+# A raw ALSA sink as the default would put the user's volume on the hardware: use the chain.
+keep_default() {
+    local def
+    def=$(pactl get-default-sink 2>/dev/null)
+    if [ "$def" = "$SINK" ]; then
+        pactl set-default-sink "$NODE" && echo "default: $SINK -> $NODE"
+    fi
+}
+
+last="" id=""
+apply() {
+    local port want g1 g2 l trim gain
+    port=$(port_of_sink)
+    case "$port" in
+        *headphone*|*headset*|*lineout*) want=dry g1=0.0 g2=1.0 ;;
+        *)                                want=wet g1=1.0 g2=0.0 ;;   # speaker, unknown, or no port
+    esac
+    [ -n "$id" ] || id=$(node_id)
+    [ -n "$id" ] || return 1
+    l=$(louder)
+    if [ "$l" = 1 ]; then trim=$LOUD_TRIM gain=$LOUD_GAIN; else trim=$SOFT_TRIM gain=$SOFT_GAIN; fi
+    if [ "$last" != "$want:$l:$id" ]; then
+        if pw-cli s "$id" Props "{ params = [ \"mixL:Gain 1\" $g1 \"mixL:Gain 2\" $g2 \"mixR:Gain 1\" $g1 \"mixR:Gain 2\" $g2 \"trimL:Mult\" $trim \"trimR:Mult\" $trim \"lim:gain (dB)\" $gain ] }" >/dev/null; then
+            last="$want:$l:$id"
+            echo "port '${port:-none}': $want, louder $l (node $id)"
+        else
+            id="" last=""
+            return 1
+        fi
+    fi
+    pin "${port:-none}"
+    keep_default
+    return 0
+}
+
+# The chain may load a moment after we start; retry for up to 30 s.
+for _ in $(seq 1 60); do apply && break; sleep 0.5; done
+[ "${RARE_EQ_ONCE:-0}" = 1 ] && exit 0
+
+# After a resume: the codec state is put back by the kernel; check it anyway.
+if command -v gdbus >/dev/null; then
+    gdbus monitor --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1 2>/dev/null |
+        while read -r line; do
+            case "$line" in
+                *PrepareForSleep*false*) sleep 1; echo "resumed"; id="" last=""; apply || true ;;
+            esac
+        done &
+fi
+
+idx=$(sink_index)
+pactl subscribe | while read -r line; do
+    case "$line" in
+        *"'new' on sink"*|*"'remove' on sink"*) id="" last="" idx=$(sink_index) ;;   # the chain may have reloaded
+        *"'change' on sink #$idx"|*"'change' on card"*|*"'change' on server"*) ;;
+        *) continue ;;   # the user's volume on the chain, streams, sources: nothing to do
+    esac
+    apply || true
+done
+exit 1   # pactl subscribe ended (PipeWire went away): let systemd restart us

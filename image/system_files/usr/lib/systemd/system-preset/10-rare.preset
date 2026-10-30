@@ -1,0 +1,6 @@
+# Rare OS: SSH is off by default (owner request; it used to be forced on). Settings > System turns
+# it on with `os-admin ssh on`, and rare-keep-ssh.service applies that choice at every boot. The
+# base's desktop preset (81-desktop.preset) would otherwise decide for sshd; presets are read in
+# order and the first match wins, so this one comes first.
+disable sshd.service
+enable rare-keep-ssh.service

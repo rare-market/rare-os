@@ -1,0 +1,33 @@
+name: chrome-app-netflix
+title: Netflix (Chrome with Widevine, pointer mode), Home from the app, quit
+tags: [apps, chrome]
+needs: [probe, network]
+timeout_s: 150
+steps:
+  - goto: open:app:netflix
+  - wait_for: {focus: '"Open"|"Resume"', timeout_ms: 8000}
+  - name: A on Open starts Netflix in Chrome
+    press: a
+    allow: [black]
+    after_ms: 300
+    wait_for: {focus_app: not_launcher, timeout_ms: 30000}
+  - name: Netflix loads (12 s)
+    wait: 12000
+  - name: The Rare button opens the Rare menu over the app
+    press: guide
+    expect: {focus_app: launcher, respond_ms: 1200}
+    wait_for: {ingame: {mode: menu}, timeout_ms: 3000}
+  - name: The Rare button again brings Rare Home in front
+    press: guide
+    expect: {focus_app: launcher, screen: {tab: home}, respond_ms: 300, settle_ms: 1200}
+  - name: quit Netflix
+    goto: quit:all
+  - wait_for: {focus_app: launcher, timeout_ms: 20000}
+# device checklist
+# - Precondition: com.google.Chrome installed (Flathub).
+# - Open: toast "Netflix: the right stick moves the pointer. Press the Rare button to come back to Rare."
+#   Netflix fullscreen; the right stick moves a pointer, A clicks, B goes back (Alt+Left).
+# - Back in Rare the pad is Rare's again (no pointer moves).
+# - Running, Netflix, Close: toast "Closing Netflix", Netflix gone from Running.
+# - Twitch is in the app catalog (src/apps/catalog.json) as a Chrome app window, like Netflix.
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

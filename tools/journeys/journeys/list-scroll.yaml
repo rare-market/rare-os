@@ -1,0 +1,99 @@
+# Holding a direction through the long lists (Library grid, Marketplace grid and activity, Wallet lists):
+# the ring keeps up, scrolling stays smooth at 60 fps, nothing blanks, focus is never lost at the end.
+name: list-scroll
+title: Scroll the long lists with held directions, smooth and without losing focus
+tags: [navigation, launcher, smoothness]
+needs: [probe]
+timeout_s: 180
+steps:
+  - goto: library
+    expect: {screen: {tab: library}}
+  # Down to the last row of the grid, then back up to the first.
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: up
+  - press: up
+  - press: up
+  - press: up
+  - press: up
+  - press: up
+  - press: up
+  - press: up
+  - press: up
+  - press: up
+  # Sections with LT/RT keep focus.
+  - press: rt
+    expect: {respond_ms: 250}
+  - press: lt
+    expect: {respond_ms: 250}
+  - goto: market
+    expect: {screen: {tab: market}}
+  - press: down
+  - press: a
+    expect: {respond_ms: 400}
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  # Activity and Holders lists with RT.
+  - press: rt
+    expect: {respond_ms: 300}
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: rt
+    expect: {respond_ms: 300}
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: b
+  - goto: wallet
+    expect: {screen: {tab: wallet}}
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+  - press: down
+# device checklist
+# - Hold Down on Library from first to last row: no stalls, no tiles blinking, the page keeps the focused row about 45% from the top.
+# - The sticky filter row never covers the focused tile.
+# - Scroll position survives a library rescan (Guide out of a game and back).

@@ -1,0 +1,63 @@
+#!/usr/bin/bash
+# Gives amd_pmc its SMU log mapping before ryzen_smu holds the same memory cached.
+#
+# ryzen_smu (PowerStation's SMU path) loads in the initramfs and maps the SMU's DRAM table with
+# ioremap_cache (write-back). amd_pmc maps its SMU log/metrics table, in the same SMU page
+# (0x43e300000 on the SuiPlay0X1; ryzen_smu is the only write-back mapper there),
+# with plain ioremap (uncached) on the first suspend. x86 PAT
+# refuses an uncached mapping over a write-back one, so every suspend logs
+#   ioremap error for 0x43e300000-0x43e301000, requested 0x2, got 0x0
+# and amd_pmc can never read its metrics: /sys/power/suspend_stats/last_hw_sleep and
+# total_hw_sleep stay 0 even when the SoC does reach s0i3, the "Last suspend didn't reach deepest
+# state" warning can never fire, and debugfs amd_pmc/smu_fw_info fails. Sleep checks are blind.
+#
+# The other order works: once amd_pmc holds the page uncached, ryzen_smu's write-back request is
+# downgraded to uncached and both drivers read it. So, early at boot and before PowerStation:
+# unload ryzen_smu (nothing holds it yet), let amd_pmc map (reading smu_fw_info does that, the
+# same call the driver makes on suspend), load ryzen_smu again. Reading a 0xAF0-byte PM table
+# uncached costs microseconds.
+#
+# Safe to run again: if amd_pmc already reads its table, it does nothing.
+set -u
+DBG=/sys/kernel/debug/amd_pmc
+INFO=$DBG/smu_fw_info
+
+# Only AMD platforms with a PMC (ACPI ids from amd_pmc's match table) have anything to fix.
+if ! ls /sys/bus/acpi/devices/ 2>/dev/null | grep -qE '^(AMDI000[5-9AB]|AMD000[45]):'; then
+    exit 0
+fi
+# amd_pmc probes from udev, possibly after this unit starts; give it a moment.
+for _ in $(seq 50); do
+    [[ -e $INFO ]] && break
+    sleep 0.1
+done
+if [[ ! -e $INFO ]]; then
+    echo "rare: no $INFO (amd_pmc not bound or debugfs not mounted); nothing to do"
+    exit 0
+fi
+
+if cat "$INFO" >/dev/null 2>&1; then
+    echo "rare: amd_pmc already reads its SMU table"
+    exit 0
+fi
+
+if ! grep -q '^ryzen_smu ' /proc/modules; then
+    echo "rare: amd_pmc cannot map its SMU table and ryzen_smu is not loaded; leaving it"
+    exit 0
+fi
+
+if ! modprobe -r ryzen_smu; then
+    echo "rare: ryzen_smu is in use; amd_pmc sleep stats stay unavailable this boot"
+    exit 0
+fi
+cat "$INFO" >/dev/null 2>&1
+ok=$?
+# Always bring ryzen_smu back: PowerStation needs it for TDP.
+modprobe ryzen_smu || modprobe ryzen_smu || echo "rare: WARNING: ryzen_smu did not load again"
+
+if [[ $ok -eq 0 ]] && cat "$INFO" >/dev/null 2>&1; then
+    echo "rare: amd_pmc maps its SMU table first; s0ix sleep stats work"
+else
+    echo "rare: amd_pmc still cannot map its SMU table (another mapping holds it)"
+fi
+exit 0

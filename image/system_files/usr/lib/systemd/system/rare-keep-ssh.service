@@ -1,0 +1,12 @@
+[Unit]
+Description=Rare OS: apply the SSH on/off choice at boot (firewall, login policy, auto-off)
+After=firewalld.service NetworkManager.service sshd-keygen.target
+Wants=sshd-keygen.target
+
+[Service]
+Type=oneshot
+TimeoutStartSec=120
+ExecStart=/usr/libexec/rare/keep-ssh
+
+[Install]
+WantedBy=multi-user.target

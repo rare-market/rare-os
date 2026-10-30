@@ -1,0 +1,51 @@
+#!/usr/bin/bash
+# Applies the owner's SSH choice on every boot (state in /var/lib/rare/ssh/state, set by
+# `os-admin ssh on|off` from Settings > System).
+#
+# CHANGED: SSH used to be forced on at every boot. It is now OFF by default (owner request); a
+# device with no state file keeps sshd disabled and stopped until the owner turns it on.
+#
+#   state not "on": sshd.service is disabled and stopped, the fallback sshd is stopped, nothing else.
+#   state "on":
+#     - sshd is unmasked, enabled and started
+#     - if the sshd config in /etc no longer loads (an old one carried over a major update), a
+#       fallback sshd runs with the image's own config, so remote access still works
+#     - the firewall allows ssh in the default zone, every active zone and every zone a
+#       NetworkManager connection names
+#     - the login policy (password or key) is applied again
+#     - an auto-off timer that was set is rescheduled for the time left, or SSH is turned off if
+#       that time has passed
+# The first start (no state file) writes state off: SSH from the previous system is not carried over.
+# Paths can be redirected for tests, see ssh-lib.sh (RARE_ROOT and friends).
+set -uo pipefail
+# shellcheck source=ssh-lib.sh
+. "${RARE_LIB_DIR:-$(dirname "$(readlink -f "$0")")}/ssh-lib.sh"
+
+# The first start of Rare OS (no state yet) starts from a fresh state: SSH off, whatever the
+# system it was switched from did. GameOS has sshd on with the password playtron (its Remote
+# Access is how Rare OS gets installed), and that must not stay open on the network. The owner
+# turns SSH on in Settings > System. A device whose owner already chose (a state file) keeps
+# that choice, including keep-password.
+if [[ ! -e "$STATE_DIR/state" ]]; then
+    ssh_state_set state off
+    echo "rare: first start of Rare OS; remote access (SSH) starts off"
+fi
+
+if ! ssh_is_on; then
+    ssh_stop_all
+    exit 0
+fi
+
+ssh_ensure_on
+ssh_apply_auth || true
+at="$(ssh_state_get auto-off-at)"
+if [[ "$at" =~ ^[0-9]+$ ]]; then
+    left=$(( at - $(date +%s) ))
+    if (( left <= 0 )); then
+        echo "rare: ssh auto-off time passed; turning ssh off"
+        ssh_off
+    else
+        ssh_autooff_schedule "$left"
+    fi
+fi
+exit 0

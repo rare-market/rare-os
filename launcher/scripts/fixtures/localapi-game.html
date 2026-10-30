@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- A sample web game for scripts/localapi-e2e.mjs: finds Rare Wallet's rare:platform feature
+     (Wallet Standard), reads the player and their items from this game, and asks to sell one.
+     The same calls a game makes through @rare/sdk's "launcher-web" transport. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sample Rare game</title>
+    <style>
+      body { background: #100c18; color: #f2f2f3; font: 16px system-ui, sans-serif; padding: 24px; }
+    </style>
+  </head>
+  <body>
+    <h1>Sample Rare game</h1>
+    <pre id="log"></pre>
+    <script>
+      const log = (s) => (document.getElementById("log").textContent += s + "\n");
+      const wallets = [];
+      const api = { register: (w) => (wallets.push(w), () => {}) };
+      window.addEventListener("wallet-standard:register-wallet", (e) => e.detail(api));
+      window.dispatchEvent(new CustomEvent("wallet-standard:app-ready", { detail: api }));
+      (async () => {
+        const w = wallets.find((x) => x.features && x.features["rare:platform"]);
+        if (!w) return log("no rare:platform");
+        const rare = w.features["rare:platform"];
+        log("game " + rare.game);
+        const me = await rare.me();
+        log("me " + me.address);
+        const { items } = await rare.inventory();
+        log("items " + items.length);
+        const it = items.find((x) => !x.listing || x.listing.venue === "kiosk") || items[0];
+        if (!it) return log("no items");
+        const price = it.floorMist ? String(BigInt(it.floorMist) * 3n) : "5000000000";
+        log("selling " + it.id + " at " + price);
+        const r = await rare.sell({ itemId: it.id, mode: "list", priceMist: price }).catch((e) => ({ status: "error: " + e.message }));
+        log("sell " + r.status);
+      })().catch((e) => log("error: " + e.message));
+    </script>
+  </body>
+</html>

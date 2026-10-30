@@ -1,0 +1,3 @@
+# Apply panel power savings when the charger changes or the eDP panel appears.
+SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ACTION=="add|change", RUN+="/usr/libexec/rare/panel-power-savings"
+SUBSYSTEM=="drm", KERNEL=="card*-eDP-*", ACTION=="add|change", RUN+="/usr/libexec/rare/panel-power-savings"

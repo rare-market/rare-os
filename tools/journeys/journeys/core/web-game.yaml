@@ -1,0 +1,25 @@
+name: web-game
+title: Open the reference web game and come back Home
+tags: [core, games, web]
+needs: [probe, network]
+timeout_s: 120
+steps:
+  - goto: open:game:${web_game}
+  - wait_for: {focus: '"(Play|Resume|Open)', timeout_ms: 8000}
+  - name: A opens the web game
+    press: a
+    settle_timeout_ms: 15000
+    expect: {respond_ms: 400}
+  - name: web game loads (20 s)
+    wait: 20000
+  - name: Hold Select + Start, the Switcher
+    press: exit
+    expect: {respond_ms: 1200}
+    wait_for: {ingame: {mode: switcher}, timeout_ms: 3000}
+  - name: The Rare button in the Switcher is the Rare menu
+    press: guide
+    wait_for: {ingame: {mode: menu}, timeout_ms: 2000}
+  - name: The Rare button again goes Home
+    press: guide
+    expect: {screen: {tab: home}, focus_app: launcher, respond_ms: 300}
+  - goto: quit:all

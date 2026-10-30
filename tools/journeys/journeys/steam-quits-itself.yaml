@@ -1,0 +1,15 @@
+name: steam-quits-itself
+title: "Steam quits while it has the screen"
+tags: [steam]
+needs: [probe, steam, root_or_attended]
+timeout_s: 60
+steps:
+  - goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+  - goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (not automated: needs Steam to quit by itself)
+# - Precondition: Steam opened from Rare (Big Picture on screen)
+# - Do: in Big Picture, Power > Exit Steam
+#   Expect: Rare, not a black screen. Running list: no Steam within 3 s of the last steam process ending
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

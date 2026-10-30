@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+	[Desktop Entry]
+	Name=EmuDeck
+	Exec=/home/bazzite/Applications/EmuDeck.AppImage
+	Icon=/home/bazzite/.local/share/icons/emudeck/EmuDeck.png
+	Terminal=false
+	Type=Application
+	Categories=Game;
+	StartupNotify=false

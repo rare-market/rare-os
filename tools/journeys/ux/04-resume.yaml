@@ -1,0 +1,8 @@
+name: resume
+task: "Go back to the game you are playing (from Home)"
+fix: "none needed (the running game leads Home's shelf, focused); Resume also leads the Rare menu's first screen while something runs"
+home:
+  env: {RR_RUNNING: "steam:1449850"}
+  steps: [a]
+  done: {act: 'Launch\("steam:1449850"\)'}
+  was: [a]

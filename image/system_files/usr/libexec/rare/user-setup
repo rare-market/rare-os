@@ -1,0 +1,44 @@
+#!/usr/bin/bash
+# Makes sure a uid 1000 user exists and that game mode logs it in automatically.
+# A device switched from GameOS keeps its `playtron` user (uid 1000) and home, so this
+# does nothing there. Fresh installs get a `rare` user with no password, like SteamOS:
+# set one later with `passwd` from desktop mode.
+set -euo pipefail
+if ! getent passwd 1000 >/dev/null; then
+    useradd --create-home --uid 1000 --groups wheel --comment "Rare" rare
+    passwd --delete rare >/dev/null
+    echo "rare: created user 'rare' (uid 1000)"
+fi
+
+# The launcher proves the device is a genuine SuiPlay with the TPM (Device Pass, verified
+# trophies): /dev/tpmrm0 and the boot event log are root:tss, so the user joins tss. On an image
+# where tss is only in /usr/lib/group, copy its line to /etc/group first so usermod can edit it.
+tpm_user="$(id -nu 1000)"
+if ! id -nG "$tpm_user" | tr ' ' '\n' | grep -qx tss; then
+    if ! grep -q '^tss:' /etc/group && grep -q '^tss:' /usr/lib/group 2>/dev/null; then
+        grep '^tss:' /usr/lib/group >> /etc/group
+    fi
+    if getent group tss >/dev/null && usermod -aG tss "$tpm_user"; then
+        echo "rare: $tpm_user can use the TPM (group tss)"
+    fi
+fi
+
+# Game mode logs this user in by itself. The session comes from the base's holo.conf
+# (gamescope-session-rare); only the user is set here, so switching to desktop keeps working.
+user="$(id -nu 1000)"
+conf=/etc/sddm.conf.d/zz-rare-autologin.conf
+if [[ "$(cat "$conf" 2>/dev/null)" != *"User=$user"* ]]; then
+    mkdir -p /etc/sddm.conf.d
+    printf '[Autologin]\nUser=%s\n' "$user" > "$conf"
+    echo "rare: game mode logs in as $user"
+fi
+
+# The image has no Steam or OpenGamepadUI + Steam session (build.sh). A drop-in that still names
+# one (left from the base, or a temporary login written by an old steamos-manager) logs in to Rare.
+for f in /etc/sddm.conf.d/*.conf; do
+    [[ -f "$f" ]] || continue
+    if grep -q '^Session=gamescope-session-\(ogui-steam\|steam\)\.desktop' "$f"; then
+        sed -i 's/^Session=gamescope-session-\(ogui-steam\|steam\)\.desktop/Session=gamescope-session-rare.desktop/' "$f"
+        echo "rare: $f logs in to Rare"
+    fi
+done

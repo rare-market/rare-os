@@ -1,0 +1,26 @@
+{
+  "$comment": "share/mock.ts in the browser: seven captures, the two newest marked new (seenAt is 2 h ago). Ages are hours before nowMs; image names a file in this folder (the web mock's canvas pictures, clips show their poster).",
+  "nowMs": 1793126478575,
+  "seenAgeH": 2,
+  "status": {
+    "session": "gamescope",
+    "screenshot": { "available": true, "method": "gamescope" },
+    "clips": { "available": true, "enabled": true, "recording": true, "method": "gpu-screen-recorder", "seconds": 30 },
+    "dir": "/home/rare/Pictures/Rare"
+  },
+  "captures": [
+    { "kind": "screenshot", "ageH": 0.2, "bytes": 732000, "image": "hades.webp", "game": { "id": "steam:1145350", "name": "Hades II" } },
+    { "kind": "clip", "ageH": 0.5, "bytes": 14800000, "image": "clip-poster.jpg", "game": { "id": "web:act", "name": "ACT" } },
+    { "kind": "screenshot", "ageH": 3, "bytes": 659000, "image": "balatro.webp", "game": { "id": "steam:2379780", "name": "Balatro" } },
+    { "kind": "screenshot", "ageH": 5, "bytes": 702000, "image": "act.webp", "game": { "id": "web:act", "name": "ACT" } },
+    { "kind": "clip", "ageH": 26, "bytes": 14800000, "image": "clip-poster.jpg", "game": { "id": "steam:1145350", "name": "Hades II" } },
+    { "kind": "screenshot", "ageH": 50, "bytes": 811000, "image": "celeste.webp", "game": { "id": "steam:504230", "name": "Celeste" } },
+    { "kind": "screenshot", "ageH": 75, "bytes": 690000, "image": "wordgame.webp", "game": { "id": "web:wordgame", "name": "Word Game" } }
+  ],
+  "quotes": {
+    "screenshot": { "size": 446000, "walFrost": "19300000", "tipMist": "5000000", "gasMist": "10000000" },
+    "clip": { "size": 891000, "walFrost": "19900000", "tipMist": "5000000", "gasMist": "10000000" }
+  },
+  "address": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+  "doneQuiltId": "dev-share-layout-only-3kq9VwT2xR7mYb4N8pLcZ"
+}

@@ -1,0 +1,5194 @@
+{
+  "cases": [
+    {
+      "name": "coin send",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-2501500000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "amount": "2500000000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "risk": {
+        "addresses": {
+          "sentTo": [],
+          "receivedFrom": [],
+          "contacts": []
+        },
+        "self": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "2500000000"
+            }
+          ],
+          "receive": [],
+          "othersReceive": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "2500000000"
+            }
+          ],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "2.5 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "2500000000"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "pays-others",
+            "text": "Sends coins to 0xb2b2⁠…⁠b2b2, not you."
+          },
+          {
+            "id": "new-recipient-0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "text": "First time sending to this address."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "2500000000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "token send by its decimals",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-12345678"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [
+            {
+              "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+              "amount": "12345678"
+            }
+          ],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "12.3456 USDC",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "amount": "12345678"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "nft out with display",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        "display": {
+          "0x2222222222222222222222222222222222222222222222222222222222222222": {
+            "name": "Popkins #8475",
+            "image": "https://x/1.png"
+          }
+        }
+      },
+      "risk": {
+        "addresses": {
+          "sentTo": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+          ],
+          "receivedFrom": [],
+          "contacts": []
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [
+            {
+              "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+              "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+              "kind": "sent",
+              "to": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            }
+          ],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Popkins #8475",
+            "sub": "To 0xb2b2…b2b2",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+            "objectType": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "image": "https://x/1.png"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "gives-objects",
+            "danger": true,
+            "text": "Gives 1 object to 0xb2b2⁠…⁠b2b2."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "kiosk purchase",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-87001500000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "amount": "85000000000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xd4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4",
+            "amount": "2000000000"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0x9999999999999999999999999999999999999999999999999999999999999999"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          {
+            "type": "0x2::kiosk::Kiosk",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xk1"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "calls": [
+        {
+          "package": "0xdfb4f1d4e43e0c3ad834dcd369f0d39005c872e118c9dc1c5da9765bb93ee5f3",
+          "module": "kiosk_lock_rule",
+          "function": "prove"
+        }
+      ],
+      "risk": {
+        "prices": {
+          "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": 3
+        },
+        "portfolioUsd": 1000,
+        "addresses": {
+          "sentTo": [],
+          "receivedFrom": [],
+          "contacts": []
+        },
+        "self": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "87000000000"
+            }
+          ],
+          "receive": [],
+          "othersReceive": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "85000000000"
+            },
+            {
+              "address": "0xd4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "2000000000"
+            }
+          ],
+          "objectsOut": [],
+          "objectsIn": [
+            {
+              "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+              "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+              "kind": "received",
+              "created": false
+            }
+          ],
+          "shared": [
+            {
+              "objectId": "0xk1",
+              "type": "0x2::kiosk::Kiosk",
+              "label": "Sui Kiosk",
+              "sub": "kiosk::Kiosk",
+              "created": false
+            }
+          ],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [
+            {
+              "package": "0xdfb4f1d4e43e0c3ad834dcd369f0d39005c872e118c9dc1c5da9765bb93ee5f3",
+              "module": "kiosk_lock_rule",
+              "function": "prove"
+            }
+          ],
+          "recipients": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "0xd4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "87 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "87000000000"
+          },
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "Popkins",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+            "objectType": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "pays-others",
+            "text": "Sends coins to 2 other addresses, not you."
+          },
+          {
+            "id": "new-recipient-0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "text": "First time sending to this address."
+          },
+          {
+            "id": "new-recipient-0xd4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4",
+            "text": "First time sending to this address."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "85000000000"
+            },
+            {
+              "address": "0xd4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "2000000000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "kiosk item unknown kiosks",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+            },
+            "outputOwner": {
+              "kind": "object",
+              "id": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+            },
+            "outputOwner": null,
+            "idOperation": "Deleted",
+            "inputExists": true,
+            "outputExists": false,
+            "outputKind": "object",
+            "objectId": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "object",
+              "id": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+          },
+          {
+            "type": "0x2::kiosk::Kiosk",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [
+            {
+              "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+              "type": "0x2::kiosk::Kiosk",
+              "label": "Sui Kiosk",
+              "sub": "kiosk::Kiosk",
+              "created": false
+            }
+          ],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "kiosk item into a new kiosk",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "kiosks": [
+        "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+      ],
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+            },
+            "outputOwner": {
+              "kind": "object",
+              "id": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+            },
+            "outputOwner": null,
+            "idOperation": "Deleted",
+            "inputExists": true,
+            "outputExists": false,
+            "outputKind": "object",
+            "objectId": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "object",
+              "id": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+          },
+          {
+            "type": "0x2::kiosk::Kiosk",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [
+            {
+              "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+              "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+              "kind": "into-object",
+              "to": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+            }
+          ],
+          "objectsIn": [],
+          "shared": [
+            {
+              "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+              "type": "0x2::kiosk::Kiosk",
+              "label": "Sui Kiosk",
+              "sub": "kiosk::Kiosk",
+              "created": false
+            }
+          ],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Popkins",
+            "sub": "Into another object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+            "objectType": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "objects-leave",
+            "text": "1 object leaves your wallet."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "kiosk item into a kiosk made for bob",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "kiosks": [
+        "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+      ],
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+            },
+            "outputOwner": {
+              "kind": "object",
+              "id": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+            },
+            "outputOwner": null,
+            "idOperation": "Deleted",
+            "inputExists": true,
+            "outputExists": false,
+            "outputKind": "object",
+            "objectId": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "object",
+              "id": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+          },
+          {
+            "type": "0x2::kiosk::Kiosk",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+          },
+          {
+            "type": "0x2::kiosk::Kiosk",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+          },
+          {
+            "type": "0x2::kiosk::KioskOwnerCap",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "risk": {
+        "addresses": {
+          "sentTo": [],
+          "receivedFrom": [],
+          "contacts": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "name": "Bob"
+            }
+          ]
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [
+            {
+              "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+              "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+              "kind": "sent",
+              "to": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            }
+          ],
+          "objectsIn": [],
+          "shared": [
+            {
+              "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+              "type": "0x2::kiosk::Kiosk",
+              "label": "Sui Kiosk",
+              "sub": "kiosk::Kiosk",
+              "created": false
+            },
+            {
+              "objectId": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+              "type": "0x2::kiosk::Kiosk",
+              "label": "Sui Kiosk",
+              "sub": "kiosk::Kiosk",
+              "created": true
+            }
+          ],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Popkins",
+            "sub": "To 0xb2b2…b2b2",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+            "objectType": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "gives-objects",
+            "danger": true,
+            "text": "Gives 1 object to 0xb2b2⁠…⁠b2b2."
+          },
+          {
+            "id": "contact-0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "text": "Sending to Bob, a saved contact."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "first purchase makes my kiosk",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-21001500000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "amount": "21000000000"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+            },
+            "outputOwner": {
+              "kind": "object",
+              "id": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e"
+            },
+            "outputOwner": null,
+            "idOperation": "Deleted",
+            "inputExists": true,
+            "outputExists": false,
+            "outputKind": "object",
+            "objectId": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "object",
+              "id": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+          },
+          {
+            "type": "0x2::kiosk::Kiosk",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e"
+          },
+          {
+            "type": "0x2::kiosk::Kiosk",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+          },
+          {
+            "type": "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "21000000000"
+            }
+          ],
+          "receive": [],
+          "othersReceive": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "21000000000"
+            }
+          ],
+          "objectsOut": [],
+          "objectsIn": [
+            {
+              "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+              "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+              "kind": "received",
+              "created": false
+            },
+            {
+              "objectId": "0x0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+              "type": "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap",
+              "kind": "received",
+              "created": true
+            }
+          ],
+          "shared": [
+            {
+              "objectId": "0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e",
+              "type": "0x2::kiosk::Kiosk",
+              "label": "Sui Kiosk",
+              "sub": "kiosk::Kiosk",
+              "created": false
+            },
+            {
+              "objectId": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+              "type": "0x2::kiosk::Kiosk",
+              "label": "Sui Kiosk",
+              "sub": "kiosk::Kiosk",
+              "created": true
+            }
+          ],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "21 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "21000000000"
+          },
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "Popkins",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+            "objectType": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins"
+          },
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "Kiosk Personal Kiosk Cap",
+            "sub": "New",
+            "objectId": "0x0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+            "objectType": "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802::personal_kiosk::PersonalKioskCap"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "pays-others",
+            "text": "Sends coins to 0xb2b2⁠…⁠b2b2, not you."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "21000000000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "kiosk item sent to bob",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "kiosks": [
+        "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+      ],
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+            },
+            "outputOwner": null,
+            "idOperation": "Deleted",
+            "inputExists": true,
+            "outputExists": false,
+            "outputKind": "object",
+            "objectId": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "object",
+              "id": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+          },
+          {
+            "type": "0x2::kiosk::Kiosk",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [
+            {
+              "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+              "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+              "kind": "sent",
+              "to": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            }
+          ],
+          "objectsIn": [],
+          "shared": [
+            {
+              "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+              "type": "0x2::kiosk::Kiosk",
+              "label": "Sui Kiosk",
+              "sub": "kiosk::Kiosk",
+              "created": false
+            }
+          ],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Popkins",
+            "sub": "To 0xb2b2…b2b2",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+            "objectType": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "gives-objects",
+            "danger": true,
+            "text": "Gives 1 object to 0xb2b2⁠…⁠b2b2."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "kiosk item back to my wallet",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "kiosks": [
+        "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+      ],
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": {
+              "kind": "object",
+              "id": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+            },
+            "outputOwner": null,
+            "idOperation": "Deleted",
+            "inputExists": true,
+            "outputExists": false,
+            "outputKind": "object",
+            "objectId": "0xf1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1"
+          },
+          {
+            "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::kiosk::Item>, 0x2::object::ID>",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "object",
+              "id": "0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xf2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2"
+          },
+          {
+            "type": "0x2::kiosk::Kiosk",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [
+            {
+              "objectId": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+              "type": "0x2::kiosk::Kiosk",
+              "label": "Sui Kiosk",
+              "sub": "kiosk::Kiosk",
+              "created": false
+            }
+          ],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "failure not enough balance",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "failure",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        "failure": {
+          "message": "MoveAbort",
+          "abort": {
+            "code": "2",
+            "package": "0x2",
+            "module": "balance",
+            "function": "split"
+          }
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": false,
+          "source": "node",
+          "failure": {
+            "message": "MoveAbort",
+            "abort": {
+              "code": "2",
+              "package": "0x2",
+              "module": "balance",
+              "function": "split"
+            }
+          },
+          "reason": "Not enough balance.",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "failed",
+            "danger": true,
+            "text": "Simulation failed. If sent, it fails and still costs a fee."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "sponsored by someone else",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-5000000"
+          },
+          {
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "amount": "5000000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "risk": {
+        "addresses": {
+          "sentTo": [],
+          "receivedFrom": [],
+          "contacts": []
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [
+            {
+              "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+              "amount": "5000000"
+            }
+          ],
+          "receive": [],
+          "othersReceive": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+              "amount": "5000000"
+            }
+          ],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": false,
+          "calls": [],
+          "recipients": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "5 USDC",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "amount": "5000000"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0 SUI",
+            "sub": "Paid by someone else",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "0"
+          }
+        ],
+        "risks": [
+          {
+            "id": "pays-others",
+            "text": "Sends coins to 0xb2b2⁠…⁠b2b2, not you."
+          },
+          {
+            "id": "new-recipient-0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "text": "First time sending to this address."
+          },
+          {
+            "id": "sponsored",
+            "text": "Someone else pays the network fee."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+              "amount": "5000000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "sponsored by a game",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "extras": {
+        "coveredByRare": true,
+        "paidBy": "Starlight Studio"
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "calls": [
+        {
+          "package": "0x4444444444444444444444444444444444444444444444444444444444444444",
+          "module": "game",
+          "function": "mint"
+        }
+      ],
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [
+            {
+              "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+              "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+              "kind": "received",
+              "created": true
+            }
+          ],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": false,
+          "calls": [
+            {
+              "package": "0x4444444444444444444444444444444444444444444444444444444444444444",
+              "module": "game",
+              "function": "mint"
+            }
+          ],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "Popkins",
+            "sub": "New",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+            "objectType": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "Paid by Starlight Studio",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "0"
+          }
+        ],
+        "risks": [
+          {
+            "id": "unknown-package",
+            "text": "Uses a contract Rare Wallet doesn't recognize: 0x4444⁠…⁠4444."
+          },
+          {
+            "id": "sponsored",
+            "text": "Someone else pays the network fee."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "sponsored by rare",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "extras": {
+        "coveredByRare": true
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": false,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "Paid by Rare",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "0"
+          }
+        ],
+        "risks": [
+          {
+            "id": "sponsored",
+            "text": "Someone else pays the network fee."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "storage refund",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "7000000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "1000000",
+          "rebate": "9000000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "1000000",
+            "rebate": "9000000",
+            "net": "-7000000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.007 SUI back",
+            "sub": "Storage refund is larger than the fee",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "-7000000"
+          }
+        ],
+        "risks": [],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "unknown coin fallback",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000abc::x::XCOIN",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "1500000000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000abc::x::XCOIN",
+              "amount": "1500000000"
+            }
+          ],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "1.5 XCOIN",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000abc::x::XCOIN",
+            "amount": "1500000000"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "object classes",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [],
+        "objects": [
+          {
+            "type": "0x2::coin::Coin<0x2::sui::SUI>",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "type": "0xabc::nft::Nft",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x01"
+          },
+          {
+            "type": "0xabc::nft::Nft",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x02"
+          },
+          {
+            "type": "0xabc::nft::Nft",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": null,
+            "idOperation": "Deleted",
+            "inputExists": true,
+            "outputExists": false,
+            "outputKind": "object",
+            "objectId": "0x03"
+          },
+          {
+            "type": "0xabc::nft::Nft",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": null,
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": false,
+            "outputKind": "object",
+            "objectId": "0x04"
+          },
+          {
+            "type": "0xabc::nft::Nft",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "object",
+              "id": "0xk1"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x05"
+          },
+          {
+            "type": "0xabc::nft::Nft",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x06"
+          },
+          {
+            "type": "0x2::coin::Coin<0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC>",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x07"
+          },
+          {
+            "type": "0xabc::nft::Nft",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x08"
+          },
+          {
+            "type": "0x2::accumulator::X",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "accumulator",
+            "objectId": "0x09"
+          },
+          {
+            "type": "0xabc::staked::StakedSui",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0a"
+          },
+          {
+            "type": "0xabc::art::Art_piece",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "immutable"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x0b"
+          }
+        ],
+        "gas": {
+          "computation": "1000",
+          "storage": "5000",
+          "rebate": "2000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "risk": {
+        "addresses": {
+          "sentTo": [],
+          "receivedFrom": [],
+          "contacts": []
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "4000"
+            }
+          ],
+          "othersReceive": [],
+          "objectsOut": [
+            {
+              "objectId": "0x01",
+              "type": "0xabc::nft::Nft",
+              "kind": "sent",
+              "to": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+            },
+            {
+              "objectId": "0x03",
+              "type": "0xabc::nft::Nft",
+              "kind": "deleted"
+            },
+            {
+              "objectId": "0x04",
+              "type": "0xabc::nft::Nft",
+              "kind": "wrapped"
+            },
+            {
+              "objectId": "0x05",
+              "type": "0xabc::nft::Nft",
+              "kind": "into-object",
+              "to": "0xk1"
+            },
+            {
+              "objectId": "0x0a",
+              "type": "0xabc::staked::StakedSui",
+              "kind": "shared"
+            },
+            {
+              "objectId": "0x0b",
+              "type": "0xabc::art::Art_piece",
+              "kind": "frozen"
+            }
+          ],
+          "objectsIn": [
+            {
+              "objectId": "0x02",
+              "type": "0xabc::nft::Nft",
+              "kind": "received",
+              "created": true
+            },
+            {
+              "objectId": "0x08",
+              "type": "0xabc::nft::Nft",
+              "kind": "received",
+              "created": false
+            }
+          ],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000",
+            "storage": "5000",
+            "rebate": "2000",
+            "net": "4000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Nft",
+            "sub": "To 0xb2b2…b2b2",
+            "objectId": "0x01",
+            "objectType": "0xabc::nft::Nft"
+          },
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Nft",
+            "sub": "Destroyed",
+            "objectId": "0x03",
+            "objectType": "0xabc::nft::Nft"
+          },
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Nft",
+            "sub": "Held by the app",
+            "objectId": "0x04",
+            "objectType": "0xabc::nft::Nft"
+          },
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Nft",
+            "sub": "Into another object",
+            "objectId": "0x05",
+            "objectType": "0xabc::nft::Nft"
+          },
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Staked Sui",
+            "sub": "Made public",
+            "objectId": "0x0a",
+            "objectType": "0xabc::staked::StakedSui"
+          },
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Art piece",
+            "sub": "Frozen",
+            "objectId": "0x0b",
+            "objectType": "0xabc::art::Art_piece"
+          },
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "0.000004 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "4000"
+          },
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "Nft",
+            "sub": "New",
+            "objectId": "0x02",
+            "objectType": "0xabc::nft::Nft"
+          },
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "Nft",
+            "objectId": "0x08",
+            "objectType": "0xabc::nft::Nft"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.000004 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "4000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "gives-objects",
+            "danger": true,
+            "text": "Gives 1 object to 0xb2b2⁠…⁠b2b2."
+          },
+          {
+            "id": "objects-leave",
+            "text": "5 objects leave your wallet."
+          },
+          {
+            "id": "new-recipient-0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "text": "First time sending to this address."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "shared pools and publish",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [],
+        "objects": [
+          {
+            "type": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x2::sui::SUI, 0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC>",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xp1"
+          },
+          {
+            "type": "0x9999::vault::Vault",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xp2"
+          },
+          {
+            "type": "0x9999::vault::Vault",
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "Created",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xp3"
+          },
+          {
+            "type": "0x3::sui_system::SuiSystemState",
+            "inputOwner": {
+              "kind": "shared"
+            },
+            "outputOwner": {
+              "kind": "shared"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0xp4"
+          },
+          {
+            "type": null,
+            "inputOwner": null,
+            "outputOwner": {
+              "kind": "immutable"
+            },
+            "idOperation": "None",
+            "inputExists": false,
+            "outputExists": true,
+            "outputKind": "package",
+            "objectId": "0xpk"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "calls": [
+        {
+          "package": "0x2",
+          "module": "package",
+          "function": "make_immutable"
+        }
+      ],
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [],
+          "receive": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "1500000"
+            }
+          ],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [
+            {
+              "objectId": "0xp1",
+              "type": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x2::sui::SUI, 0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC>",
+              "label": "Cetus Pool",
+              "sub": "pool::Pool",
+              "created": false
+            },
+            {
+              "objectId": "0xp2",
+              "type": "0x9999::vault::Vault",
+              "label": "Vault",
+              "sub": "0x9999::vault",
+              "created": false
+            },
+            {
+              "objectId": "0xp3",
+              "type": "0x9999::vault::Vault",
+              "label": "Vault",
+              "sub": "0x9999::vault",
+              "created": true
+            },
+            {
+              "objectId": "0xp4",
+              "type": "0x3::sui_system::SuiSystemState",
+              "label": "Sui System State",
+              "sub": "sui_system::SuiSystemState",
+              "created": false
+            }
+          ],
+          "publishes": true,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [
+            {
+              "package": "0x2",
+              "module": "package",
+              "function": "make_immutable"
+            }
+          ],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "publish",
+            "text": "Publishes or upgrades a Move package."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "cetus swap with clever abort",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "failure",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        "failure": {
+          "message": "MoveAbort in 2nd command, 'EAmountOutBelowMinLimit', in '0x1eab::router::swap'",
+          "kind": "MoveAbort",
+          "command": 1,
+          "abort": {
+            "code": "6",
+            "package": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+            "module": "router",
+            "function": "swap",
+            "constant": "EAmountOutBelowMinLimit"
+          }
+        }
+      },
+      "calls": [
+        {
+          "package": "0x7777777777777777777777777777777777777777777777777777777777777777",
+          "module": "pool_script",
+          "function": "swap"
+        },
+        {
+          "package": "0x2",
+          "module": "coin",
+          "function": "split"
+        }
+      ],
+      "risk": {
+        "originals": {
+          "0x7777777777777777777777777777777777777777777777777777777777777777": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb"
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": false,
+          "source": "node",
+          "failure": {
+            "message": "MoveAbort in 2nd command, 'EAmountOutBelowMinLimit', in '0x1eab::router::swap'",
+            "kind": "MoveAbort",
+            "command": 1,
+            "abort": {
+              "code": "6",
+              "package": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+              "module": "router",
+              "function": "swap",
+              "constant": "EAmountOutBelowMinLimit"
+            }
+          },
+          "reason": "Amount out below min limit (router::swap).",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [
+            {
+              "package": "0x7777777777777777777777777777777777777777777777777777777777777777",
+              "module": "pool_script",
+              "function": "swap"
+            },
+            {
+              "package": "0x2",
+              "module": "coin",
+              "function": "split"
+            }
+          ],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "failed",
+            "danger": true,
+            "text": "Simulation failed. If sent, it fails and still costs a fee."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "abort in an unknown package",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "failure",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        "failure": {
+          "message": "x",
+          "abort": {
+            "code": "7",
+            "package": "0x7878787878787878787878787878787878787878787878787878787878787878",
+            "module": "game",
+            "function": ""
+          }
+        }
+      },
+      "calls": [
+        {
+          "package": "0x7878787878787878787878787878787878787878787878787878787878787878",
+          "module": "game",
+          "function": "play"
+        },
+        {
+          "package": "0x7979797979797979797979797979797979797979797979797979797979797979",
+          "module": "other",
+          "function": "go"
+        }
+      ],
+      "out": {
+        "insights": {
+          "ok": false,
+          "source": "node",
+          "failure": {
+            "message": "x",
+            "abort": {
+              "code": "7",
+              "package": "0x7878787878787878787878787878787878787878787878787878787878787878",
+              "module": "game",
+              "function": ""
+            }
+          },
+          "reason": "The app's contract stopped it in game, code 7.",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [
+            {
+              "package": "0x7878787878787878787878787878787878787878787878787878787878787878",
+              "module": "game",
+              "function": "play"
+            },
+            {
+              "package": "0x7979797979797979797979797979797979797979797979797979797979797979",
+              "module": "other",
+              "function": "go"
+            }
+          ],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "failed",
+            "danger": true,
+            "text": "Simulation failed. If sent, it fails and still costs a fee."
+          },
+          {
+            "id": "unknown-package",
+            "text": "Uses 2 contracts Rare Wallet doesn't recognize."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "failure long message with ids",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "failure",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        "failure": {
+          "message": "Unexpected thing with 0xabababababababababababababababababababababababababababababababab and 0XCDCDCDCDCDCDCDCDCDCDCDCD and 0x1234 in a very long message that goes on and on and on and on and on and on and on and on and on and on and on"
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": false,
+          "source": "node",
+          "failure": {
+            "message": "Unexpected thing with 0xabababababababababababababababababababababababababababababababab and 0XCDCDCDCDCDCDCDCDCDCDCDCD and 0x1234 in a very long message that goes on and on and on and on and on and on and on and on and on and on and on"
+          },
+          "reason": "Unexpected thing with 0xabab…abab and 0x0000…cdcd and 0x1234 in a very long message that goes on and on and on and on and on and on and o…",
+          "send": [],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "failed",
+            "danger": true,
+            "text": "Simulation failed. If sent, it fails and still costs a fee."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "risky swap",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        },
+        "0x000000000000000000000000000000000000000000000000000000000000dead::scam::SCAM": {
+          "symbol": "SCAM",
+          "decimals": 2
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0xdead::scam::SCAM",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "100"
+          },
+          {
+            "coinType": "0xbeef::spam::SPAM",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "5"
+          },
+          {
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1000000"
+          },
+          {
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "amount": "1000000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-20001500000"
+          },
+          {
+            "coinType": "0xcafe::junk::JUNK",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-3"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "risk": {
+        "prices": {
+          "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": 4,
+          "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": 1
+        },
+        "decimals": {
+          "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": 6
+        },
+        "portfolioUsd": 100,
+        "safety": {
+          "0x000000000000000000000000000000000000000000000000000000000000dead::scam::SCAM": {
+            "spam": false,
+            "honeypot": true
+          },
+          "0x000000000000000000000000000000000000000000000000000000000000beef::spam::SPAM": {
+            "spam": true,
+            "honeypot": false
+          },
+          "0x000000000000000000000000000000000000000000000000000000000000cafe::junk::JUNK": {
+            "spam": true,
+            "honeypot": true
+          }
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "20000000000"
+            },
+            {
+              "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+              "amount": "1000000"
+            },
+            {
+              "coinType": "0x000000000000000000000000000000000000000000000000000000000000cafe::junk::JUNK",
+              "amount": "3"
+            }
+          ],
+          "receive": [
+            {
+              "coinType": "0x000000000000000000000000000000000000000000000000000000000000dead::scam::SCAM",
+              "amount": "100"
+            },
+            {
+              "coinType": "0x000000000000000000000000000000000000000000000000000000000000beef::spam::SPAM",
+              "amount": "5"
+            }
+          ],
+          "othersReceive": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+              "amount": "1000000"
+            }
+          ],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": [
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "20 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "20000000000"
+          },
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "1 USDC",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "amount": "1000000"
+          },
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "0.000000003 JUNK",
+            "coinType": "0x000000000000000000000000000000000000000000000000000000000000cafe::junk::JUNK",
+            "amount": "3"
+          },
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "1 SCAM",
+            "coinType": "0x000000000000000000000000000000000000000000000000000000000000dead::scam::SCAM",
+            "amount": "100"
+          },
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "0.000000005 SPAM",
+            "coinType": "0x000000000000000000000000000000000000000000000000000000000000beef::spam::SPAM",
+            "amount": "5"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "large-share",
+            "danger": true,
+            "text": "Sends about 81% of your portfolio."
+          },
+          {
+            "id": "honeypot-0x000000000000000000000000000000000000000000000000000000000000dead::scam::SCAM",
+            "danger": true,
+            "text": "SCAM may be a honeypot. You may not be able to sell it."
+          },
+          {
+            "id": "spam-0x000000000000000000000000000000000000000000000000000000000000beef::spam::SPAM",
+            "text": "SPAM is flagged as spam."
+          },
+          {
+            "id": "spam-out-0x000000000000000000000000000000000000000000000000000000000000cafe::junk::JUNK",
+            "text": "JUNK is flagged as a honeypot."
+          },
+          {
+            "id": "pays-others",
+            "text": "Sends coins to 0xb2b2⁠…⁠b2b2, not you."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+              "amount": "1000000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "lookalike recipients",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1500003"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xabcd777777777777777777777777777777777777777777777777777777771234",
+            "amount": "1"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0x9999000000000000000000000000000000000000000000000000000000008888",
+            "amount": "1"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "amount": "1"
+          }
+        ],
+        "objects": [
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          {
+            "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+            "inputOwner": {
+              "kind": "address",
+              "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "outputOwner": {
+              "kind": "address",
+              "address": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"
+            },
+            "idOperation": "None",
+            "inputExists": true,
+            "outputExists": true,
+            "outputKind": "object",
+            "objectId": "0x2323232323232323232323232323232323232323232323232323232323232323"
+          }
+        ],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "risk": {
+        "addresses": {
+          "sentTo": [
+            "0xABCD000000000000000000000000000000000000000000000000000000001234"
+          ],
+          "receivedFrom": [
+            "0xd4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4"
+          ],
+          "contacts": [
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "name": "Bob"
+            },
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "name": "Bobby"
+            }
+          ]
+        },
+        "self": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "3"
+            }
+          ],
+          "receive": [],
+          "othersReceive": [
+            {
+              "address": "0xabcd777777777777777777777777777777777777777777777777777777771234",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "1"
+            },
+            {
+              "address": "0x9999000000000000000000000000000000000000000000000000000000008888",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "1"
+            },
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "1"
+            }
+          ],
+          "objectsOut": [
+            {
+              "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+              "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+              "kind": "sent",
+              "to": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"
+            },
+            {
+              "objectId": "0x2323232323232323232323232323232323232323232323232323232323232323",
+              "type": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins",
+              "kind": "sent",
+              "to": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"
+            }
+          ],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": [
+            "0xabcd777777777777777777777777777777777777777777777777777777771234",
+            "0x9999000000000000000000000000000000000000000000000000000000008888",
+            "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "0.000000003 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "3"
+          },
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Popkins",
+            "sub": "To 0xc3c3…c3c3",
+            "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+            "objectType": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins"
+          },
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "Popkins",
+            "sub": "To 0xc3c3…c3c3",
+            "objectId": "0x2323232323232323232323232323232323232323232323232323232323232323",
+            "objectType": "0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5::popkins::Popkins"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "lookalike-0xabcd777777777777777777777777777777777777777777777777777777771234",
+            "danger": true,
+            "requiresConfirm": true,
+            "text": "Looks like 0xabcd…1234 you've used before, but it's a different address."
+          },
+          {
+            "id": "gives-objects",
+            "danger": true,
+            "text": "Gives 2 objects to 0xc3c3⁠…⁠c3c3."
+          },
+          {
+            "id": "pays-others",
+            "text": "Sends coins to 3 other addresses, not you."
+          },
+          {
+            "id": "new-recipient-0x9999000000000000000000000000000000000000000000000000000000008888",
+            "text": "First time sending to this address."
+          },
+          {
+            "id": "contact-0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "text": "Sending to Bobby, a saved contact."
+          },
+          {
+            "id": "new-recipient-0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+            "text": "First time sending to this address."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": [
+            {
+              "address": "0xabcd777777777777777777777777777777777777777777777777777777771234",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "1"
+            },
+            {
+              "address": "0x9999000000000000000000000000000000000000000000000000000000008888",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "1"
+            },
+            {
+              "address": "0xb2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "swap with rare fee",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-100001500000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0x1dd4889f1ba614d0b44bd0fda31dedbb734d4edf8f25254f7d6b69671903ff06",
+            "amount": "200000000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0x7777777777777777777777777777777777777777777777777777777777777777",
+            "amount": "99800000000"
+          },
+          {
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "398000000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "calls": [
+        {
+          "package": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+          "module": "pool",
+          "function": "swap"
+        }
+      ],
+      "risk": {
+        "prices": {
+          "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": 4,
+          "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": 1
+        },
+        "decimals": {
+          "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": 6
+        },
+        "portfolioUsd": 1000,
+        "addresses": {
+          "sentTo": [],
+          "receivedFrom": [],
+          "contacts": [],
+          "warnNew": false
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "100000000000"
+            }
+          ],
+          "receive": [
+            {
+              "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+              "amount": "398000000"
+            }
+          ],
+          "othersReceive": [
+            {
+              "address": "0x1dd4889f1ba614d0b44bd0fda31dedbb734d4edf8f25254f7d6b69671903ff06",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "200000000"
+            },
+            {
+              "address": "0x7777777777777777777777777777777777777777777777777777777777777777",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "99800000000"
+            }
+          ],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [
+            {
+              "package": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+              "module": "pool",
+              "function": "swap"
+            }
+          ],
+          "recipients": [
+            "0x1dd4889f1ba614d0b44bd0fda31dedbb734d4edf8f25254f7d6b69671903ff06",
+            "0x7777777777777777777777777777777777777777777777777777777777777777"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "100 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "100000000000"
+          },
+          {
+            "kind": "receive",
+            "label": "You receive",
+            "text": "398 USDC",
+            "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "amount": "398000000"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [
+          {
+            "id": "pays-others",
+            "text": "Sends coins to 0x7777⁠…⁠7777, not you."
+          }
+        ],
+        "fees": {
+          "fees": [
+            {
+              "address": "0x1dd4889f1ba614d0b44bd0fda31dedbb734d4edf8f25254f7d6b69671903ff06",
+              "label": "Rare fee",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "200000000",
+              "pct": "0.2%"
+            }
+          ],
+          "others": [
+            {
+              "address": "0x7777777777777777777777777777777777777777777777777777777777777777",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "99800000000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "rare fee only",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9
+        },
+        "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC": {
+          "symbol": "USDC",
+          "decimals": 6
+        }
+      },
+      "sim": {
+        "source": "node",
+        "status": "success",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1001500000"
+          },
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0x1dd4889f1ba614d0b44bd0fda31dedbb734d4edf8f25254f7d6b69671903ff06",
+            "amount": "2500000"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "1000000",
+          "storage": "2000000",
+          "rebate": "1500000"
+        },
+        "gasOwner": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+        "gasObjectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "risk": {
+        "addresses": {
+          "sentTo": [],
+          "receivedFrom": [],
+          "contacts": []
+        }
+      },
+      "out": {
+        "insights": {
+          "ok": true,
+          "source": "node",
+          "send": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "1000000000"
+            }
+          ],
+          "receive": [],
+          "othersReceive": [
+            {
+              "address": "0x1dd4889f1ba614d0b44bd0fda31dedbb734d4edf8f25254f7d6b69671903ff06",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "2500000"
+            }
+          ],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "1000000",
+            "storage": "2000000",
+            "rebate": "1500000",
+            "net": "1500000"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": [
+            "0x1dd4889f1ba614d0b44bd0fda31dedbb734d4edf8f25254f7d6b69671903ff06"
+          ]
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "1 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1000000000"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.0015 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "1500000"
+          }
+        ],
+        "risks": [],
+        "fees": {
+          "fees": [
+            {
+              "address": "0x1dd4889f1ba614d0b44bd0fda31dedbb734d4edf8f25254f7d6b69671903ff06",
+              "label": "Rare fee",
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "2500000",
+              "pct": "0.25%"
+            }
+          ],
+          "others": []
+        }
+      }
+    },
+    {
+      "name": "no gas owner and unknown status",
+      "signer": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "meta": {
+        "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI": {
+          "symbol": "SUI",
+          "decimals": 9,
+          "iconUrl": "https://x/sui.png"
+        }
+      },
+      "sim": {
+        "status": "failure",
+        "balanceChanges": [
+          {
+            "coinType": "0x2::sui::SUI",
+            "address": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+            "amount": "-1"
+          }
+        ],
+        "objects": [],
+        "gas": {
+          "computation": "x",
+          "storage": "",
+          "rebate": "0x10"
+        },
+        "gasOwner": null
+      },
+      "out": {
+        "insights": {
+          "ok": false,
+          "reason": "Unknown error.",
+          "send": [
+            {
+              "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+              "amount": "17"
+            }
+          ],
+          "receive": [],
+          "othersReceive": [],
+          "objectsOut": [],
+          "objectsIn": [],
+          "shared": [],
+          "publishes": false,
+          "fee": {
+            "computation": "0",
+            "storage": "0",
+            "rebate": "16",
+            "net": "-16"
+          },
+          "feePaidBySigner": true,
+          "calls": [],
+          "recipients": []
+        },
+        "rows": [
+          {
+            "kind": "send",
+            "label": "You send",
+            "text": "0.000000017 SUI",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "17",
+            "iconUrl": "https://x/sui.png"
+          },
+          {
+            "kind": "fee",
+            "label": "Network fee",
+            "text": "0.000000016 SUI back",
+            "sub": "Storage refund is larger than the fee",
+            "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "amount": "-16"
+          }
+        ],
+        "risks": [
+          {
+            "id": "failed",
+            "danger": true,
+            "text": "Simulation failed. If sent, it fails and still costs a fee."
+          }
+        ],
+        "fees": {
+          "fees": [],
+          "others": []
+        }
+      }
+    }
+  ],
+  "amounts": [
+    {
+      "base": "0",
+      "decimals": 9,
+      "formatAmount": "0",
+      "formatUnits": "0",
+      "formatUnitsFull": "0",
+      "formatUnits2": "0",
+      "toInput": "0",
+      "toNumber": "0"
+    },
+    {
+      "base": "1",
+      "decimals": 9,
+      "formatAmount": "0.000000001",
+      "formatUnits": "0",
+      "formatUnitsFull": "0.000000001",
+      "formatUnits2": "0",
+      "toInput": "0.000000001",
+      "toNumber": "1e-9"
+    },
+    {
+      "base": "1997880",
+      "decimals": 9,
+      "formatAmount": "0.001997",
+      "formatUnits": "0.0019",
+      "formatUnitsFull": "0.00199788",
+      "formatUnits2": "0",
+      "toInput": "0.00199788",
+      "toNumber": "0.00199788"
+    },
+    {
+      "base": "2500000000",
+      "decimals": 9,
+      "formatAmount": "2.5",
+      "formatUnits": "2.5",
+      "formatUnitsFull": "2.5",
+      "formatUnits2": "2.5",
+      "toInput": "2.5",
+      "toNumber": "2.5"
+    },
+    {
+      "base": "-1500000000",
+      "decimals": 9,
+      "formatAmount": "-1.5",
+      "formatUnits": "-1.5",
+      "formatUnitsFull": "-1.5",
+      "formatUnits2": "-1.5",
+      "toInput": "-1.5",
+      "toNumber": "-1.5"
+    },
+    {
+      "base": "1234567890000",
+      "decimals": 9,
+      "formatAmount": "1,234.5678",
+      "formatUnits": "1,234.5678",
+      "formatUnitsFull": "1,234.56789",
+      "formatUnits2": "1,234.56",
+      "toInput": "1234.56789",
+      "toNumber": "1234.56789"
+    },
+    {
+      "base": "1234567890123",
+      "decimals": 9,
+      "formatAmount": "1,234.5678",
+      "formatUnits": "1,234.5678",
+      "formatUnitsFull": "1,234.567890123",
+      "formatUnits2": "1,234.56",
+      "toInput": "1234.567890123",
+      "toNumber": "1234.567890123"
+    },
+    {
+      "base": "999999999",
+      "decimals": 9,
+      "formatAmount": "0.9999",
+      "formatUnits": "0.9999",
+      "formatUnitsFull": "0.999999999",
+      "formatUnits2": "0.99",
+      "toInput": "0.999999999",
+      "toNumber": "0.999999999"
+    },
+    {
+      "base": "100000000000000000",
+      "decimals": 9,
+      "formatAmount": "100,000,000",
+      "formatUnits": "100,000,000",
+      "formatUnitsFull": "100,000,000",
+      "formatUnits2": "100,000,000",
+      "toInput": "100000000",
+      "toNumber": "100000000"
+    },
+    {
+      "base": "12345678",
+      "decimals": 6,
+      "formatAmount": "12.3456",
+      "formatUnits": "12.3456",
+      "formatUnitsFull": "12.345678",
+      "formatUnits2": "12.34",
+      "toInput": "12.345678",
+      "toNumber": "12.345678"
+    },
+    {
+      "base": "5",
+      "decimals": 0,
+      "formatAmount": "5",
+      "formatUnits": "5",
+      "formatUnitsFull": "5",
+      "formatUnits2": "5",
+      "toInput": "5",
+      "toNumber": "5"
+    },
+    {
+      "base": "123456789",
+      "decimals": 0,
+      "formatAmount": "123,456,789",
+      "formatUnits": "123,456,789",
+      "formatUnitsFull": "123,456,789",
+      "formatUnits2": "123,456,789",
+      "toInput": "123456789",
+      "toNumber": "123456789"
+    },
+    {
+      "base": "10",
+      "decimals": 1,
+      "formatAmount": "1",
+      "formatUnits": "1",
+      "formatUnitsFull": "1",
+      "formatUnits2": "1",
+      "toInput": "1",
+      "toNumber": "1"
+    },
+    {
+      "base": "-1",
+      "decimals": 9,
+      "formatAmount": "-0.000000001",
+      "formatUnits": "-0",
+      "formatUnitsFull": "-0.000000001",
+      "formatUnits2": "-0",
+      "toInput": "-0.000000001",
+      "toNumber": "-1e-9"
+    },
+    {
+      "base": "-1997880",
+      "decimals": 9,
+      "formatAmount": "-0.001997",
+      "formatUnits": "-0.0019",
+      "formatUnitsFull": "-0.00199788",
+      "formatUnits2": "-0",
+      "toInput": "-0.00199788",
+      "toNumber": "-0.00199788"
+    },
+    {
+      "base": "170141183460469231731687303715884105727",
+      "decimals": 18,
+      "formatAmount": "170,141,183,460,469,231,731.6873",
+      "formatUnits": "170,141,183,460,469,231,731.6873",
+      "formatUnitsFull": "170,141,183,460,469,231,731.687303715884105727",
+      "formatUnits2": "170,141,183,460,469,231,731.68",
+      "toInput": "170141183460469231731.687303715884105727",
+      "toNumber": "170141183460469240000"
+    },
+    {
+      "base": "1000",
+      "decimals": 3,
+      "formatAmount": "1",
+      "formatUnits": "1",
+      "formatUnitsFull": "1",
+      "formatUnits2": "1",
+      "toInput": "1",
+      "toNumber": "1"
+    },
+    {
+      "base": "999",
+      "decimals": 3,
+      "formatAmount": "0.999",
+      "formatUnits": "0.999",
+      "formatUnitsFull": "0.999",
+      "formatUnits2": "0.99",
+      "toInput": "0.999",
+      "toNumber": "0.999"
+    },
+    {
+      "base": "50",
+      "decimals": 2,
+      "formatAmount": "0.5",
+      "formatUnits": "0.5",
+      "formatUnitsFull": "0.5",
+      "formatUnits2": "0.5",
+      "toInput": "0.5",
+      "toNumber": "0.5"
+    }
+  ],
+  "money": [
+    {
+      "n": "0",
+      "usd": "$0.00",
+      "price": "$0.00"
+    },
+    {
+      "n": "-0",
+      "usd": "-$0.00",
+      "price": "$0.00"
+    },
+    {
+      "n": "-0.001",
+      "usd": "-$0.00",
+      "price": "-$0.001"
+    },
+    {
+      "n": "1.005",
+      "usd": "$1.01",
+      "price": "$1.01"
+    },
+    {
+      "n": "1234567.891",
+      "usd": "$1,234,567.89",
+      "price": "$1,234,567.89"
+    },
+    {
+      "n": "0.5",
+      "usd": "$0.50",
+      "price": "$0.50"
+    },
+    {
+      "n": "0.125",
+      "usd": "$0.13",
+      "price": "$0.125"
+    },
+    {
+      "n": "-5",
+      "usd": "-$5.00",
+      "price": "-$5.00"
+    },
+    {
+      "n": "1e21",
+      "usd": "$1,000,000,000,000,000,000,000.00",
+      "price": "$1,000,000,000,000,000,000,000.00"
+    },
+    {
+      "n": "Infinity",
+      "usd": "$0.00",
+      "price": "$∞"
+    },
+    {
+      "n": "-Infinity",
+      "usd": "$0.00",
+      "price": "-$∞"
+    },
+    {
+      "n": "NaN",
+      "usd": "$0.00",
+      "price": "$0.00"
+    },
+    {
+      "n": "2.675",
+      "usd": "$2.68",
+      "price": "$2.68"
+    },
+    {
+      "n": "0.0000005",
+      "usd": "$0.00",
+      "price": "$0.000001"
+    },
+    {
+      "n": "0.00012345",
+      "usd": "$0.00",
+      "price": "$0.000123"
+    },
+    {
+      "n": "0.12345",
+      "usd": "$0.12",
+      "price": "$0.1235"
+    },
+    {
+      "n": "0.009999",
+      "usd": "$0.01",
+      "price": "$0.009999"
+    },
+    {
+      "n": "99.995",
+      "usd": "$100.00",
+      "price": "$100.00"
+    },
+    {
+      "n": "1000000",
+      "usd": "$1,000,000.00",
+      "price": "$1,000,000.00"
+    },
+    {
+      "n": "0.01",
+      "usd": "$0.01",
+      "price": "$0.01"
+    },
+    {
+      "n": "1",
+      "usd": "$1.00",
+      "price": "$1.00"
+    },
+    {
+      "n": "123456789012345680000",
+      "usd": "$123,456,789,012,345,680,000.00",
+      "price": "$123,456,789,012,345,680,000.00"
+    }
+  ],
+  "parse": [
+    {
+      "input": "1.5",
+      "decimals": 9,
+      "parseUnits": "1500000000",
+      "cleanAmount": "1.5"
+    },
+    {
+      "input": ".25",
+      "decimals": 6,
+      "parseUnits": "250000",
+      "cleanAmount": ".25"
+    },
+    {
+      "input": "1.1234567",
+      "decimals": 6,
+      "parseUnits": "1123456",
+      "cleanAmount": "1.1234567"
+    },
+    {
+      "input": "",
+      "decimals": 9,
+      "parseUnits": null,
+      "cleanAmount": ""
+    },
+    {
+      "input": "1e5",
+      "decimals": 9,
+      "parseUnits": null,
+      "cleanAmount": null
+    },
+    {
+      "input": ".",
+      "decimals": 9,
+      "parseUnits": null,
+      "cleanAmount": "."
+    },
+    {
+      "input": "  12  ",
+      "decimals": 2,
+      "parseUnits": "1200",
+      "cleanAmount": null
+    },
+    {
+      "input": "007",
+      "decimals": 3,
+      "parseUnits": "7000",
+      "cleanAmount": "007"
+    },
+    {
+      "input": "0",
+      "decimals": 9,
+      "parseUnits": "0",
+      "cleanAmount": "0"
+    },
+    {
+      "input": "1.",
+      "decimals": 9,
+      "parseUnits": "1000000000",
+      "cleanAmount": "1."
+    },
+    {
+      "input": "1,5",
+      "decimals": 9,
+      "parseUnits": null,
+      "cleanAmount": "1.5"
+    },
+    {
+      "input": "1.2.3",
+      "decimals": 9,
+      "parseUnits": null,
+      "cleanAmount": null
+    },
+    {
+      "input": "99999999999999999999999999999999999999999",
+      "decimals": 0,
+      "parseUnits": "99999999999999999999999999999999999999999",
+      "cleanAmount": "99999999999999999999999999999999999999999"
+    },
+    {
+      "input": "-1",
+      "decimals": 9,
+      "parseUnits": null,
+      "cleanAmount": null
+    },
+    {
+      "input": "5",
+      "decimals": 0,
+      "parseUnits": "5",
+      "cleanAmount": "5"
+    }
+  ],
+  "usdToBase": [
+    {
+      "text": "10",
+      "price": "4",
+      "decimals": 9,
+      "out": "2500000000"
+    },
+    {
+      "text": "1",
+      "price": "3",
+      "decimals": 6,
+      "out": "333333"
+    },
+    {
+      "text": "",
+      "price": "4",
+      "decimals": 9,
+      "out": null
+    },
+    {
+      "text": "5",
+      "price": null,
+      "decimals": 9,
+      "out": null
+    },
+    {
+      "text": "5",
+      "price": "0",
+      "decimals": 9,
+      "out": null
+    },
+    {
+      "text": "abc",
+      "price": "1",
+      "decimals": 9,
+      "out": null
+    },
+    {
+      "text": "1e3",
+      "price": "2",
+      "decimals": 9,
+      "out": "500000000000"
+    },
+    {
+      "text": "0x10",
+      "price": "1",
+      "decimals": 0,
+      "out": "16"
+    },
+    {
+      "text": " 2.5 ",
+      "price": "1",
+      "decimals": 2,
+      "out": "250"
+    },
+    {
+      "text": "-1",
+      "price": "1",
+      "decimals": 9,
+      "out": null
+    },
+    {
+      "text": "1",
+      "price": "0.000001",
+      "decimals": 9,
+      "out": "1000000000000000"
+    },
+    {
+      "text": "3",
+      "price": "7",
+      "decimals": 30,
+      "out": "428571428571428547640000000000"
+    },
+    {
+      "text": "Infinity",
+      "price": "1",
+      "decimals": 9,
+      "out": null
+    },
+    {
+      "text": "0.5",
+      "price": "1",
+      "decimals": 0,
+      "out": "1"
+    }
+  ],
+  "baseToUsd": [
+    {
+      "base": "2500000000",
+      "decimals": 9,
+      "price": "2",
+      "out": "5"
+    },
+    {
+      "base": "1",
+      "decimals": 9,
+      "price": "3.3",
+      "out": "3.3e-9"
+    },
+    {
+      "base": "123456789",
+      "decimals": 6,
+      "price": null,
+      "out": null
+    },
+    {
+      "base": "5",
+      "decimals": 0,
+      "price": "0",
+      "out": null
+    },
+    {
+      "base": "-1500000000",
+      "decimals": 9,
+      "price": "1.5",
+      "out": "-2.25"
+    }
+  ],
+  "chips": [
+    {
+      "available": "10000000000",
+      "pct": 25,
+      "isSui": true,
+      "out": "2500000000"
+    },
+    {
+      "available": "10000000000",
+      "pct": 50,
+      "isSui": true,
+      "out": "5000000000"
+    },
+    {
+      "available": "10000000000",
+      "pct": 100,
+      "isSui": true,
+      "out": "9990000000"
+    },
+    {
+      "available": "50000000",
+      "pct": 100,
+      "isSui": false,
+      "out": "50000000"
+    },
+    {
+      "available": "50000000",
+      "pct": 50,
+      "isSui": false,
+      "out": "25000000"
+    },
+    {
+      "available": "10000000",
+      "pct": 100,
+      "isSui": true,
+      "out": "0"
+    },
+    {
+      "available": "12000000",
+      "pct": 50,
+      "isSui": true,
+      "out": "2000000"
+    },
+    {
+      "available": "3",
+      "pct": 25,
+      "isSui": false,
+      "out": "0"
+    },
+    {
+      "available": "0",
+      "pct": 100,
+      "isSui": true,
+      "out": "0"
+    }
+  ],
+  "labels": [
+    {
+      "type": "0x3::sui_system::SuiSystemState",
+      "originals": null,
+      "label": {
+        "title": "Sui System State",
+        "sub": "sui_system::SuiSystemState"
+      },
+      "parsed": {
+        "pkg": "0x0000000000000000000000000000000000000000000000000000000000000003",
+        "module": "sui_system",
+        "name": "SuiSystemState"
+      },
+      "isCoin": false,
+      "coinTypeOf": "0x3::sui_system::SuiSystemState"
+    },
+    {
+      "type": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x2::sui::SUI, 0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC>",
+      "originals": null,
+      "label": {
+        "title": "Cetus Pool",
+        "sub": "pool::Pool"
+      },
+      "parsed": {
+        "pkg": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+        "module": "pool",
+        "name": "Pool"
+      },
+      "isCoin": false,
+      "coinTypeOf": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb::pool::Pool<0x2::sui::SUI, 0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+    },
+    {
+      "type": "0x9999::vault::Vault",
+      "originals": null,
+      "label": {
+        "title": "Vault",
+        "sub": "0x9999::vault"
+      },
+      "parsed": {
+        "pkg": "0x0000000000000000000000000000000000000000000000000000000000009999",
+        "module": "vault",
+        "name": "Vault"
+      },
+      "isCoin": false,
+      "coinTypeOf": "0x9999::vault::Vault"
+    },
+    {
+      "type": null,
+      "originals": null,
+      "label": {
+        "title": "Object",
+        "sub": ""
+      },
+      "parsed": null,
+      "isCoin": false,
+      "coinTypeOf": null
+    },
+    {
+      "type": "u64",
+      "originals": null,
+      "label": {
+        "title": "Object",
+        "sub": ""
+      },
+      "parsed": null,
+      "isCoin": false,
+      "coinTypeOf": "u64"
+    },
+    {
+      "type": "0x7777777777777777777777777777777777777777777777777777777777777777::pool::Pool",
+      "originals": {
+        "0x7777777777777777777777777777777777777777777777777777777777777777": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb"
+      },
+      "label": {
+        "title": "Cetus Pool",
+        "sub": "pool::Pool"
+      },
+      "parsed": {
+        "pkg": "0x7777777777777777777777777777777777777777777777777777777777777777",
+        "module": "pool",
+        "name": "Pool"
+      },
+      "isCoin": false,
+      "coinTypeOf": "0x7777777777777777777777777777777777777777777777777777777777777777::pool::Pool"
+    },
+    {
+      "type": "0x2::kiosk::KioskOwnerCap",
+      "originals": null,
+      "label": {
+        "title": "Sui Kiosk Owner Cap",
+        "sub": "kiosk::KioskOwnerCap"
+      },
+      "parsed": {
+        "pkg": "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "module": "kiosk",
+        "name": "KioskOwnerCap"
+      },
+      "isCoin": false,
+      "coinTypeOf": "0x2::kiosk::KioskOwnerCap"
+    },
+    {
+      "type": "0xdee9::clob_v2::Pool<A, B>",
+      "originals": null,
+      "label": {
+        "title": "DeepBook Pool",
+        "sub": "clob_v2::Pool"
+      },
+      "parsed": {
+        "pkg": "0x000000000000000000000000000000000000000000000000000000000000dee9",
+        "module": "clob_v2",
+        "name": "Pool"
+      },
+      "isCoin": false,
+      "coinTypeOf": "0xdee9::clob_v2::Pool<A, B"
+    },
+    {
+      "type": "0x2::coin::Coin<0x2::sui::SUI>",
+      "originals": null,
+      "label": {
+        "title": "Sui Coin",
+        "sub": "coin::Coin"
+      },
+      "parsed": {
+        "pkg": "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "module": "coin",
+        "name": "Coin"
+      },
+      "isCoin": true,
+      "coinTypeOf": "0x2::sui::SUI"
+    },
+    {
+      "type": "0xd22b24490e0bae52676651b4f56660a5ff8022a2576e0089f79b3c88d44e08f0::suins_registration::SuinsRegistration",
+      "originals": null,
+      "label": {
+        "title": "Suins Registration",
+        "sub": "suins_registration::SuinsRegistration"
+      },
+      "parsed": {
+        "pkg": "0xd22b24490e0bae52676651b4f56660a5ff8022a2576e0089f79b3c88d44e08f0",
+        "module": "suins_registration",
+        "name": "SuinsRegistration"
+      },
+      "isCoin": false,
+      "coinTypeOf": "0xd22b24490e0bae52676651b4f56660a5ff8022a2576e0089f79b3c88d44e08f0::suins_registration::SuinsRegistration"
+    },
+    {
+      "type": "0xabc::m::cetus_position",
+      "originals": null,
+      "label": {
+        "title": "cetus position",
+        "sub": "0xabc::m"
+      },
+      "parsed": {
+        "pkg": "0x0000000000000000000000000000000000000000000000000000000000000abc",
+        "module": "m",
+        "name": "cetus_position"
+      },
+      "isCoin": false,
+      "coinTypeOf": "0xabc::m::cetus_position"
+    },
+    {
+      "type": "0xabc::a::b::c",
+      "originals": null,
+      "label": {
+        "title": "Object",
+        "sub": ""
+      },
+      "parsed": null,
+      "isCoin": false,
+      "coinTypeOf": "0xabc::a::b::c"
+    },
+    {
+      "type": "0xe50387176587c707c428c537b7b8fb530c3eaeadd16a45b1d975369f372dbc0a::drip::DripListing",
+      "originals": null,
+      "label": {
+        "title": "Drip Listing",
+        "sub": "drip::DripListing"
+      },
+      "parsed": {
+        "pkg": "0xe50387176587c707c428c537b7b8fb530c3eaeadd16a45b1d975369f372dbc0a",
+        "module": "drip",
+        "name": "DripListing"
+      },
+      "isCoin": false,
+      "coinTypeOf": "0xe50387176587c707c428c537b7b8fb530c3eaeadd16a45b1d975369f372dbc0a::drip::DripListing"
+    }
+  ],
+  "ids": [
+    {
+      "id": "0x2",
+      "shortId": "0x2",
+      "known": "Sui",
+      "fee": null,
+      "lookalike": "0x2…0x2"
+    },
+    {
+      "id": "0x0",
+      "shortId": "0x0",
+      "known": null,
+      "fee": null,
+      "lookalike": "0x0…0x0"
+    },
+    {
+      "id": "0x",
+      "shortId": "0x0",
+      "known": null,
+      "fee": null,
+      "lookalike": "0x…0x"
+    },
+    {
+      "id": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+      "shortId": "0x1eab…b2fb",
+      "known": "Cetus",
+      "fee": null,
+      "lookalike": "0x1eab…b2fb"
+    },
+    {
+      "id": "0xdee9",
+      "shortId": "0xdee9",
+      "known": "DeepBook",
+      "fee": null,
+      "lookalike": "0xdee9…dee9"
+    },
+    {
+      "id": "0x123456",
+      "shortId": "0x0000…3456",
+      "known": null,
+      "fee": null,
+      "lookalike": "0x1234…3456"
+    },
+    {
+      "id": "0x1234567",
+      "shortId": "0x0000…4567",
+      "known": null,
+      "fee": null,
+      "lookalike": "0x1234…4567"
+    },
+    {
+      "id": "0xabababababababababababababababababababababababababababababababab",
+      "shortId": "0xabab…abab",
+      "known": null,
+      "fee": null,
+      "lookalike": "0xabab…abab"
+    },
+    {
+      "id": "0xABCDEF0123456789",
+      "shortId": "0x0000…6789",
+      "known": null,
+      "fee": null,
+      "lookalike": "0xabcd…6789"
+    },
+    {
+      "id": "abc",
+      "shortId": "0xabc",
+      "known": null,
+      "fee": null,
+      "lookalike": "0xabc…abc"
+    },
+    {
+      "id": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "shortId": "0x0",
+      "known": null,
+      "fee": null,
+      "lookalike": "0x0000…0000"
+    }
+  ],
+  "normTypes": [
+    {
+      "t": "0x2::sui::SUI",
+      "norm": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
+    },
+    {
+      "t": "0x2::coin::Coin<0x2::sui::SUI>",
+      "norm": "0x0000000000000000000000000000000000000000000000000000000000000002::coin::Coin<0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>"
+    },
+    {
+      "t": "0xabc::x::Y<u64, vector<0x2::sui::SUI>>",
+      "norm": "0x0000000000000000000000000000000000000000000000000000000000000abc::x::Y<u64,vector<0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI>>"
+    },
+    {
+      "t": "vector<u8>",
+      "norm": "vector<u8>"
+    },
+    {
+      "t": "u64",
+      "norm": "u64"
+    },
+    {
+      "t": "not a type",
+      "norm": "not a type"
+    },
+    {
+      "t": "0x2::a",
+      "norm": "0x2::a"
+    },
+    {
+      "t": "0x2::m::T<",
+      "norm": "0x2::m::T<"
+    },
+    {
+      "t": "0xABC::Mod::T<0x1::string::String,0x2::object::ID>",
+      "norm": "0x0000000000000000000000000000000000000000000000000000000000000abc::Mod::T<0x0000000000000000000000000000000000000000000000000000000000000001::string::String,0x0000000000000000000000000000000000000000000000000000000000000002::object::ID>"
+    },
+    {
+      "t": "@mysten/app::m::T",
+      "norm": "@mysten/app::m::T"
+    },
+    {
+      "t": "0x2::m::T<>",
+      "norm": "0x0000000000000000000000000000000000000000000000000000000000000002::m::T<>"
+    }
+  ],
+  "humanize": [
+    {
+      "s": "StakedSui",
+      "out": "Staked Sui"
+    },
+    {
+      "s": "PositionNFT",
+      "out": "Position NFT"
+    },
+    {
+      "s": "Art_piece",
+      "out": "Art piece"
+    },
+    {
+      "s": "aBcDe",
+      "out": "a Bc De"
+    },
+    {
+      "s": "__x__y__",
+      "out": "x y"
+    },
+    {
+      "s": "already spaced",
+      "out": "already spaced"
+    },
+    {
+      "s": "ABC",
+      "out": "ABC"
+    },
+    {
+      "s": "pool_v2Lp",
+      "out": "pool v2Lp"
+    }
+  ],
+  "failures": [
+    {
+      "failure": null,
+      "friendly": "Unknown error."
+    },
+    {
+      "failure": {
+        "message": "InsufficientCoinBalance in command 0"
+      },
+      "friendly": "Not enough balance."
+    },
+    {
+      "failure": {
+        "message": "MoveAbort ...",
+        "abort": {
+          "code": "2",
+          "package": "0x2",
+          "module": "balance",
+          "function": "split"
+        }
+      },
+      "friendly": "Not enough balance."
+    },
+    {
+      "failure": {
+        "message": "x",
+        "abort": {
+          "code": "6",
+          "package": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+          "module": "router",
+          "function": "swap",
+          "constant": "EAmountOutBelowMinLimit"
+        }
+      },
+      "friendly": "Amount out below min limit (router::swap)."
+    },
+    {
+      "failure": {
+        "message": "x",
+        "abort": {
+          "code": "7",
+          "package": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+          "module": "router",
+          "function": "swap"
+        }
+      },
+      "friendly": "Cetus stopped it in router::swap, code 7."
+    },
+    {
+      "failure": {
+        "message": "x",
+        "abort": {
+          "code": "7",
+          "package": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+          "module": "router"
+        }
+      },
+      "friendly": "Cetus stopped it in router, code 7."
+    },
+    {
+      "failure": {
+        "message": "x",
+        "abort": {
+          "code": "1",
+          "constant": "ENotOwner"
+        }
+      },
+      "friendly": "Not owner."
+    },
+    {
+      "failure": {
+        "message": "x",
+        "abort": {
+          "code": "1",
+          "constant": "Eabc",
+          "module": "m",
+          "function": "f"
+        }
+      },
+      "friendly": "Eabc (m::f)."
+    },
+    {
+      "failure": {
+        "message": "x",
+        "abort": {
+          "code": "1",
+          "constant": "ELOCKED_until_later",
+          "module": "m"
+        }
+      },
+      "friendly": "Locked until later (m)."
+    },
+    {
+      "failure": {
+        "message": "x",
+        "abort": {
+          "code": "3"
+        }
+      },
+      "friendly": "The app's contract stopped it, code 3."
+    },
+    {
+      "failure": {
+        "message": "Error checking transaction input objects: ObjectNotFound"
+      },
+      "friendly": "Something it uses changed or no longer exists. Ask the site to try again."
+    },
+    {
+      "failure": {
+        "message": "Balance of gas object 10 is lower than the needed amount: 100"
+      },
+      "friendly": "Not enough SUI to pay the network fee."
+    },
+    {
+      "failure": {
+        "message": "GasBudgetTooLow"
+      },
+      "friendly": "Not enough SUI to pay the network fee."
+    },
+    {
+      "failure": {
+        "message": ""
+      },
+      "friendly": "Unknown error."
+    },
+    {
+      "failure": {
+        "message": "Something odd at 0xffffffffffffffffffffffffffffffffffffffff"
+      },
+      "friendly": "Something odd at 0x0000…ffff"
+    },
+    {
+      "failure": {
+        "message": "Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom "
+      },
+      "friendly": "Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kaboom Kabo…"
+    },
+    {
+      "failure": {
+        "message": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "friendly": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  ],
+  "addressChecks": [
+    {
+      "recipients": [
+        "0x9999000000000000000000000000000000000000000000000000000000008888"
+      ],
+      "history": {
+        "sentTo": [
+          "0xabcd000000000000000000000000000000000000000000000000000000001234"
+        ],
+        "receivedFrom": [],
+        "contacts": []
+      },
+      "out": [
+        {
+          "id": "new-recipient-0x9999000000000000000000000000000000000000000000000000000000008888",
+          "text": "First time sending to this address."
+        }
+      ]
+    },
+    {
+      "recipients": [
+        "0xabcd000000000000000000000000000000000000000000000000000000001234"
+      ],
+      "history": {
+        "sentTo": [
+          "0xABCD000000000000000000000000000000000000000000000000000000001234"
+        ],
+        "receivedFrom": [],
+        "contacts": []
+      },
+      "out": []
+    },
+    {
+      "recipients": [
+        "0xabcd777777777777777777777777777777777777777777777777777777771234"
+      ],
+      "history": {
+        "sentTo": [
+          "0xabcd000000000000000000000000000000000000000000000000000000001234"
+        ],
+        "receivedFrom": [],
+        "contacts": []
+      },
+      "out": [
+        {
+          "id": "lookalike-0xabcd777777777777777777777777777777777777777777777777777777771234",
+          "danger": true,
+          "requiresConfirm": true,
+          "text": "Looks like 0xabcd…1234 you've used before, but it's a different address."
+        }
+      ]
+    },
+    {
+      "recipients": [
+        "0xabcd777777777777777777777777777777777777777777777777777777771234"
+      ],
+      "history": {
+        "sentTo": [],
+        "receivedFrom": [
+          "0xabcd000000000000000000000000000000000000000000000000000000001234"
+        ],
+        "contacts": []
+      },
+      "out": [
+        {
+          "id": "lookalike-0xabcd777777777777777777777777777777777777777777777777777777771234",
+          "danger": true,
+          "requiresConfirm": true,
+          "text": "Looks like 0xabcd…1234 you've used before, but it's a different address."
+        }
+      ]
+    },
+    {
+      "recipients": [
+        "0xabcd777777777777777777777777777777777777777777777777777777771234"
+      ],
+      "history": {
+        "sentTo": [],
+        "receivedFrom": [],
+        "contacts": [
+          {
+            "address": "0xabcd000000000000000000000000000000000000000000000000000000001234",
+            "name": "Alice"
+          }
+        ]
+      },
+      "out": [
+        {
+          "id": "lookalike-0xabcd777777777777777777777777777777777777777777777777777777771234",
+          "danger": true,
+          "requiresConfirm": true,
+          "text": "Looks like 0xabcd…1234 you've used before, but it's a different address."
+        }
+      ]
+    },
+    {
+      "recipients": [
+        "0xabcd000000000000000000000000000000000000000000000000000000009999"
+      ],
+      "history": {
+        "sentTo": [
+          "0xabcd000000000000000000000000000000000000000000000000000000001234"
+        ],
+        "receivedFrom": [],
+        "contacts": []
+      },
+      "out": [
+        {
+          "id": "new-recipient-0xabcd000000000000000000000000000000000000000000000000000000009999",
+          "text": "First time sending to this address."
+        }
+      ]
+    },
+    {
+      "recipients": [
+        "0x9999000000000000000000000000000000000000000000000000000000008888"
+      ],
+      "history": {
+        "sentTo": [],
+        "receivedFrom": [],
+        "contacts": [
+          {
+            "address": "0x9999000000000000000000000000000000000000000000000000000000008888",
+            "name": "Alice"
+          }
+        ]
+      },
+      "out": [
+        {
+          "id": "contact-0x9999000000000000000000000000000000000000000000000000000000008888",
+          "text": "Sending to Alice, a saved contact."
+        }
+      ]
+    },
+    {
+      "recipients": [
+        "0x9999000000000000000000000000000000000000000000000000000000008888"
+      ],
+      "history": {
+        "sentTo": [],
+        "receivedFrom": [],
+        "contacts": [],
+        "warnNew": false
+      },
+      "out": []
+    },
+    {
+      "recipients": [
+        "0xabcd777777777777777777777777777777777777777777777777777777771234"
+      ],
+      "history": {
+        "sentTo": [
+          "0xabcd000000000000000000000000000000000000000000000000000000001234"
+        ],
+        "receivedFrom": [],
+        "contacts": [],
+        "warnNew": false
+      },
+      "out": [
+        {
+          "id": "lookalike-0xabcd777777777777777777777777777777777777777777777777777777771234",
+          "danger": true,
+          "requiresConfirm": true,
+          "text": "Looks like 0xabcd…1234 you've used before, but it's a different address."
+        }
+      ]
+    },
+    {
+      "recipients": [
+        "0x9999000000000000000000000000000000000000000000000000000000008888"
+      ],
+      "history": {
+        "sentTo": [],
+        "receivedFrom": [],
+        "contacts": []
+      },
+      "self": "0x9999000000000000000000000000000000000000000000000000000000008888",
+      "out": []
+    },
+    {
+      "recipients": [
+        "0xabcd777777777777777777777777777777777777777777777777777777771234"
+      ],
+      "history": null,
+      "out": []
+    },
+    {
+      "recipients": [
+        " 0x9999000000000000000000000000000000000000000000000000000000008888 ",
+        "0x9999000000000000000000000000000000000000000000000000000000008888",
+        "0xabcd777777777777777777777777777777777777777777777777777777771234"
+      ],
+      "history": {
+        "sentTo": [],
+        "receivedFrom": [
+          "0xabcd000000000000000000000000000000000000000000000000000000001234"
+        ],
+        "contacts": []
+      },
+      "out": [
+        {
+          "id": "new-recipient-0x9999000000000000000000000000000000000000000000000000000000008888",
+          "text": "First time sending to this address."
+        },
+        {
+          "id": "lookalike-0xabcd777777777777777777777777777777777777777777777777777777771234",
+          "danger": true,
+          "requiresConfirm": true,
+          "text": "Looks like 0xabcd…1234 you've used before, but it's a different address."
+        }
+      ]
+    },
+    {
+      "recipients": [
+        "0x12",
+        "0x1"
+      ],
+      "history": {
+        "sentTo": [
+          "0x0012"
+        ],
+        "receivedFrom": [],
+        "contacts": []
+      },
+      "out": [
+        {
+          "id": "new-recipient-0x12",
+          "text": "First time sending to this address."
+        },
+        {
+          "id": "new-recipient-0x1",
+          "text": "First time sending to this address."
+        }
+      ]
+    }
+  ],
+  "callLabels": [
+    {
+      "call": {
+        "package": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb",
+        "module": "router",
+        "function": "swap"
+      },
+      "originals": null,
+      "label": {
+        "title": "router::swap",
+        "sub": "Cetus"
+      }
+    },
+    {
+      "call": {
+        "package": "0x7777777777777777777777777777777777777777777777777777777777777777",
+        "module": "pool_script",
+        "function": "swap"
+      },
+      "originals": {
+        "0x7777777777777777777777777777777777777777777777777777777777777777": "0x1eabed72c53feb3805120a081dc15963c204dc8d091542592abaf7a35689b2fb"
+      },
+      "label": {
+        "title": "pool_script::swap",
+        "sub": "Cetus"
+      }
+    },
+    {
+      "call": {
+        "package": "0x7878787878787878787878787878787878787878787878787878787878787878",
+        "module": "game",
+        "function": "play"
+      },
+      "originals": null,
+      "label": {
+        "title": "game::play",
+        "sub": "0x7878…7878"
+      }
+    }
+  ]
+}

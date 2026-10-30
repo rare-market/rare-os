@@ -1,0 +1,8 @@
+name: resume-menu
+task: "Resume from the Rare menu"
+fix: "Resume is the first row of the Rare menu's first screen while something runs (there was none)"
+home:
+  env: {RR_RUNNING: "steam:1449850"}
+  steps: [guide, a]
+  done: {act: 'Launch\("steam:1449850"\)'}
+  was_none: true

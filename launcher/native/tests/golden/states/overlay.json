@@ -1,0 +1,9 @@
+{
+  "_doc": "Golden states of the Phase 2 overlay screens (WS 13 owns this file). Same fields as poc.json.",
+  "programs": {
+    "ws13-shots": { "manifest": "launcher/native/Cargo.toml", "bin": "ws13_shots" }
+  },
+  "states": [
+    { "id": "overlay-power", "program": "ws13-shots", "title": "Power menu", "phase": 2, "screen": "power" }
+  ]
+}

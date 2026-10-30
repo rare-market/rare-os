@@ -1,0 +1,11 @@
+[Unit]
+Description=Rare OS: create the game-mode user if none exists
+Before=bazzite-autologin.service display-manager.service
+After=systemd-sysusers.service systemd-tmpfiles-setup.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/user-setup
+
+[Install]
+WantedBy=multi-user.target

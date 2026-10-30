@@ -1,0 +1,7 @@
+name: play-last
+task: "Play your last game"
+fix: "none needed (focus starts on it; Steam sits to its left so A still plays it)"
+home:
+  steps: [a]
+  done: {act: 'Launch\("steam:1449850"\)'}
+  was: [a]

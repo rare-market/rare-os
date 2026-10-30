@@ -1,0 +1,23 @@
+[package]
+name = "rare-input"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare's input stack, shared by the Tauri shell and the native launcher: pad state machine (repeat, chords, holds, stick, triggers), the Deck pad over hidraw, InputPlumber's D-Bus actions and intercept mode, LC/RC, volume and power keys, gyro target switching, rumble"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+log = "0.4"
+rare-core = { path = "../rare-core" }
+rare-system = { path = "../rare-system" }
+
+[dev-dependencies]
+# remap.rs tests parse the generated InputPlumber profile.
+serde_yaml = "0.9"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+dbus = "0.9"
+evdev = "0.13"

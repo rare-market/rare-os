@@ -1,0 +1,63 @@
+# Down into pages and back out with B: every page opens within 200 ms, B returns to where focus was, and
+# LB/RB over a page closes it first and moves the tab (docs/CONTROLS.md).
+name: deep-nav
+title: Open pages and sheets, B returns to the same spot, no dead ends
+tags: [navigation, launcher]
+needs: [probe]
+timeout_s: 150
+steps:
+  - goto: home
+    expect: {screen: {tab: home}}
+  # Home: X is Details on the focused game. B closes it and focus is back on the shelf.
+  - press: right
+  - press: x
+    expect: {respond_ms: 250}
+  - press: b
+    expect: {screen: {tab: home}, respond_ms: 200}
+  # Quick settings (the Quick button) opens over any screen and B closes it.
+  - press: quick
+    expect: {respond_ms: 250}
+  - press: b
+    expect: {screen: {tab: home}, respond_ms: 200}
+  # Search (Y), B closes it.
+  - press: y
+    expect: {respond_ms: 250}
+  - press: b
+    expect: {screen: {tab: home}, respond_ms: 200}
+  # Library: open a game page, then RB closes it and moves to the next tab.
+  - goto: library
+    expect: {screen: {tab: library}}
+  - press: down
+  - press: x
+    expect: {respond_ms: 250}
+  - press: rb
+    expect: {screen: {tab: games}, respond_ms: 250}
+  # Market: a collection, then an item, then B twice.
+  - goto: market
+    expect: {screen: {tab: market}}
+  - press: down
+  - press: a
+    expect: {respond_ms: 400}
+  - press: a
+    expect: {respond_ms: 400}
+  - press: b
+    expect: {respond_ms: 250}
+  - press: b
+    expect: {respond_ms: 250}
+  # Settings: a section and back.
+  - goto: settings
+    expect: {screen: {tab: settings}}
+  - press: down
+  - press: right
+    expect: {respond_ms: 200}
+  - press: left
+    expect: {respond_ms: 200}
+  # B from a tab with history walks back through the tabs and never traps.
+  - press: b
+    expect: {change: true}
+  - press: b
+  - press: b
+  - press: b
+# device checklist
+# - After every B the focus ring is on the thing that opened the page, not the first item of the screen.
+# - Every page has something focused on the first frame, and a hint bar that names B as Back.

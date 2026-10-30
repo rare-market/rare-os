@@ -1,0 +1,136 @@
+{
+  "rules": [
+    {
+      "id": "royalty_rule",
+      "module": "royalty_rule",
+      "struct": "Rule",
+      "packages": [
+        "0x434b5bd8f6a7b05fede0ff46c6e511d71ea326ed38056e3bcd681d2d7c2a7879",
+        "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802",
+        "0x34cc6762780f4f6f153c924c0680cfe2a1fb4601e7d33cc28a92297b62de1e0e",
+        "0xdfb4f1d4e43e0c3ad834dcd369f0d39005c872e118c9dc1c5da9765bb93ee5f3"
+      ]
+    },
+    {
+      "id": "royalty_rule_copy",
+      "module": "royalty_rule",
+      "struct": "Rule",
+      "packages": [
+        "0x1f015c1a000631f2c0afd0258b299c63ffb8e5452e0c0f9be8fc28d2e20ad9b4",
+        "0x93195daadbc4f26c0c498f4ceac92593682d2325ce3a0f5ba9f2db3b6a9733dd",
+        "0x95bde20afc7cc60458d8360c87d4ed1f136dd0fee64828bb7b613aea2d98e9ff",
+        "0xd441d82fa791d7e7fc89eb2a40b0714bd9a6a1aaf0c897d702802d30109c1f7b",
+        "0xf74aa26054e5db492f93d88bce836466a799b70eae200bc254b5e3c9ed0cea8b",
+        "0x05cf6401224b471a2489e0b13a0a23363378e89a0f14b6c58ffe9f71d1e36bc8",
+        "0x34f9e32641795c57d936b3e387b9c7c941fd99b5a8a90e86b61e966e9da1d1f0",
+        "0xd71803e11220094f86f3df6cd0c13655bf46f6d617f1bda40180f0e5b557bca3"
+      ]
+    },
+    {
+      "id": "kiosk_lock_rule",
+      "module": "kiosk_lock_rule",
+      "struct": "Rule",
+      "packages": [
+        "0x434b5bd8f6a7b05fede0ff46c6e511d71ea326ed38056e3bcd681d2d7c2a7879",
+        "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802",
+        "0x34cc6762780f4f6f153c924c0680cfe2a1fb4601e7d33cc28a92297b62de1e0e",
+        "0xdfb4f1d4e43e0c3ad834dcd369f0d39005c872e118c9dc1c5da9765bb93ee5f3"
+      ]
+    },
+    {
+      "id": "kiosk_lock_rule_copy",
+      "module": "kiosk_lock_rule",
+      "struct": "Rule",
+      "packages": [
+        "0x1f015c1a000631f2c0afd0258b299c63ffb8e5452e0c0f9be8fc28d2e20ad9b4",
+        "0x93195daadbc4f26c0c498f4ceac92593682d2325ce3a0f5ba9f2db3b6a9733dd",
+        "0x95bde20afc7cc60458d8360c87d4ed1f136dd0fee64828bb7b613aea2d98e9ff",
+        "0xf74aa26054e5db492f93d88bce836466a799b70eae200bc254b5e3c9ed0cea8b"
+      ]
+    },
+    {
+      "id": "personal_kiosk_rule",
+      "module": "personal_kiosk_rule",
+      "struct": "Rule",
+      "packages": [
+        "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802",
+        "0x34cc6762780f4f6f153c924c0680cfe2a1fb4601e7d33cc28a92297b62de1e0e",
+        "0xdfb4f1d4e43e0c3ad834dcd369f0d39005c872e118c9dc1c5da9765bb93ee5f3",
+        "0x434b5bd8f6a7b05fede0ff46c6e511d71ea326ed38056e3bcd681d2d7c2a7879"
+      ]
+    },
+    {
+      "id": "floor_price_rule",
+      "module": "floor_price_rule",
+      "struct": "Rule",
+      "packages": [
+        "0x34cc6762780f4f6f153c924c0680cfe2a1fb4601e7d33cc28a92297b62de1e0e",
+        "0xdfb4f1d4e43e0c3ad834dcd369f0d39005c872e118c9dc1c5da9765bb93ee5f3",
+        "0x434b5bd8f6a7b05fede0ff46c6e511d71ea326ed38056e3bcd681d2d7c2a7879",
+        "0x0cb4bcc0560340eb1a1b929cabe56b33fc6449820ec8c1980d69bb98b649b802"
+      ]
+    },
+    {
+      "id": "staking_lock_rule",
+      "module": "staking_lock_rule",
+      "struct": "Rule",
+      "packages": [
+        "0x3ab9fef3dcf219a23355fa0e3d4f7d9cdd421ddba4e3b2cb566543d4a10b4c38",
+        "0x2e4b6da7ccda3acd22a89d07005f34857e38776f22a64183e819b2650fa3cb71",
+        "0x515a552652d3d7cb4e219772ba78e17997bf7e2ffd9502a0275750574bfacdc8"
+      ]
+    }
+  ],
+  "unsupported": [
+    {
+      "module": "disable_transfer_rule",
+      "packages": [
+        "0xc88b1c7df0336eb4310b7d420ab93ce63a4190b1c9d5024a8df8f4ff4b8f1760"
+      ],
+      "reason": "disable_transfer_rule has no function that adds its receipt (only add_rule/remove_rule), so no transfer under this policy can ever be confirmed"
+    },
+    {
+      "module": "p2p_list",
+      "packages": [
+        "0xbc3df36be17f27ac98e3c839b2589db8475fa07b20657b08e8891e3aaf5ee5f9"
+      ],
+      "reason": "OriginByte p2p_list: the request must come from p2p_list::transfer, which needs a signature from an OriginByte authlist key. Collections with another policy of only transfer_allowlist + royalty_strategy_bps trade through the orderbook path instead."
+    },
+    {
+      "module": "witness_rule",
+      "packages": [
+        "0x434b5bd8f6a7b05fede0ff46c6e511d71ea326ed38056e3bcd681d2d7c2a7879"
+      ],
+      "reason": "witness_rule::prove needs a value of the collection's own witness type (e.g. cosmetic::Equip), which only that package can create"
+    },
+    {
+      "module": "equip_rule",
+      "packages": [
+        "0xfe7629e8b62cfe41b529a4775d937a5780342154d5c628edcce34be69ae445e1"
+      ],
+      "reason": "Kumo equip_rule: its EquipmentReceipt can only be created by the Kumo attribute module (friend function)"
+    },
+    {
+      "module": "nft",
+      "struct": "TradeDisabledRule",
+      "packages": [
+        "0x0bc0c3c2d5df99933570781c2e84f0ef1c91e3d14d054e65b7bb386ff5d21951"
+      ],
+      "reason": "Bookie nft::TradeDisabledRule: the module has no function that adds this rule's receipt, so trades under this policy can't be confirmed"
+    },
+    {
+      "module": "table_allowlist_rule",
+      "packages": [
+        "0x7c369055372dc2ca64563911d51fc7e5ff8e162a8a6c5be3301b3831d21917ca"
+      ],
+      "reason": "table_allowlist_rule::resolve only passes for NFT ids on the creator's AllowlistRegistry, and the registry id isn't in the rule config (Pawtato Land)"
+    },
+    {
+      "module": "royalty_proportional_rule",
+      "packages": [
+        "0x70874e01aaaddd65da1940a5dc0432f6158b6c73190256f413341de589893734"
+      ],
+      "reason": "Dare Dragon Eggs: its only non-warehouse policy also needs a custom orderbook_rule receipt that only the creator's own orderbook adds"
+    }
+  ]
+}

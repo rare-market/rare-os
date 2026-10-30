@@ -1,0 +1,20 @@
+# Rare OS: scx_lavd, the latency-aware scheduler built for handhelds, starts at boot.
+# Auto mode uses --autopower: lavd picks powersave, balanced or performance from the power
+# profile (power-profiles-daemon when present, otherwise the CPU's energy_performance_preference,
+# which the launcher's Quiet/Balanced/Performance profiles set). If the scheduler exits or
+# fails, the kernel goes back to its default scheduler (EEVDF) by itself.
+# Switch or stop it: scxctl switch -m gaming, scxctl stop.
+default_sched = "scx_lavd"
+default_mode = "Auto"
+
+[scheds.scx_lavd]
+auto_mode = ["--autopower"]
+gaming_mode = ["--performance"]
+lowlatency_mode = ["--performance"]
+powersave_mode = ["--powersave"]
+
+[scheds.scx_bpfland]
+auto_mode = []
+gaming_mode = ["-m", "performance"]
+lowlatency_mode = ["-s", "5000", "-S", "500", "-l", "5000", "-m", "performance"]
+powersave_mode = ["-m", "powersave"]

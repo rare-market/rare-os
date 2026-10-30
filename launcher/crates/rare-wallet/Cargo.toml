@@ -1,0 +1,85 @@
+[package]
+name = "rare-wallet"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "Rare Wallet: the key vault, keys and signing, passkey multisig, Ledger and Keystone transports, sponsorship; shared by the Tauri launcher and the native UI"
+
+[features]
+default = ["hw", "passkey", "chain"]
+# Network: chain reads, simulate and execute through rare-sui (the review, the signing pipeline,
+# NFT sends). The Tauri shell builds without it (its web UI does these in TS).
+chain = ["dep:rare-sui", "dep:rare-friends", "dep:rare-trade", "dep:sui-rpc", "dep:sui-transaction-builder"]
+# Hardware wallets: Ledger over USB HID (hidraw on Linux, libudev only) and BLE, Keystone over
+# USB bulk (nusb, pure Rust), the Bluetooth adapter switch.
+hw = ["dep:hidapi", "dep:nusb", "dep:btleplug", "dep:futures-util", "dep:uuid", "dep:dbus"]
+# Passkeys: WebAuthn/CTAP2 to a phone (caBLE/hybrid) or a USB security key.
+passkey = ["dep:webauthn-authenticator-rs", "dep:webauthn-rs-proto", "dep:base64urlsafedata", "dep:serde_cbor_2", "dep:openssl", "dep:btleplug", "dep:futures"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+dirs = "6"
+log = "0.4"
+tokio = { version = "1", features = ["rt-multi-thread", "time", "sync", "macros"] }
+# Vault: Argon2id + AES-256-GCM, secrets zeroized.
+argon2 = { version = "0.5", features = ["zeroize"] }
+aes-gcm = { version = "0.10", features = ["zeroize"] }
+zeroize = { version = "1", features = ["derive"] }
+# Keys and signing: MystenLabs' Rust SDK (Ed25519, Secp256k1, Secp256r1, passkey, multisig).
+sui-crypto = { version = "0.4", features = ["ed25519", "secp256k1", "secp256r1", "passkey"] }
+sui-sdk-types = { version = "0.4", features = ["serde", "hash"] }
+bip39 = { version = "2", features = ["zeroize"] }
+hmac = "0.12"
+sha2 = "0.10"
+blake2 = "0.10"
+hkdf = "0.12"
+bcs = "0.1"
+rand_core = { version = "0.6", features = ["getrandom"] }
+ed25519-dalek = { version = "2.2", features = ["zeroize"] }
+k256 = { version = "0.13", features = ["ecdsa"] }
+p256 = { version = "0.13", features = ["ecdsa"] }
+bech32 = "0.11"
+# P-256 public key recovery from passkey assertions (sign in on a new device).
+ecdsa = { version = "0.16", features = ["verifying"] }
+
+hidapi = { version = "2.6", default-features = false, features = ["linux-static-hidraw"], optional = true }
+nusb = { version = "0.1", optional = true }
+futures-util = { version = "0.3", optional = true }
+uuid = { version = "1", optional = true }
+btleplug = { version = "0.11", optional = true }
+futures = { version = "0.3", optional = true }
+# The launcher's src-tauri patches webauthn-authenticator-rs (vendor/, assertions return the
+# user handle); launcher/crates/Cargo.toml applies the same patch.
+webauthn-authenticator-rs = { version = "0.5.5", features = ["cable", "usb"], optional = true }
+webauthn-rs-proto = { version = "=0.5.5", optional = true }
+base64urlsafedata = { version = "=0.5.5", optional = true }
+serde_cbor_2 = { version = "0.13", optional = true }
+# OpenSSL 3, vendored (static) everywhere, as in src-tauri.
+openssl = { version = "0.10", features = ["vendored"], optional = true }
+
+rare-sui = { path = "../rare-sui", optional = true }
+# The wallet's side of Friends (link and username signatures) and Trade (the swap API identity).
+rare-friends = { path = "../rare-friends", optional = true }
+rare-trade = { path = "../rare-trade", optional = true }
+# The review maps rare-sui's simulate answers (sui-rpc protos) and build failures.
+sui-rpc = { version = "0.4", optional = true }
+sui-transaction-builder = { version = "0.4", optional = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Vault blob in the Secret Service (KWallet on KDE), default collection only, never a prompt.
+dbus-secret-service = { version = "4", features = ["crypto-rust"] }
+# BlueZ pairing agent, Paired lookups and the adapter switch.
+dbus = { version = "0.9", optional = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "3", features = ["apple-native"] }
+
+[dev-dependencies]
+# examples/abswap.rs: the Trade API over a plain net
+rare-market = { path = "../rare-market" }
+ureq = "2"
+tempfile = "3"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+async-trait = "0.1"

@@ -1,0 +1,50 @@
+name: Release
+
+# Builds the native launcher package (tools/release/build-native.sh) on a GitHub-hosted runner and
+# attaches it to a new draft release for the tag. Started by hand (Actions > Release > Run workflow), so
+# publishing a release never rebuilds it. It never replaces files on an existing release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build (e.g. v0.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: System deps
+        timeout-minutes: 15
+        run: |
+          APT="-o Acquire::Retries=5 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20"
+          sudo apt-get $APT update
+          sudo apt-get $APT install -y --no-install-recommends \
+            libudev-dev libssl-dev build-essential pkg-config libdbus-1-dev perl libclang-dev \
+            libxkbcommon-dev libwayland-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: tools/release/build-native.sh "$TAG"
+
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "a release for $TAG already exists: attach the files by hand after checking them"; exit 1
+          fi
+          (cd dist && sha256sum *.tar.gz > SHA256SUMS)
+          gh release create "$TAG" dist/* --draft --verify-tag --title "Rare OS $TAG" --notes "Draft: see the release notes."

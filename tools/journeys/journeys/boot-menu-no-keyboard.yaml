@@ -1,0 +1,18 @@
+name: boot-menu-no-keyboard
+title: Boot menu next start button in Settings > System
+tags: [settings, system]
+needs: [probe]
+timeout_s: 60
+steps:
+  - goto: settings
+  - nav:
+      press: right
+      until: {focus: "Show next start|Set for next start"}
+    expect: {screen: {tab: settings}}
+# device checklist
+# - A on Show next start: toast, grub2-editenv list shows menu_show_once=1, next start shows the menu,
+#   the start after it does not.
+# - Hidden menu by key after a good boot: hold Volume Up, Volume Down, Quick Access, Aya Space at
+#   power-on, one per try; tap Esc, hold Shift/Ctrl/Alt on a USB keyboard. Record which show the menu.
+#   Volume keys are probably not mapped by GRUB; Quick Access (scancode 0x76 = Esc in set 2) may be.
+# - Menu still hidden after a good boot, shown by itself after an interrupted boot.

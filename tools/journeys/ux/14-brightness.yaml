@@ -1,0 +1,12 @@
+name: brightness
+task: "Change brightness"
+fix: "Quick settings opens on Brightness (it opened on the performance mode)"
+home:
+  steps: [qam, right]
+  done: {focus: "Brightness 75%"}
+  was: [qam, up, up, right]
+game:
+  open: quick
+  steps: [right]
+  done: {focus: "Brightness 75%"}
+  was: [up, up, right]

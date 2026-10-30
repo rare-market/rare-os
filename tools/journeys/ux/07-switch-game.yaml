@@ -1,0 +1,9 @@
+name: switch-game
+task: "Switch to another running game"
+fix: "none needed (hold the Rare button, the Switcher)"
+game:
+  open: switcher
+  env: {RR_RUNNING: "steam:1145350,steam:1449850"}
+  steps: [left, a]
+  done: {act: 'ingame:(switch|launch|home)'}
+  was: [left, a]

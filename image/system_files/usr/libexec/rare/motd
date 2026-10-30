@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+# Terminal greeting in desktop mode.
+. /usr/lib/os-release
+printf '\n  %s %s\n  Help and news: %s\n\n' "${NAME}" "${VERSION_ID:-}" "${HOME_URL}"

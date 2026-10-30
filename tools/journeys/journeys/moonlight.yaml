@@ -1,0 +1,22 @@
+name: moonlight
+title: "Moonlight stream from a paired PC"
+tags: [games]
+needs: [probe, network]
+timeout_s: 60
+steps:
+  - goto: tab:library
+  - wait_for: {screen: {tab: library}, timeout_ms: 5000}
+  - goto: tab:home
+  - wait_for: {screen: {tab: home}, timeout_ms: 5000}
+# device checklist (not automated: needs a paired PC)
+# - Precondition: Moonlight installed, a paired PC online
+# - Do: Library > Stream, a PC game, A
+#   Expect: Toast: Streaming <game> from <PC>. Press the Rare button to come back to Rare. the stream
+#   Journal: Moonlight in an app-steam-app scope, its id first in the base layer
+# - Do: press the Rare button
+#   Expect: Rare Home; the stream in Running
+# - Do: Running, the stream, Quit
+#   Expect: Rare
+# - Do: stream from a PC that refuses (wrong codec, host asleep after the check)
+#   Expect: Toast: "The stream closed right after it started ..." (quick exit), never nothing
+# - Mock: cargo test --lib apps:: launch:: overlay::; npx vitest run src/apps

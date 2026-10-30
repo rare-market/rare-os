@@ -1,0 +1,23 @@
+# Back on the built-in screen after unplugging a TV. The runner checks the launcher still works
+# on the built-in panel; the cable and the sound are a person's checks.
+#
+# device checklist:
+#   - unplug while the launcher is in front: the picture returns to the built-in panel, upright
+#     (portrait panel shown landscape), a toast reads "Back on the built-in screen"
+#   - the Docked line in Settings > Display says Built-in screen; UI size is unchanged
+#   - sound is back on the speakers with the speaker EQ on (not silence)
+#   - unplug while a game runs: the game keeps running, controls work, quitting returns here
+#   - plug in again: docked as in tv-dock-mode
+name: dock-unplug
+title: After unplugging the TV the launcher works on the built-in panel
+tags: [display, dock, device]
+needs: [probe]
+timeout_s: 60
+steps:
+  - goto: settings
+    expect: {screen: {tab: settings}}
+  - press: down
+  - press: a
+  - press: b
+  - goto: home
+    expect: {screen: {tab: home}}

@@ -1,0 +1,3 @@
+# Rare OS: start the fan curve service when the ayaneo_ec fan driver binds (SuiPlay0X1 via
+# ayaneo_ec_suiplay, AYANEO 2/2S/Flip/Geek/Air/Kun/3 via the stock ayaneo_ec).
+ACTION!="remove", SUBSYSTEM=="hwmon", ATTR{name}=="ayaneo_ec", TAG+="systemd", ENV{SYSTEMD_WANTS}+="rare-fand.service"

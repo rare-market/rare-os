@@ -1,0 +1,12 @@
+name: volume
+task: "Change the volume"
+fix: "Volume is one row under Brightness, where Quick settings opens (the volume keys do it in one press)"
+home:
+  steps: [qam, down, right]
+  done: {focus: "Volume 60%"}
+  was: [qam, up, right]
+game:
+  open: quick
+  steps: [down, right]
+  done: {focus: "Volume 60%"}
+  was: [up, right]

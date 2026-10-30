@@ -1,0 +1,35 @@
+name: marketplace
+title: Marketplace browse, a collection, an item, Activity
+tags: [core, market]
+needs: [probe, network]
+timeout_s: 120
+steps:
+  - goto: tab:market
+  - wait_for: {settled: 800, timeout_ms: 15000}
+  - name: down into the collections
+    press: down
+  - name: A opens the focused collection
+    press: a
+    settle_timeout_ms: 8000
+    expect: {respond_ms: 200}
+  - name: A opens the first item
+    press: a
+    settle_timeout_ms: 8000
+    expect: {respond_ms: 200}
+  - name: B back to the collection
+    press: b
+    expect: {respond_ms: 150}
+  - name: RT to Activity
+    press: rt
+    settle_timeout_ms: 8000
+    expect: {respond_ms: 150}
+  - name: down through activity
+    press: down
+    repeat: 4
+  - name: RT to Holders
+    press: rt
+    settle_timeout_ms: 8000
+    expect: {respond_ms: 150}
+  - name: B back to the Marketplace
+    press: b
+    expect: {screen: {tab: market}, respond_ms: 150}
