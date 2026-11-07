@@ -32,6 +32,24 @@ cp "$RARE_VM_KEY.pub" "$WORK/id.pub"
 
 KARGS=(--karg systemd.wants=sshd.service --karg console=tty0 --karg console=ttyS0,115200)
 
+# Rare OS starts with SSH off (rare-keep-ssh turns sshd off on the first start, as on a device), so
+# the fresh and rebase tests reach the guest over a vsock instead: QEMU gets a vhost-vsock device and
+# systemd's ssh generator in the guest answers on it (sshd-vsock.socket, only in a VM with a vsock),
+# with root's key from the install (--root-ssh-authorized-keys) and as a systemd credential. Nothing
+# in the image changes: on a device there is no vsock, and sshd stays off until the owner turns it on.
+use_vsock() {
+    [[ -e /dev/vhost-vsock ]] || modprobe vhost_vsock 2>/dev/null || true
+    [[ -e /dev/vhost-vsock ]] || { echo "no /dev/vhost-vsock on this host (modprobe vhost_vsock): the VM tests need it" >&2; exit 1; }
+    command -v socat >/dev/null || { echo "socat is missing on this host: the VM tests need it" >&2; exit 1; }
+    export RARE_VM_VSOCK="${RARE_VM_VSOCK:-42}" RARE_VM_ROOT_KEY="$RARE_VM_KEY.pub"
+}
+# scp to the guest as root (over the vsock when it is set up). Args: local-file guest-path
+to_guest() {
+    local via=(-P "${RARE_VM_SSH_PORT:-2222}") host=root@127.0.0.1
+    [[ -n "${RARE_VM_VSOCK:-}" ]] && { via=(-o "ProxyCommand=socat - VSOCK-CONNECT:$RARE_VM_VSOCK:22"); host=root@vm; }
+    scp -i "$RARE_VM_KEY" "${via[@]}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR "$1" "$host:$2"
+}
+
 install_disk() { # image disk-file size filesystem
     local img="$1" disk="$2" size="$3" fs="$4"
     rm -f "$disk"; truncate -s "$size" "$disk"
@@ -43,6 +61,7 @@ install_disk() { # image disk-file size filesystem
 }
 
 fresh() {
+    use_vsock
     echo "::group::install Rare OS to a disk"
     install_disk "$IMAGE" "$WORK/rare.raw" 48G btrfs
     echo "::endgroup::"
@@ -54,8 +73,14 @@ fresh() {
     # The VM boots the launcher in cage (no real GPU); this runs it under gamescope --steam too.
     if [[ $ok == 0 ]]; then
         local gs=0
-        scp -i "$RARE_VM_KEY" -P "${RARE_VM_SSH_PORT:-2222}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$HERE/gamescope-focus.sh" root@127.0.0.1:/root/gamescope-focus.sh
+        # SSH stays off on the first start, as it does on a device (the harness came in over the vsock).
+        $H ssh --cmd "echo state=\$(cat /var/lib/rare/ssh/state 2>/dev/null); echo sshd=\$(systemctl is-active sshd.service)" | tee "$OUT/fresh-ssh-off.txt"
+        if grep -q '^state=off' "$OUT/fresh-ssh-off.txt" && grep -q '^sshd=inactive' "$OUT/fresh-ssh-off.txt"; then
+            echo "CHECK SSH is off by default: PASS"
+        else
+            echo "CHECK SSH is off by default: FAIL"; ok=1
+        fi
+        to_guest "$HERE/gamescope-focus.sh" /root/gamescope-focus.sh
         $H ssh --timeout 1200 --cmd "bash /root/gamescope-focus.sh" | tee "$OUT/fresh-gamescope-focus.txt" || gs=$?
         $H ssh --cmd "cat /var/tmp/rare-gamescope-focus.log" > "$OUT/fresh-gamescope-session.log" 2>&1 || true
         case $gs in
@@ -72,6 +97,7 @@ fresh() {
 }
 
 rebase() {
+    use_vsock
     echo "::group::stock OS"
     podman pull "$BASE_IMAGE" || { BASE_IMAGE=quay.io/fedora/fedora-bootc:43; podman pull "$BASE_IMAGE"; }
     # A stock bootc disk has no separate /boot, so systemd-gpt-auto mounts the ESP over /boot and
@@ -98,8 +124,7 @@ rebase() {
     echo "::endgroup::"
 
     echo "::group::switch with get-rare-os.sh"
-    scp -i "$RARE_VM_KEY" -P "${RARE_VM_SSH_PORT:-2222}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-        "$REPO/tools/get-rare-os.sh" root@127.0.0.1:/root/get-rare-os.sh
+    to_guest "$REPO/tools/get-rare-os.sh" /root/get-rare-os.sh
     $H ssh --timeout 5400 --cmd "RARE_IMAGE=10.0.2.2:5000/rare-os:test RARE_YES=1 RARE_INSECURE_REGISTRY=1 bash /root/get-rare-os.sh 2>&1 | tail -n 40"
     $H ssh --cmd "bootc status"
     podman rm -f rare-registry; rm -rf "$WORK/registry"

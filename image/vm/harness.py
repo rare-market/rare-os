@@ -88,14 +88,20 @@ def ssh(cmd, timeout=60, check=False):
         "ssh", "-i", KEY, "-p", str(PORT), "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
         "-o", "ConnectTimeout=5", "-o", "BatchMode=yes", "-o", "LogLevel=ERROR", f"{USER}@127.0.0.1", cmd,
     ]
+    tries = [args]
     cid = os.environ.get("RARE_VM_VSOCK")
     if cid:
-        # over the vsock (systemd-ssh-generator's sshd-vsock.socket): works with the guest offline
-        args[-2:-1] = ["-o", f"ProxyCommand=socat - VSOCK-CONNECT:{cid}:22", "root@vm"]
-    try:
-        r = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
-    except subprocess.TimeoutExpired:
-        return 124, ""
+        # over the vsock (systemd-ssh-generator's sshd-vsock.socket): works with the guest offline and
+        # with sshd.service off (Rare OS's default); a guest without the vsock listener (some stock
+        # OSes) is still reached over the forwarded port
+        tries = [args[:-2] + ["-o", f"ProxyCommand=socat - VSOCK-CONNECT:{cid}:22", "root@vm", cmd], args]
+    for a in tries:
+        try:
+            r = subprocess.run(a, capture_output=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            return 124, ""
+        if r.returncode != 255:
+            break
     if check and r.returncode != 0:
         raise RuntimeError(f"ssh {cmd!r} failed: {r.stderr}")
     return r.returncode, r.stdout + r.stderr

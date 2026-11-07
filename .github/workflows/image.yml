@@ -70,7 +70,9 @@ jobs:
           echo 'set man-db/auto-update false' | sudo debconf-communicate >/dev/null 2>&1 || true
           sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends qemu-system-x86 qemu-utils ovmf >/dev/null
+          sudo apt-get install -y -qq --no-install-recommends qemu-system-x86 qemu-utils ovmf socat >/dev/null
+          # The VM tests reach Rare OS over a vsock (SSH is off on its first start, as on a device): image/vm/test.sh.
+          sudo modprobe vhost_vsock && ls -l /dev/vhost-vsock
           if [ -e /dev/kvm ]; then
             echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
             sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
@@ -81,7 +83,13 @@ jobs:
         id: build
         run: |
           sudo podman build --pull=newer -f image/Containerfile -t "$IMAGE" \
-            --build-arg RARE_VERSION=0.1.${{ github.run_number }} --build-arg RARE_IMAGE_REPO="$REGISTRY_IMAGE" .
+            --build-arg RARE_VERSION=0.1.${{ github.run_number }} --build-arg RARE_IMAGE_REPO="$REGISTRY_IMAGE" \
+            --label org.opencontainers.image.revision=${{ github.sha }} \
+            --label org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }} \
+            --label org.opencontainers.image.created="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --label org.opencontainers.image.licenses=Apache-2.0 .
+          # The labels name this commit and repo; without them the base image's own revision and date show through.
+          sudo podman image inspect "$IMAGE" --format '{{ json .Labels }}'
           # Drop the launcher build stage; the runner has about 50 GB in total.
           sudo podman image prune -f
           sudo podman images
@@ -133,6 +141,11 @@ jobs:
           curl -fsSLo /tmp/cosign https://github.com/sigstore/cosign/releases/download/v3.1.4/cosign-linux-amd64 && chmod +x /tmp/cosign
           echo "$GH_TOKEN" | /tmp/cosign login ghcr.io -u "${{ github.actor }}" --password-stdin
           /tmp/cosign sign -y --key env://COSIGN_PRIVATE_KEY "$REGISTRY_IMAGE@$(cat /tmp/digest)"
+
+      - name: Make screenshots and logs readable
+        if: always()
+        # QEMU and the tests run as root and write them for root only.
+        run: sudo chown -R "$(id -u):$(id -g)" out 2>/dev/null || true
 
       - name: Upload screenshots and logs
         if: always()
