@@ -89,7 +89,12 @@ jobs:
 
       - name: VM test, fresh install
         if: steps.build.outcome == 'success' && (github.event_name == 'push' || inputs.fresh_test)
-        run: sudo -E image/vm/test.sh fresh
+        # Ubuntu 24.04's podman (4.9) is older than the image's, so bootc in the image can't read the
+        # host storage: install from an OCI export instead (image/vm/test.sh, SOURCE_IMGREF).
+        run: |
+          sudo podman push "$IMAGE" "oci:$WORK/rare-oci:test"
+          sudo -E SOURCE_IMGREF=oci:/output/rare-oci:test image/vm/test.sh fresh
+          sudo rm -rf "$WORK/rare-oci"
 
       - name: Installer ISO
         if: steps.build.outcome == 'success' && inputs.build_iso && !cancelled()
@@ -110,10 +115,12 @@ jobs:
 
       - name: VM test, switch from a stock OS and roll back
         if: steps.build.outcome == 'success' && (github.event_name == 'push' || inputs.rebase_test) && !cancelled()
-        run: sudo -E FREE_AFTER_PUSH=${{ inputs.publish && '0' || '1' }} image/vm/test.sh rebase
+        # The stock OS is installed straight from its registry (same podman 4.9 limit as above).
+        run: sudo -E SOURCE_IMGREF=registry:quay.io/fedora/fedora-bootc:44 FREE_AFTER_PUSH=${{ inputs.publish && '0' || '1' }} image/vm/test.sh rebase
 
       - name: Publish and sign
-        if: steps.build.outcome == 'success' && inputs.publish && !cancelled()
+        # Only when every step before it passed: a failed VM test never reaches devices.
+        if: steps.build.outcome == 'success' && inputs.publish && success()
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
           COSIGN_PASSWORD: ""
