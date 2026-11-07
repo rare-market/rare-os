@@ -136,11 +136,27 @@ export function venueFee(l: ActiveListing, opts: { dripDirect?: boolean } = {}):
   return big(l.fee);
 }
 
+/** Tradeport E: the listing holds a kiosk PurchaseCap (type 1) rather than the NFT itself (type 0). Rows the indexer's
+ * live lane wrote before a state pass may have no extra.listingType; a seller kiosk then means type 1. */
+export function simpleInKiosk(l: Pick<ActiveListing, "extra" | "kioskId">): boolean {
+  const t = l.extra?.listingType;
+  if (t === undefined || t === null || t === "") return !!l.kioskId;
+  return Number(t) === 1;
+}
+
+/** Tradeport E: report_ob_listing goes first only for listings known to be outside the orderbook (extra.inOrderbook
+ * explicitly false: made by pre-orderbook code). Every listing Tradeport v5 makes is in the orderbook, and reporting
+ * one that is aborts in tradeport_orderbook::add_listing (code 6), so a missing flag means in the orderbook. */
+export function simpleNeedsReport(l: Pick<ActiveListing, "extra">): boolean {
+  const v = l.extra?.inOrderbook;
+  return v === false || v === "false";
+}
+
 /** Royalty the buyer pays: the policy's rate on what the seller's kiosk receives (price minus
  * legacy commission; Tradeport E charges it on the price). */
 export function royaltyOf(l: ActiveListing, policy: Policy | null): bigint {
   // Escrow listings hand over the NFT without a transfer request: no royalty.
-  if (!policy?.royalty || l.source.endsWith("escrow") || (l.source === "tradeport/simple" && Number(l.extra.listingType) === 0)) return 0n;
+  if (!policy?.royalty || l.source.endsWith("escrow") || (l.source === "tradeport/simple" && !simpleInKiosk(l))) return 0n;
   const base = l.source === "tradeport/simple" ? big(l.price) : big(l.price) - big(l.commission);
   const r = (base * BigInt(policy.royalty.bps)) / 10000n;
   return r > policy.royalty.min ? r : policy.royalty.min;
@@ -233,12 +249,12 @@ export function buildBuy(tx: Transaction, l: ActiveListing, ctx: BuyContext): vo
     case "tradeport/simple": {
       const ob = tx.object(tp.orderbook.store);
       const store = tx.object(tp.simple.store);
-      if (!l.extra.inOrderbook) {
+      if (simpleNeedsReport(l)) {
         // Listings made by pre-orderbook code must join the orderbook before buy_ob_* can remove them.
         tx.moveCall({ target: `${tp.simple.latest}::tradeport_listings::report_ob_listing`, typeArguments: [T], arguments: [store, ob, tx.pure.id(l.nftId)] });
       }
       const [pay] = tx.splitCoins(tx.gas, [big(l.price) + big(l.fee)]);
-      if (Number(l.extra.listingType) === 1) {
+      if (simpleInKiosk(l)) {
         const policy = needPolicy(ctx.policy, T);
         if (policy.royalty) {
           const [roy] = tx.moveCall({ target: `${KIOSK_EXT.latest}::royalty_rule::fee_amount`, typeArguments: [T], arguments: [tx.object(policy.policyId), tx.pure.u64(l.price)] });

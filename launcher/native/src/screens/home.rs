@@ -141,7 +141,7 @@ impl Home {
         // game, so A still plays it).
         let logo = kit::steam(ui, 2.1, tok::FG);
         let inner = ui.bx(s().fill().col().items_center().justify_center()).radius(ui.r(0.5)).bg(tok::L2).child(logo);
-        let label = strip_label(ui, "Steam", "Store, library and downloads");
+        let label = strip_label(ui, "Steam", if st.steam_sign_in { "Sign in to play your Steam games" } else { "Store, library and downloads" });
         let tag = acts.tag(Act::SteamBigPicture);
         self.strip_tags.push(tag);
         self.steam_tag = Some(tag);
@@ -207,8 +207,12 @@ impl Home {
     fn stage_body(&mut self, ui: &mut Ui, st: &State, acts: &mut Acts, g: &Game, buttons: bool) -> El {
         let running = st.is_running(&g.id);
         let start = st.starts.get(&g.id);
+        // Steam waits for a sign-in: Play hands Steam the screen for it (launch.rs steam_questions).
+        let sign_in = !running && st.steam_sign_in && g.source == "steam";
         let line = if running {
             start_line(&g.title, start, ui.now).unwrap_or_else(|| "Now playing".into())
+        } else if sign_in {
+            rare_launch::steamlogin::SIGN_IN.into()
         } else if g.last_played.unwrap_or(0) > 0 {
             "Continue playing".into()
         } else {
@@ -217,6 +221,8 @@ impl Home {
         let mut status = ui.bx(s().row().items_center().gap(0.5));
         if running {
             status = status.child(kit::dot(ui, s(), DotTone::Brand, true));
+        } else if sign_in {
+            status = status.child(kit::dot(ui, s(), DotTone::Muted, false));
         }
         status = status.child(ui.text(line, T::new(Ty::Small).w(500).c(tok::fg(0.75))));
         let logo = hero_logo(ui, g, true);

@@ -37,6 +37,23 @@ Rare keeps the Rare and Quick buttons away from Steam, using InputPlumber interc
 - **Install scripts are not the game.** Steam runs a game's install script under `reaper ... AppId=<id> Install=1` before the game. It no longer counts as the game starting and ending (that read as "didn't start" while Steam waited on the cloud conflict).
 - **The Rare button** while a Steam game is starting acts as on the launcher (Rare is what is on screen).
 
+## Steam's sign-in and Steam Guard
+
+Steam Guard is Steam's own check: after the password, Steam asks for a code it emails, or for an approval in the Steam Mobile app. Scanning Steam's QR code with the Steam Mobile app signs in and passes Steam Guard in one step. Rare never sees any of it; its job is to get Steam's sign-in on screen.
+
+- **Where Steam shows it** (seen in a nested gamescope on the SuiPlay, 2026-11-06, a throwaway Steam with no account):
+  - Steam started for Big Picture (`steam steam://open/bigpicture` or `-gamepadui`, Steam not running): Big Picture's "Sign in" page, with the QR code, Steam's own keyboard (A on a field) and Steam's controller hints. Steam writes its own base-layer list (`413091, 769`), so its window shows once Rare gives Steam the screen.
+  - Steam started quietly (`-silent`, how Rare starts it ahead of Play): a desktop "Sign in to Steam" window under 769, with no controller keyboard, and Steam writes no base-layer list, so gamescope never showed it, even after Rare gave Steam the screen. `steam://open/bigpicture` and `-gamepadui` sent to that Steam change nothing.
+- **When it happens**: a saved sign-in that stopped working (it expired, the password changed, Steam Guard asks again on this device) while `loginusers.vdf` still names the account, so the boot prewarm (`backend::steam_at_start`) starts Steam quietly. First run and a Steam that is not running start Steam for Big Picture, which was already fine.
+- **How Rare knows** (`steamlogin.rs`): Steam logs each sign-in step to `logs/steamui_login.txt` as `SetLoginState: <state>`. `WaitingForCredentials` means its sign-in is up and waiting. Only the running client's lines count (the log is checked against the client's start time and pid).
+- **What Rare does**:
+  - Any Open Steam (Home's Steam tile, Library's note, Quick settings, first run) while a quiet Steam waits for a sign-in closes that Steam (`steam -shutdown`; it runs nothing while signed out) and starts it again for Big Picture (`launch::steam_sign_in_big_picture`).
+  - Play on a Steam game: the start bar and a toast say "Steam needs you to sign in" (a Steam question like the cloud conflict, `steam_questions`), Steam starts again in Big Picture and gets the screen. The start keeps waiting while the player signs in (no "didn't start"), and if Steam did not start the game by itself 5 s after the sign-in, Rare asks for it again.
+  - Library shows "Steam needs you to sign in" with Open Steam; Home's Steam tile and a Steam game's status line say it too; a toast says it once when it starts while Rare has the screen.
+  - Whenever Rare gives Steam the screen, the base-layer keeper lists Steam's UI (769) ahead of Rare even if Steam never wrote it (`appid::place`), so a window Steam put up by itself shows.
+- **Input on Steam's sign-in**: while Steam's window has the screen, Rare's pad thread passes every press to Steam except the Rare button (`ingame::route_press`, gamescope's focused app), InputPlumber stays in Pass (it intercepts only under a Rare surface), and RC does nothing over an app unless picked in Settings > Controls. Steam's keyboard is Steam's own.
+- **Someone else's Steam Game Mode** (the launcher-only AppImage as a Steam shortcut): Steam owns the screen there and shows its own sign-in; Rare shows no note and restarts nothing.
+
 ## Ways back from Steam's UI
 
 - **The Rare button works whatever the pad target.** The image's InputPlumber profile sends it as the D-Bus action `ui_guide` (rare-input `ip.rs`), not through the pad, and the deck-uhid pad is read over hidraw (`deck.rs`). Device log 2026-10-27 23:21: `[overlay] Rare button Rare: OpenMenu` with Steam's UI on screen.

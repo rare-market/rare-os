@@ -15,6 +15,9 @@ use rare_render::focus::hints::{hint, Hint, Key};
 use rare_render::focus::{Focusable, Group};
 use rare_render::view::{key, El};
 
+/// Library's note while Steam waits for a sign-in (`State::steam_sign_in`).
+pub const SIGN_IN_LINE: &str = "Steam games start once you sign in. Steam may ask for a Steam Guard code from your email or the Steam Mobile app.";
+
 const SOURCES: [&str; 13] = ["stream", "emu", "media", "cloud", "android", "rare", "steam", "epic", "gog", "itch", "local", "web", "apps"];
 /// The Downloads view's "Not installed games" asks the Library to open on that filter.
 static WANT_NOT_INSTALLED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
@@ -357,6 +360,20 @@ impl Page for Library {
             .maybe(crumb.map(|c| c.key(key("crumb"))))
             .child(ui.text_s(count_s, count, T::new(Ty::Small).c(tok::MUTED)).key(key("count")));
         let mut page = ui.bx(s().col().full().px(2.5).pb(2.5).pt(1.0)).scrolls_y(key("library")).child(bar).child(head);
+
+        // Steam waits for a sign-in behind Rare: its games start once it has one.
+        if st.steam_sign_in && games_view && filter != "android" && filter != "emu" {
+            let btn = kit::button(ui, B::new("Open Steam", acts.tag(Act::SteamBigPicture)).icon(BtnIcon::Steam(1.0)));
+            let note = kit::panel(ui, s().row().items_center().gap(1.0).px(1.25).py(1.0).mb(1.5))
+                .child(kit::steam(ui, 1.4, tok::ICON2))
+                .child(
+                    ui.bx(s().col().grow().min0())
+                        .child(ui.text(rare_launch::steamlogin::SIGN_IN, T::new(Ty::Body).w(600)))
+                        .child(ui.text(SIGN_IN_LINE, T::new(Ty::Small).c(tok::MUTED).wrap())),
+                )
+                .child(btn);
+            page = page.child(note.key(key("steam-sign-in")));
+        }
 
         let foreign = st.library.as_ref().map(|l| l.foreign_steam_libraries.clone()).unwrap_or_default();
         if !foreign.is_empty() && games_view && filter != "notinstalled" && filter != "android" && filter != "emu" {

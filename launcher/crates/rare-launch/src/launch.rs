@@ -77,6 +77,8 @@ pub const STEAM_UI_APPID: u64 = 769;
 /// A Steam game whose reaper runs this long without a window gamescope lists under its id gets
 /// the screen anyway (a game that shows under another id must never stay hidden behind Rare).
 pub const REAPER_SHOW: Duration = Duration::from_secs(15);
+/// After a sign-in, how long Steam gets to start the game it was asked for before it is asked again.
+pub const AFTER_SIGN_IN: Duration = Duration::from_secs(5);
 
 /// A process is the Steam game's reaper: `AppId=<id>` in its command line, and not the reaper
 /// Steam runs an install script under (`Install=1`, the Proton iscriptevaluator before the game:
@@ -433,6 +435,60 @@ fn steam_prewarm_now() -> Result<(), String> {
         let _ = child.wait();
     });
     Ok(())
+}
+
+/// Steam waits for a sign-in in the window it shows when started quietly (`-silent`): a desktop
+/// "Sign in to Steam" window, under 769 but in no base-layer list (quiet Steam writes none), with
+/// no controller keyboard. Seen in a nested gamescope on the SuiPlay (2026-11-06): neither
+/// steam://open/bigpicture nor -gamepadui sent to that Steam changes it, while a Steam started for
+/// Big Picture signs in there (QR code for the Steam Mobile app, Steam's own keyboard, Steam Guard).
+/// Rare OS game mode only: on a desktop the window is a normal one, and in someone else's Game
+/// Mode Steam owns the screen.
+pub fn steam_quiet_sign_in() -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        rare_overlay::gamescope::session_client()
+            && crate::steamlogin::needed()
+            && rare_core::proc::cmdlines().iter().any(|(_, comm, cmd)| comm == "steam" && cmd.split(' ').any(|a| a == "-silent"))
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        false
+    }
+}
+
+/// Puts Steam's sign-in on the big screen: a quiet Steam waiting for one (`steam_quiet_sign_in`)
+/// runs nothing, so it is closed and started again for Big Picture at `url`. On a thread; once at a
+/// time. Returns whether Steam is being started again (false: Steam's sign-in needs nothing from Rare).
+pub fn steam_sign_in_big_picture(url: &str) -> bool {
+    use std::sync::atomic::{AtomicBool, Ordering};
+    static BUSY: AtomicBool = AtomicBool::new(false);
+    // A restart already under way: nothing else may start or reach Steam meanwhile.
+    if BUSY.load(Ordering::SeqCst) {
+        return true;
+    }
+    if !steam_quiet_sign_in() || BUSY.swap(true, Ordering::SeqCst) {
+        return BUSY.load(Ordering::SeqCst);
+    }
+    crate::steamlogin::restarting();
+    let url = url.to_string();
+    std::thread::spawn(move || {
+        eprintln!("[launch] Steam waits for a sign-in in its quiet window; starting it again in Big Picture");
+        if let Ok(mut c) = host_command("steam", &["-shutdown".to_string()], "steam").spawn() {
+            let _ = c.wait();
+        }
+        let t0 = Instant::now();
+        while steam_running() && t0.elapsed() < Duration::from_secs(20) {
+            std::thread::sleep(Duration::from_millis(250));
+        }
+        if steam_running() {
+            eprintln!("[launch] Steam did not close for its sign-in; leaving it");
+        } else if let Err(e) = steam_url(&url) {
+            eprintln!("[launch] {e}");
+        }
+        BUSY.store(false, Ordering::SeqCst);
+    });
+    true
 }
 
 /// `roots` and every process below them.
@@ -845,32 +901,73 @@ impl Runner {
     }
 
     /// Reads Steam's log for questions it asks the player before a game starts (steamlog.rs) and
-    /// tells apps/front.rs, which hands Steam the screen for them.
+    /// tells apps/front.rs, which hands Steam the screen for them. A Steam that waits for a sign-in
+    /// (steamlogin.rs: the saved one expired, or Steam Guard asks again) is asked the same way for
+    /// every game still starting: its sign-in window gets the screen, not "didn't start" later.
     fn steam_questions(&self) {
-        let steam_runs: Vec<(String, Vec<u64>)> =
-            self.inner.lock().unwrap().iter().filter_map(|(id, h)| if let Handle::Steam { ids, .. } = h { Some((id.clone(), ids.clone())) } else { None }).collect();
+        let steam_runs: Vec<(String, Vec<u64>, bool)> = self
+            .inner
+            .lock()
+            .unwrap()
+            .iter()
+            .filter_map(|(id, h)| if let Handle::Steam { ids, seen, .. } = h { Some((id.clone(), ids.clone(), *seen)) } else { None })
+            .collect();
         if steam_runs.is_empty() {
             self.asks.lock().unwrap().clear();
             return;
         }
         crate::steamlog::poll();
+        let sign_in = crate::steamlogin::needed();
+        let shown: Vec<String> = self.shown.lock().unwrap().keys().cloned().collect();
+        let mut signed_in: Vec<(String, Vec<u64>)> = Vec::new();
         let mut asks = self.asks.lock().unwrap();
-        for (id, ids) in steam_runs {
-            let q = ids.iter().find_map(|a| crate::steamlog::question(*a));
+        for (id, ids, seen) in steam_runs {
+            let starting = !seen && !shown.contains(&id);
+            let q = if sign_in && starting { Some(crate::steamlogin::SIGN_IN) } else { ids.iter().find_map(|a| crate::steamlog::question(*a)) };
             match q {
                 Some(q) => {
                     if asks.insert(id.clone(), q).is_none() {
                         eprintln!("[launch] {id}: {q}");
+                        if q == crate::steamlogin::SIGN_IN {
+                            steam_sign_in_big_picture("steam://open/bigpicture");
+                        }
                     }
                 }
                 None => {
-                    if asks.remove(&id).is_some() {
+                    if let Some(was) = asks.remove(&id) {
                         eprintln!("[launch] {id}: answered in Steam");
+                        if was == crate::steamlogin::SIGN_IN && starting {
+                            signed_in.push((id.clone(), ids.clone()));
+                        }
                     }
                 }
             }
             crate::apps::front::steam_ask(&id, q.is_some());
         }
+        drop(asks);
+        for (id, ids) in signed_in {
+            self.after_sign_in(id, ids);
+        }
+    }
+
+    /// Signed in while a game waited: Steam usually starts the game it was asked for before the
+    /// sign-in. If it logged nothing for the game a few seconds later, it is asked again.
+    fn after_sign_in(&self, id: String, ids: Vec<u64>) {
+        let me = self.clone();
+        std::thread::spawn(move || {
+            std::thread::sleep(AFTER_SIGN_IN);
+            crate::steamlog::poll();
+            let waiting = matches!(me.inner.lock().unwrap().get(&id), Some(Handle::Steam { seen: false, .. }));
+            if !waiting || ids.iter().any(|a| crate::steamlog::seen(*a)) || me.shown.lock().unwrap().contains_key(&id) {
+                return;
+            }
+            // A shortcut's full game id is the last one (launch: [gameid >> 32, gameid]).
+            let Some(game) = ids.last() else { return };
+            eprintln!("[launch] {id}: signed in to Steam; asking for the game again");
+            if let Err(e) = steam_url(&format!("steam://rungameid/{game}")) {
+                eprintln!("[launch] {e}");
+            }
+        });
     }
 
     /// Polls children and Steam reapers; emits `game-state` when the set changes.

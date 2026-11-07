@@ -104,19 +104,31 @@ pub fn all() -> Vec<u32> {
     v
 }
 
+/// Steam's own UI (Big Picture, its sign-in and other dialogs): every Steam window carries it.
+pub const STEAM_UI: u64 = 769;
+
 /// The base-layer app list for what has the screen now, Steam's ids kept in their order. With an
 /// app of Rare's in front (`front`): its id, then Rare's (shown while the app has no window yet,
 /// and the moment it closes), then Steam's. Otherwise Rare's id first (`rare_first`) or last.
 /// Ids of Rare's other apps (`ours`) are left out. None when the list is that already.
+///
+/// With Rare last (Steam was given the screen), Steam's own UI (769) is listed before Rare even when
+/// Steam never wrote it: Steam started quietly writes no list, so a window it puts up by itself (its
+/// sign-in, with Steam Guard) would otherwise stay behind Rare once Steam is given the screen.
 #[cfg_attr(not(target_os = "linux"), allow(dead_code))]
 pub fn place(list: &[u64], rare_first: bool, front: Option<u32>, ours: &[u32]) -> Option<Vec<u64>> {
     let rare = super::gamescope::RARE_APPID as u64;
     let mine = |v: &u64| *v == rare || ours.iter().any(|o| *o as u64 == *v) || front.is_some_and(|f| f as u64 == *v);
-    let others: Vec<u64> = list.iter().copied().filter(|v| !mine(v)).collect();
+    let mut others: Vec<u64> = list.iter().copied().filter(|v| !mine(v)).collect();
     let out: Vec<u64> = match front {
         Some(f) => [f as u64, rare].into_iter().chain(others).collect(),
         None if rare_first => std::iter::once(rare).chain(others).collect(),
-        None => others.into_iter().chain(std::iter::once(rare)).collect(),
+        None => {
+            if !others.contains(&STEAM_UI) {
+                others.push(STEAM_UI);
+            }
+            others.into_iter().chain(std::iter::once(rare)).collect()
+        }
     };
     (out != list).then_some(out)
 }
@@ -334,6 +346,9 @@ mod tests {
         assert_eq!(place(&[d, RARE, STEAM], true, Some(tg), &ours), Some(vec![t, RARE, STEAM]));
         // Steam writes its own list over ours: the keeper puts the app back first.
         assert_eq!(place(&[GAME, STEAM], true, Some(tg), &ours), Some(vec![t, RARE, GAME, STEAM]));
+        // Steam given the screen while quiet Steam wrote no list (its sign-in window): 769 before Rare.
+        assert_eq!(place(&[RARE], false, None, &ours), Some(vec![STEAM, RARE]));
+        assert_eq!(place(&[GAME], false, None, &ours), Some(vec![GAME, STEAM, RARE]));
         // A Steam game in front: Rare last, Rare's apps out.
         assert_eq!(place(&[t, RARE, GAME, STEAM], false, None, &ours), Some(vec![GAME, STEAM, RARE]));
         // The old placement is the no-app case.

@@ -134,6 +134,8 @@ fn ymd(secs: i64) -> String {
 }
 
 static MARK: &[u8] = include_bytes!("../../../../render/assets/brand/mark.png");
+/// The generic Rare Pass card, the same art as rare.market/pass/card.png (web/og/pass.tsx).
+static PASS_CARD: &[u8] = include_bytes!("../../../../render/assets/brand/rare-pass.png");
 
 pub struct AboutSection {
     credits_btn: Id,
@@ -150,7 +152,14 @@ fn device_pass(cx: &mut Cx, nav: &mut Nav, parent: Id) -> Option<Id> {
     }
     dp::load(false);
     let r = cx.r();
-    let p = cx.scene.add(parent, s().col().items_start().gap(0.9 * r).wp(1.0).px(1.6 * r).py(1.4 * r).done(), Node::bg(tok::L1).radius(1.0 * r));
+    // The words on the left, the pass card on the right: this pass's own card from rare.market once it is held,
+    // the generic card (bundled, no network) before.
+    let row = cx.scene.add(parent, s().row().items_center().gap(2.0 * r).wp(1.0).px(1.6 * r).py(1.4 * r).done(), Node::bg(tok::L1).radius(1.0 * r));
+    let p = cx.scene.add(row, s().col().items_start().gap(0.9 * r).grow().shrink().done(), Node::default());
+    let card_src = match &v.pass {
+        Some(pass) if pass.id.starts_with("0x") => rare_render::Src::Url(format!("https://rare.market/pass/{}-card.png", pass.id)),
+        _ => rare_render::Src::Static("brand/rare-pass.png", PASS_CARD),
+    };
     text(cx, p, ty::TITLE, 600, tok::FG, "Rare Pass");
     if let Some(pass) = &v.pass {
         let number = format!("#{}", pass.number);
@@ -158,6 +167,7 @@ fn device_pass(cx: &mut Cx, nav: &mut Nav, parent: Id) -> Option<Id> {
         stat_line_sized(cx, p, &[("Pass", &number), ("Device", &pass.model), ("First seen", &seen)], true);
         let r_ = cx.r();
         cx.scene.add_text(cx.t, p, s().max_w(40.0 * r_).done(), "Kept by this account. It stays with this device: if the device changes hands, its new owner can claim it.", ts(r_, ty::SMALL.0, ty::SMALL.1, 400).wrap(), tok::MUTED);
+        pass_card(cx, row, card_src);
         return None;
     }
     let body = if v.stale {
@@ -184,7 +194,16 @@ fn device_pass(cx: &mut Cx, nav: &mut Nav, parent: Id) -> Option<Id> {
         let r_ = cx.r();
         cx.scene.add_text(cx.t, p, s().max_w(40.0 * r_).done(), t, ts(r_, ty::SMALL.0, ty::SMALL.1, 400).wrap(), color);
     }
+    pass_card(cx, row, card_src);
     Some(id)
+}
+
+/// The pass card (900 x 1160 art) at a fixed size beside the panel's words.
+fn pass_card(cx: &mut Cx, parent: Id, src: rare_render::Src) {
+    let r = cx.r();
+    let (w, h) = (9.0 * r, 9.0 * r * 1160.0 / 900.0);
+    let k = cx.img.request(rare_render::ImgReq { src, w: w as u32, h: h as u32, fit: rare_render::Fit::Contain });
+    cx.scene.add(parent, s().wh(w, h).no_shrink_().done(), Node::default().image(k).contain([0.5, 0.5]));
 }
 
 impl AboutSection {

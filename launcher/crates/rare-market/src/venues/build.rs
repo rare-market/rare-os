@@ -205,14 +205,25 @@ fn num_is(v: Option<&Value>, want: f64) -> bool {
     }
 }
 
-/// JS truthiness of a JSON value.
-fn truthy(v: Option<&Value>) -> bool {
-    match v {
-        None | Some(Value::Null) => false,
-        Some(Value::Bool(b)) => *b,
-        Some(Value::Number(n)) => n.as_f64().is_some_and(|f| f != 0.0 && !f.is_nan()),
-        Some(Value::String(s)) => !s.is_empty(),
-        Some(_) => true,
+/// Tradeport E: the listing holds a kiosk PurchaseCap (type 1) rather than the NFT itself (type 0). Rows the
+/// indexer's live lane wrote before a state pass may have no `listingType`; a seller kiosk then means type 1.
+pub fn simple_in_kiosk(l: &ActiveListing) -> bool {
+    match l.extra.get("listingType") {
+        None | Some(Value::Null) => l.kiosk_id.as_deref().is_some_and(|k| !k.is_empty()),
+        Some(Value::String(s)) if s.trim().is_empty() => l.kiosk_id.as_deref().is_some_and(|k| !k.is_empty()),
+        v => num_is(v, 1.0),
+    }
+}
+
+/// Tradeport E: `report_ob_listing` goes first only for listings known to be outside the orderbook
+/// (`inOrderbook` explicitly false: made by pre-orderbook code). Every listing Tradeport v5 makes is in the
+/// orderbook, and reporting one that is aborts in `tradeport_orderbook::add_listing` (code 6), so a missing
+/// flag means in the orderbook.
+pub fn simple_needs_report(l: &ActiveListing) -> bool {
+    match l.extra.get("inOrderbook") {
+        Some(Value::Bool(b)) => !*b,
+        Some(Value::String(s)) => s == "false",
+        _ => false,
     }
 }
 
@@ -230,7 +241,7 @@ pub fn venue_fee(l: &ActiveListing, drip_direct: bool) -> i128 {
 pub fn royalty_of(l: &ActiveListing, policy: Option<&Policy>) -> i128 {
     let Some(r) = policy.and_then(|p| p.royalty) else { return 0 };
     // Escrow listings hand over the NFT without a transfer request: no royalty.
-    if l.source.ends_with("escrow") || (l.source == "tradeport/simple" && num_is(l.extra.get("listingType"), 0.0)) {
+    if l.source.ends_with("escrow") || (l.source == "tradeport/simple" && !simple_in_kiosk(l)) {
         return 0;
     }
     let base = if l.source == "tradeport/simple" { mist(&l.price) } else { mist(&l.price) - mist(&l.commission) };
@@ -373,13 +384,13 @@ pub fn build_buy(tx: &mut Tx, l: &ActiveListing, ctx: &BuyContext) -> Result<(),
         "tradeport/simple" => {
             let ob = tx.object(tp::orderbook::STORE);
             let store = tx.object(tp::simple::STORE);
-            if !truthy(l.extra.get("inOrderbook")) {
+            if simple_needs_report(l) {
                 // Listings made by pre-orderbook code must join the orderbook before buy_ob_* can remove them.
                 let id = tx.pure_id(&l.nft_id);
                 tx.move_call(&format!("{}::tradeport_listings::report_ob_listing", tp::simple::LATEST), &[t], &[store, ob, id]);
             }
             let pay = tx.split_u64(Arg::Gas, amount(&l.price)? + amount(&l.fee)?);
-            if num_is(l.extra.get("listingType"), 1.0) {
+            if simple_in_kiosk(l) {
                 let policy = need_policy(ctx.policy, t)?;
                 if policy.royalty.is_some() {
                     let pol = tx.object(&policy.policy_id);

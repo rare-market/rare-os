@@ -1786,6 +1786,262 @@
    }
   ]
  },
+ "buy/tradeport-simple-unflagged": {
+  "version": 2,
+  "sender": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",
+  "expiration": null,
+  "gasData": {
+   "budget": null,
+   "price": null,
+   "owner": null,
+   "payment": null
+  },
+  "inputs": [
+   {
+    "UnresolvedObject": {
+     "objectId": "0x3af0a94360253c80fbabe73f6832be0a49ddfc0b8772ccd5335f568cbc356da1"
+    },
+    "$kind": "UnresolvedObject"
+   },
+   {
+    "UnresolvedObject": {
+     "objectId": "0xf96f9363ac5a64c058bf7140723226804d74c0dab2dd27516fb441a180cd763b"
+    },
+    "$kind": "UnresolvedObject"
+   },
+   {
+    "Pure": {
+     "bytes": "gI1kPQAAAAA="
+    },
+    "$kind": "Pure"
+   },
+   {
+    "UnresolvedObject": {
+     "objectId": "0x7309bb80aee534f2b4334c9b97df0227412ed51e0a8b103fc3c8c751a925cf94"
+    },
+    "$kind": "UnresolvedObject"
+   },
+   {
+    "Pure": {
+     "bytes": "AMqaOwAAAAA="
+    },
+    "$kind": "Pure"
+   },
+   {
+    "UnresolvedObject": {
+     "objectId": "0x1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "$kind": "UnresolvedObject"
+   },
+   {
+    "UnresolvedObject": {
+     "objectId": "0x2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "$kind": "UnresolvedObject"
+   },
+   {
+    "UnresolvedObject": {
+     "objectId": "0x8888888888888888888888888888888888888888888888888888888888888888"
+    },
+    "$kind": "UnresolvedObject"
+   },
+   {
+    "Pure": {
+     "bytes": "oEkPb+CRg3AOKvZIS3+yoJoS8PaR9bjlWCxHgtbeiH4="
+    },
+    "$kind": "Pure"
+   },
+   {
+    "Pure": {
+     "bytes": "AlIxBFpnu2tTrNxrF4dC4ghTzze7fMa3EU+43yYrAvI="
+    },
+    "$kind": "Pure"
+   }
+  ],
+  "commands": [
+   {
+    "SplitCoins": {
+     "coin": {
+      "GasCoin": true,
+      "$kind": "GasCoin"
+     },
+     "amounts": [
+      {
+       "Input": 2,
+       "type": "pure",
+       "$kind": "Input"
+      }
+     ]
+    },
+    "$kind": "SplitCoins"
+   },
+   {
+    "MoveCall": {
+     "package": "0xdfb4f1d4e43e0c3ad834dcd369f0d39005c872e118c9dc1c5da9765bb93ee5f3",
+     "module": "royalty_rule",
+     "function": "fee_amount",
+     "typeArguments": [
+      "0x44448dbb2b9e685ef070125725ab5263c3fc6a6acc11820550187e7759101d6d::retrosui::Nft"
+     ],
+     "arguments": [
+      {
+       "Input": 3,
+       "type": "object",
+       "$kind": "Input"
+      },
+      {
+       "Input": 4,
+       "type": "pure",
+       "$kind": "Input"
+      }
+     ]
+    },
+    "$kind": "MoveCall"
+   },
+   {
+    "SplitCoins": {
+     "coin": {
+      "GasCoin": true,
+      "$kind": "GasCoin"
+     },
+     "amounts": [
+      {
+       "NestedResult": [
+        1,
+        0
+       ],
+       "$kind": "NestedResult"
+      }
+     ]
+    },
+    "$kind": "SplitCoins"
+   },
+   {
+    "MergeCoins": {
+     "destination": {
+      "NestedResult": [
+       0,
+       0
+      ],
+      "$kind": "NestedResult"
+     },
+     "sources": [
+      {
+       "NestedResult": [
+        2,
+        0
+       ],
+       "$kind": "NestedResult"
+      }
+     ]
+    },
+    "$kind": "MergeCoins"
+   },
+   {
+    "MoveCall": {
+     "package": "0x81e16ff388eacc2908f4e8248f54d140eb6d7834ff01dc7a86042a3b701b68f6",
+     "module": "tradeport_listings",
+     "function": "buy_ob_listing_with_transfer_policy",
+     "typeArguments": [
+      "0x44448dbb2b9e685ef070125725ab5263c3fc6a6acc11820550187e7759101d6d::retrosui::Nft"
+     ],
+     "arguments": [
+      {
+       "Input": 1,
+       "type": "object",
+       "$kind": "Input"
+      },
+      {
+       "Input": 0,
+       "type": "object",
+       "$kind": "Input"
+      },
+      {
+       "Input": 7,
+       "type": "object",
+       "$kind": "Input"
+      },
+      {
+       "Input": 5,
+       "type": "object",
+       "$kind": "Input"
+      },
+      {
+       "Input": 6,
+       "type": "object",
+       "$kind": "Input"
+      },
+      {
+       "Input": 8,
+       "type": "pure",
+       "$kind": "Input"
+      },
+      {
+       "Input": 9,
+       "type": "pure",
+       "$kind": "Input"
+      },
+      {
+       "NestedResult": [
+        0,
+        0
+       ],
+       "$kind": "NestedResult"
+      },
+      {
+       "Input": 3,
+       "type": "object",
+       "$kind": "Input"
+      }
+     ]
+    },
+    "$kind": "MoveCall"
+   },
+   {
+    "MoveCall": {
+     "package": "0x0000000000000000000000000000000000000000000000000000000000000002",
+     "module": "transfer_policy",
+     "function": "confirm_request",
+     "typeArguments": [
+      "0x44448dbb2b9e685ef070125725ab5263c3fc6a6acc11820550187e7759101d6d::retrosui::Nft"
+     ],
+     "arguments": [
+      {
+       "Input": 3,
+       "type": "object",
+       "$kind": "Input"
+      },
+      {
+       "NestedResult": [
+        4,
+        0
+       ],
+       "$kind": "NestedResult"
+      }
+     ]
+    },
+    "$kind": "MoveCall"
+   },
+   {
+    "MergeCoins": {
+     "destination": {
+      "GasCoin": true,
+      "$kind": "GasCoin"
+     },
+     "sources": [
+      {
+       "NestedResult": [
+        0,
+        0
+       ],
+       "$kind": "NestedResult"
+      }
+     ]
+    },
+    "$kind": "MergeCoins"
+   }
+  ]
+ },
  "buy/tradeport-simple-wallet": {
   "version": 2,
   "sender": "0xa0490f6fe09183700e2af6484b7fb2a09a12f0f691f5b8e5582c4782d6de887e",

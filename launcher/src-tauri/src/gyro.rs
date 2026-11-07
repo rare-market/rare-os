@@ -45,7 +45,7 @@ mod tests {
 
     /// Setting on, Steam client up, nothing running, nothing known on screen.
     fn base() -> Inputs {
-        Inputs { enabled: true, steam_client: true, steam_game: false, focused_app: None }
+        Inputs { enabled: true, steam_client: true, steam_game: false, focused_app: None, emu_front: false }
     }
 
     /// What Rare's runner holds for these run ids.

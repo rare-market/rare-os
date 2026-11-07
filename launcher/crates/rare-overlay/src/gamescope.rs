@@ -79,7 +79,10 @@ pub fn session_client() -> bool {
 #[cfg(test)]
 pub fn place_rare(list: &[u64], first: bool) -> Option<Vec<u64>> {
     let rare = RARE_APPID as u64;
-    let others: Vec<u64> = list.iter().copied().filter(|v| *v != rare).collect();
+    let mut others: Vec<u64> = list.iter().copied().filter(|v| *v != rare).collect();
+    if !first && !others.contains(&crate::appid::STEAM_UI) {
+        others.push(crate::appid::STEAM_UI);
+    }
     let out = if first { std::iter::once(rare).chain(others).collect::<Vec<_>>() } else { others.into_iter().chain(std::iter::once(rare)).collect() };
     (out != list).then_some(out)
 }
@@ -568,7 +571,9 @@ mod tests {
     #[test]
     fn rare_id_placement() {
         assert_eq!(place_rare(&[], true), Some(vec![RARE]));
-        assert_eq!(place_rare(&[], false), Some(vec![RARE]));
+        // Rare last: Steam's UI is listed ahead of it even when Steam wrote nothing (quiet Steam).
+        assert_eq!(place_rare(&[], false), Some(vec![STEAM, RARE]));
+        assert_eq!(place_rare(&[GAME], false), Some(vec![GAME, STEAM, RARE]));
         assert_eq!(place_rare(&[STEAM], true), Some(vec![RARE, STEAM]));
         assert_eq!(place_rare(&[STEAM], false), Some(vec![STEAM, RARE]));
         assert_eq!(place_rare(&[RARE, STEAM], true), None);
@@ -631,6 +636,21 @@ mod tests {
         assert_eq!(gamescope_pick(None, &kept(&[STEAM], true), &[(STEAM_WIN, STEAM), (MAIN, RARE)]), Some(MAIN));
         // Steam quits and leaves its last list behind: Rare, not a black screen.
         assert_eq!(gamescope_pick(None, &kept(&[GAME, STEAM], false), &[(MAIN, RARE)]), Some(MAIN));
+    }
+
+    /// Steam started quietly needs a sign-in (its saved one expired, or Steam Guard asks again): its
+    /// sign-in window maps under 769, but quiet Steam writes no list. The launcher keeps the screen
+    /// until Rare gives Steam the screen for it; then the window shows, though Steam never listed 769.
+    #[test]
+    fn quiet_steams_sign_in_shows_once_handed_over() {
+        const SIGN_IN_WIN: u64 = 0x2800120;
+        let wins = [(SIGN_IN_WIN, STEAM), (MAIN, RARE)];
+        assert_eq!(gamescope_pick(None, &kept(&[RARE], true), &wins), Some(MAIN));
+        assert_eq!(gamescope_pick(None, &kept(&[RARE], false), &wins), Some(SIGN_IN_WIN));
+        // Signed in, the game starts and Steam lists it: the game, not Steam's UI.
+        assert_eq!(gamescope_pick(None, &kept(&[GAME], false), &[(GAME_WIN, GAME), (SIGN_IN_WIN, STEAM), (MAIN, RARE)]), Some(GAME_WIN));
+        // Steam's window closed and the game has none yet: Rare, never a black screen.
+        assert_eq!(gamescope_pick(None, &kept(&[RARE], false), &[(MAIN, RARE)]), Some(MAIN));
     }
 
     /// (b) The device hot fix tagged Rare 769. Once Steam runs, Steam's own list ([769]) matches

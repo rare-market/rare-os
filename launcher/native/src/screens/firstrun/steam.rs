@@ -5,6 +5,9 @@ use super::kit::{done_line, step};
 use crate::screens::wallet::markup::*;
 use crate::screens::wallet::ui::{button_el, BSize, ButtonSpec, BVariant};
 
+/// Steam Guard is Steam's own check, not Rare's: where its code comes from, and the keyboard for it.
+pub const GUARD: &str = "Steam Guard is Steam's own sign-in check. Approve the sign-in in the Steam Mobile app, or type the code Steam emails you. Press A on the code box for Steam's keyboard.";
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Msg {
     Continue,
@@ -43,9 +46,12 @@ pub fn view(account: Option<&str>, opened: bool, online: bool, steam_games: usiz
     if account.is_none() && !online {
         c = c.kid(div("text-small text-muted").text("You are offline, so Steam cannot sign in yet. Skip this and sign in to Steam later from Library."));
     }
+    let mut tips = ul("flex max-w-[40rem] flex-col gap-[0.4rem] text-small leading-relaxed text-muted");
+    if account.is_none() {
+        tips = tips.kid(li("").text(GUARD));
+    }
     c = c.kid(
-        ul("flex max-w-[40rem] flex-col gap-[0.4rem] text-small leading-relaxed text-muted")
-            .kid(li("").text("Games you already installed on this device are kept and show up by themselves."))
+        tips.kid(li("").text("Games you already installed on this device are kept and show up by themselves."))
             .kid(li("").text("Games you installed with Heroic (Epic and GOG) or itch.io are listed and start from Rare too.")),
     );
     step(text(title), Some(text(body)), vec![c], actions, false).on_pad("b", Msg::Back)
@@ -61,6 +67,8 @@ mod tests {
         assert_eq!(v.texts()[0], "Sign in to Steam");
         assert_eq!(v.landing().as_deref(), Some("Open Steam"));
         assert!(view(None, true, false, 0).contains_text("Waiting for you to sign in to Steam."));
+        assert!(view(None, false, true, 0).contains_text(GUARD));
+        assert!(!view(Some("playerone"), true, true, 1).contains_text(GUARD));
         assert!(view(None, true, false, 0).contains_text("You are offline, so Steam cannot sign in yet. Skip this and sign in to Steam later from Library."));
         let v = view(Some("playerone"), true, true, 42);
         assert_eq!(v.texts()[..5], ["Steam is ready", "Your Steam games show up in Library and on Home, and they start straight from Rare.", "Signed in as ", "playerone", ", 42 games found"]);

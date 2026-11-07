@@ -9,3 +9,4 @@ pub mod steamcef;
 pub mod steamcfg;
 pub mod steamdl;
 pub mod steamlog;
+pub mod steamlogin;

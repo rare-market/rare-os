@@ -67,11 +67,11 @@ fn notifications() {
     env("RR_FIXTURE", "1");
     let mut errs = Vec::new();
     let mut h = Harness::new(Some(Tab::Home), None);
-    // The Rare menu: Rare, Friends, Notifications; RB steps the tabs.
+    // The Rare menu over the launcher: Rare, Ask Rare, Friends, Notifications.
     h.seq(&[Btn::Guide]);
     eprintln!("rare menu: at {}", h.focus_text());
-    // LT / RT step the menu's tabs: Rare, Friends, Notifications.
-    h.seq(&[Btn::Rt]);
+    // LT / RT step the menu's tabs: past Ask Rare to Friends, then Notifications.
+    h.seq(&[Btn::Rt, Btn::Rt]);
     walked("rare menu friends", &mut h, Btn::Down, &mut errs);
     h.seq(&[Btn::Rt]);
     walked("notifications", &mut h, Btn::Down, &mut errs);

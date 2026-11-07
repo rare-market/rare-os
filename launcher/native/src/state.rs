@@ -236,6 +236,9 @@ pub struct State {
     pub acts: Vec<crate::act::Act>,
     /// A tool on the network is sending controller input (top bar icon).
     pub remote_input: bool,
+    /// Steam waits for the player to sign in (Backend::steam_sign_in): Library says so with Open
+    /// Steam, Home's Steam tile and a Steam game's status line too (`ver.library` moves with it).
+    pub steam_sign_in: bool,
     pub running: Vec<String>,
     pub launching: Option<String>,
     pub toasts: Vec<Toast>,
@@ -307,6 +310,7 @@ impl Default for State {
             game_perf: GamePerf::default(),
             acts: Vec::new(),
             remote_input: false,
+            steam_sign_in: false,
             running: Vec::new(),
             launching: None,
             toasts: Vec::new(),

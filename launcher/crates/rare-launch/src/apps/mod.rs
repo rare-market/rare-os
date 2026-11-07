@@ -145,7 +145,11 @@ pub const STEAM_HINT: std::time::Duration = std::time::Duration::from_millis(160
 /// `steam-handoff` event), unless the player went somewhere else in the meantime. Home brings
 /// Rare back; Steam stays in the Running list with Resume and Close until it quits.
 pub fn steam(ctx: &Ctx, runner: &crate::launch::Runner, url: &str) -> Result<(), Error> {
-    crate::launch::steam_url(url)?;
+    // A quiet Steam waiting for a sign-in ignores the URL and its window never shows: Steam starts
+    // again in Big Picture, where the sign-in is (launch::steam_sign_in_big_picture).
+    if !crate::launch::steam_sign_in_big_picture("steam://open/bigpicture") {
+        crate::launch::steam_url(url)?;
+    }
     runner.track_steam_ui(STEAM_RUN);
     front::mark_steam(STEAM_RUN);
     let gen = front::generation();

@@ -128,6 +128,8 @@ pub struct App {
     /// The wallet service's version Home's account was checked at.
     wallet_seen: u64,
     next_progress: f64,
+    /// When Steam's sign-in is looked at next (Backend::steam_sign_in).
+    next_steam_sign_in: f64,
     launching_until: f64,
     forced_running: Vec<String>,
     /// A deadline a page asked for.
@@ -446,6 +448,7 @@ impl App {
             next_account: 0.0,
             wallet_seen: 0,
             next_progress: 0.0,
+            next_steam_sign_in: 0.0,
             launching_until: 0.0,
             forced_running: s0.running.clone(),
             page_wake: None,
@@ -2510,6 +2513,26 @@ impl App {
                     })
                 });
             }
+        }
+        // Steam waiting for a sign-in behind Rare (it was started quietly): said once in a toast,
+        // and Library, Home's Steam tile and a Steam game's status line keep saying it.
+        if now >= self.next_steam_sign_in {
+            self.next_steam_sign_in = now + 2.0;
+            self.fx.spawn(|b| {
+                let on = b.steam_sign_in();
+                Box::new(move |st: &mut State, now| {
+                    if on == st.steam_sign_in {
+                        return;
+                    }
+                    st.steam_sign_in = on;
+                    st.ver.library += 1;
+                    // A Play press that waits for it says so itself (the start bar and its toast).
+                    let asked = st.starts.values().any(|s| matches!(s.phase, Phase::Answer(_)));
+                    if on && !asked && rare_launch::apps::front::launcher_front() {
+                        st.toast_for(rare_launch::steamlogin::SIGN_IN, Tone::Info, now, 3.0);
+                    }
+                })
+            });
         }
         if !self.st.running.is_empty() && now >= self.next_progress {
             self.next_progress = now + 0.7;

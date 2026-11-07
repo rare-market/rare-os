@@ -28,6 +28,11 @@ pub trait Backend: Send + Sync {
     fn launch_phase(&self, id: &str) -> Phase;
     /// Starts Steam quietly ahead of a Play press, unless Settings says to start it only on Play.
     fn steam_prewarm(&self) {}
+    /// Steam waits for the player to sign in (its saved sign-in expired, or Steam Guard asks again)
+    /// while Rare has the screen. `RR_STEAM_SIGN_IN=1` says yes in fixtures and shots.
+    fn steam_sign_in(&self) -> bool {
+        std::env::var("RR_STEAM_SIGN_IN").is_ok_and(|v| v == "1")
+    }
     fn steam_big_picture(&self) -> Result<(), String>;
     fn steam_game_page(&self, _appid: u32) -> Result<(), String> {
         self.steam_big_picture()
@@ -1418,6 +1423,10 @@ impl Backend for DeviceBackend {
             }
             r => r,
         }
+    }
+    fn steam_sign_in(&self) -> bool {
+        // Rare inside someone else's Steam Game Mode: Steam owns the screen and shows its own sign-in.
+        !rare_overlay::guest() && rare_launch::steamlogin::needed()
     }
     fn steam_prewarm(&self) {
         if steam_mode() != "demand" {

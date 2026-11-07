@@ -158,6 +158,21 @@ fn tradeport_simple_wallet_listing_reports_to_orderbook_first() {
 }
 
 #[test]
+fn tradeport_simple_without_flags_skips_report_and_buys_from_the_kiosk() {
+    // Rows the indexer's live lane wrote before a state pass: reporting a listing already in the orderbook
+    // aborts in tradeport_orderbook::add_listing (code 6).
+    let l = listing(json!({"venue": "tradeport", "source": "tradeport/simple", "orderKey": ITEM, "priceMist": "1000000000", "feeMist": "30000000", "kioskId": rep("88"), "extra": {"feeBps": 300}}));
+    let tx = build_cart_buy(&cfg(), &line(l), &ctx(vec![lock_royalty()], vec![plain_kiosk()])).unwrap();
+    assert_eq!(calls(&tx), ["ext::royalty_rule::fee_amount", "tp.simple::tradeport_listings::buy_ob_listing_with_transfer_policy", "0x2::transfer_policy::confirm_request"]);
+    let w = listing(json!({"venue": "tradeport", "source": "tradeport/simple", "orderKey": ITEM, "priceMist": "500000000", "feeMist": "15000000", "kioskId": null, "extra": {}}));
+    let tx = build_cart_buy(&cfg(), &line(w), &ctx(vec![], vec![plain_kiosk()])).unwrap();
+    assert_eq!(calls(&tx), ["tp.simple::tradeport_listings::buy_ob_listing_without_transfer_policy"]);
+    let t = listing(json!({"venue": "tradeport", "source": "tradeport/simple", "orderKey": ITEM, "priceMist": "500000000", "feeMist": "15000000", "kioskId": null, "extra": {"inOrderbook": true, "listingType": 0}}));
+    let tx = build_cart_buy(&cfg(), &line(t), &ctx(vec![], vec![plain_kiosk()])).unwrap();
+    assert_eq!(calls(&tx), ["tp.simple::tradeport_listings::buy_ob_listing_without_transfer_policy"]);
+}
+
+#[test]
 fn tradeport_kiosk_legacy_buy_then_settle() {
     let l = listing(json!({"venue": "tradeport", "source": "tradeport/kiosk", "orderKey": ITEM, "priceMist": "226600000", "commissionMist": "6600000", "kioskId": rep("99"), "extra": {}}));
     let tx = build_cart_buy(&cfg(), &line(l.clone()), &ctx(vec![lock_royalty()], vec![plain_kiosk()])).unwrap();

@@ -146,6 +146,16 @@ fn cases() -> Vec<(&'static str, Tx)> {
                 vec![personal_kiosk()],
             ),
         ),
+        // Live-lane rows: no inOrderbook or listingType (in the orderbook; a seller kiosk means type 1).
+        (
+            "buy/tradeport-simple-unflagged",
+            buy(
+                &c,
+                vec![(listing(json!({"venue": "tradeport", "source": "tradeport/simple", "orderKey": ITEM, "priceMist": "1000000000", "feeMist": "30000000", "kioskId": rep("88"), "extra": {"feeBps": 300}})), None)],
+                lr(),
+                vec![plain_kiosk()],
+            ),
+        ),
         (
             "buy/tradeport-simple-wallet",
             buy(&c, vec![(listing(json!({"venue": "tradeport", "source": "tradeport/simple", "orderKey": ITEM, "priceMist": "500000000", "feeMist": "15000000", "kioskId": null, "extra": {"inOrderbook": false, "listingType": 0}})), None)], vec![], vec![plain_kiosk()]),

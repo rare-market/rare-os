@@ -622,7 +622,8 @@ impl Page for FirstRunPage {
                 }
                 "steam" => {
                     self.next_poll = t + 3.0;
-                    self.work(|| Ans::Account(steam_account()));
+                    // A saved account whose sign-in expired is not ready: Steam waits for it.
+                    self.work(|| Ans::Account(steam_account().filter(|_| !rare_launch::steamlogin::needed())));
                 }
                 // the picker sets it over the step; a sign-in window ends with the account saved
                 "time" => {

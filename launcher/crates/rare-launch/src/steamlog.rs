@@ -116,6 +116,11 @@ impl Tracker {
         Some(question_text(&w.task, &w.reason))
     }
 
+    /// Whether Steam logged any step of starting `appid` (since it was last forgotten).
+    pub fn seen(&self, appid: u64) -> bool {
+        self.apps.contains_key(&appid)
+    }
+
     /// Forget an app (its run ended).
     pub fn forget(&mut self, appid: u64) {
         self.apps.remove(&appid);
@@ -236,6 +241,11 @@ pub fn poll() {
 /// What Steam asks the player before `appid` starts (see `Tracker::question`).
 pub fn question(appid: u64) -> Option<&'static str> {
     WATCH.lock().unwrap_or_else(|e| e.into_inner()).as_ref()?.tracker.question(appid, Instant::now())
+}
+
+/// Whether Steam logged any step of starting `appid` since its launch (see `Tracker::seen`).
+pub fn seen(appid: u64) -> bool {
+    WATCH.lock().unwrap_or_else(|e| e.into_inner()).as_ref().is_some_and(|w| w.tracker.seen(appid))
 }
 
 pub fn forget(appid: u64) {
