@@ -575,7 +575,8 @@ async function generate() {
 }
 
 describe("TS/Rust NFT send vectors", () => {
-  it("the TS NFT builders still produce nft-vectors.json", async () => {
+  // About 1.5 s on a laptop, over 5 s (vitest's default timeout) on a 2-core CI runner.
+  it("the TS NFT builders still produce nft-vectors.json", { timeout: 30_000 }, async () => {
     const got = await generate();
     if (process.env.RARE_WRITE_VECTORS) writeFileSync(FILE, JSON.stringify(got) + "\n");
     expect(got).toEqual(JSON.parse(readFileSync(FILE, "utf8")));
