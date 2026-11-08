@@ -29,6 +29,9 @@ pub struct Way {
     pub exec: Option<Vec<String>>,
     /// A steam:// URL: Steam's own UI (Big Picture), opened in the running Steam client.
     pub steam: Option<String>,
+    /// Blizzard's Battle.net app, run through umu-run in its prefix (rare-library battlenet).
+    /// Rare installs it when no prefix has it.
+    pub battlenet: Option<bool>,
     pub label: String,
     pub controller: Option<Controller>,
     /// The key B sends in pointer mode: "escape" or "alt+left".
@@ -69,6 +72,7 @@ pub enum Kind {
     Flatpak,
     Exec,
     Steam,
+    Battlenet,
 }
 
 impl Way {
@@ -81,6 +85,7 @@ impl Way {
             (self.flatpak.is_some(), Kind::Flatpak),
             (self.exec.as_ref().is_some_and(|e| !e.is_empty()), Kind::Exec),
             (self.steam.is_some(), Kind::Steam),
+            (self.battlenet == Some(true), Kind::Battlenet),
         ];
         let mut it = set.iter().filter(|(on, _)| *on).map(|(_, k)| *k);
         let k = it.next()?;
@@ -174,6 +179,8 @@ pub struct Env {
     pub scale: Option<f32>,
     /// The user installation already has the flathub remote.
     pub user_flathub: bool,
+    /// Battle.net's program, when a prefix has it.
+    pub battlenet: Option<PathBuf>,
 }
 
 impl Env {
@@ -220,6 +227,8 @@ pub enum Plan {
     Spawn { program: String, args: Vec<String>, controller: Controller, back: Back },
     /// Steam's UI: the URL goes to the Steam client (started if needed), which takes the screen.
     Steam { url: String },
+    /// Battle.net's program, started by the runner through umu-run in its prefix like a game.
+    Battlenet { exe: PathBuf, controller: Controller, back: Back },
 }
 
 /// A webview way's window settings beyond the controller.
@@ -236,7 +245,12 @@ impl WebOpts {
     }
 }
 
-/// Something to install first: a Flatpak and the one-line command that installs it.
+/// What an offer installs when it is Battle.net (`Offer::flatpak`): Blizzard's installer through
+/// umu-run, not a Flatpak (apps::battlenet).
+pub const BATTLENET: &str = "battlenet";
+
+/// Something to install first: a Flatpak and the one-line command that installs it, or Battle.net
+/// (`flatpak` is BATTLENET and `command` is empty: there is no one-line way).
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Offer {
@@ -256,6 +270,9 @@ pub fn install_command(flatpak: &str, user_flathub: bool) -> String {
 }
 
 fn flatpak_name(id: &str) -> String {
+    if id == BATTLENET {
+        return "Battle.net".into();
+    }
     if let Some(b) = BROWSERS.iter().find(|b| b.id == id) {
         return b.name.to_string();
     }
@@ -289,6 +306,7 @@ pub fn way_ready(app: &AppEntry, way: &Way, env: &Env) -> Result<(), Option<Stri
             }
         }
         Some(Kind::Steam) => env.has_program("steam").then_some(()).ok_or(None),
+        Some(Kind::Battlenet) => env.battlenet.as_ref().map(|_| ()).ok_or(Some(BATTLENET.to_string())),
         None => Err(None),
     }
 }
@@ -313,7 +331,11 @@ pub fn status(app: &AppEntry, env: &Env) -> Status {
     let ready: Vec<usize> = app.ways.iter().enumerate().filter(|(_, w)| way_ready(app, w, env).is_ok()).map(|(i, _)| i).collect();
     let way = ready.first().copied();
     // The best way is not available: offer what it needs, when that is a Flatpak.
-    let offer = app.ways.first().and_then(|w| way_ready(app, w, env).err().flatten()).map(|f| Offer { name: flatpak_name(&f), command: install_command(&f, env.user_flathub), flatpak: f });
+    let offer = app.ways.first().and_then(|w| way_ready(app, w, env).err().flatten()).map(|f| Offer {
+        name: flatpak_name(&f),
+        command: if f == BATTLENET { String::new() } else { install_command(&f, env.user_flathub) },
+        flatpak: f,
+    });
     let opens_in = way.map(|i| {
         let w = &app.ways[i];
         match w.kind() {
@@ -392,6 +414,7 @@ pub fn plan(app: &AppEntry, which: Option<usize>, env: &Env) -> Result<Plan, Str
             Plan::Spawn { program, args: e, controller, back }
         }
         Some(Kind::Steam) => Plan::Steam { url: w.steam.clone().unwrap_or_default() },
+        Some(Kind::Battlenet) => Plan::Battlenet { exe: env.battlenet.clone().ok_or("Battle.net isn't installed")?, controller, back },
         None => return Err("This app has no way to open".into()),
     })
 }
@@ -401,7 +424,7 @@ mod tests {
     use super::*;
 
     fn env(flatpaks: &[&str]) -> Env {
-        Env { flatpak: true, flatpaks: flatpaks.iter().map(|s| s.to_string()).collect(), programs: vec![], home: PathBuf::from("/home/b"), scale: None, user_flathub: true }
+        Env { flatpak: true, flatpaks: flatpaks.iter().map(|s| s.to_string()).collect(), programs: vec![], home: PathBuf::from("/home/b"), scale: None, user_flathub: true, battlenet: None }
     }
 
     #[test]
@@ -546,6 +569,23 @@ mod tests {
             assert!(web.user_agent.unwrap().contains(ua));
             assert_eq!(status(a, &env(&["com.google.Chrome"])).other_ways, vec![1]);
         }
+    }
+
+    #[test]
+    fn battlenet_installs_then_opens_in_its_prefix() {
+        let b = get("battlenet").unwrap();
+        let mut e = env(&[]);
+        // Not installed: nothing opens; Rare offers Battle.net itself (no Flatpak, no command).
+        let st = status(b, &e);
+        assert_eq!(st.way, None);
+        assert_eq!(st.offer, Some(Offer { flatpak: BATTLENET.into(), name: "Battle.net".into(), command: String::new() }));
+        assert!(plan(b, None, &e).unwrap_err().contains("Battle.net"));
+        // Installed: opens through the runner in its prefix, the pad as a mouse.
+        let exe = PathBuf::from("/home/b/.local/share/rare/prefixes/battlenet/drive_c/Program Files (x86)/Battle.net/Battle.net.exe");
+        e.battlenet = Some(exe.clone());
+        let st = status(b, &e);
+        assert_eq!((st.way, st.offer, st.controller), (Some(0), None, Some(Controller::Pointer)));
+        assert_eq!(plan(b, None, &e).unwrap(), Plan::Battlenet { exe, controller: Controller::Pointer, back: Back::Escape });
     }
 
     #[test]

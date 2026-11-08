@@ -386,6 +386,8 @@ pub fn plan_in(g: &Game, roots: &[PathBuf]) -> Result<Plan, String> {
                 _ => None,
             };
         }
+        // Battle.net keeps its own list and shares one prefix between its games: it removes them.
+        (Source::Battlenet, _) => return Err("Uninstall it in Battle.net: open Battle.net from Apps, then the game's settings menu.".into()),
         (Source::Local, LaunchSpec::Heroic { .. }) => {
             // Added to Heroic by hand.
             own_dir(&mut p, roots)?;

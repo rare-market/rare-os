@@ -6,7 +6,10 @@ import CATALOG from "./catalog.json";
 import type { PadButton } from "../lib/types";
 
 export type Controller = "focus" | "pointer" | "gamepad";
-export type WayKind = "webview" | "chromeApp" | "chrome" | "flatpak" | "exec" | "steam";
+export type WayKind = "webview" | "chromeApp" | "chrome" | "flatpak" | "exec" | "steam" | "battlenet";
+
+/** `Offer.flatpak` when the offer is Battle.net: Blizzard's installer through umu-run (no command). */
+export const BATTLENET = "battlenet";
 
 export interface Way {
   webview?: string;
@@ -16,6 +19,8 @@ export interface Way {
   exec?: string[];
   /** A steam:// URL: Steam's own UI, an app like the others (Home comes back to Rare). */
   steam?: string;
+  /** Blizzard's Battle.net app through umu-run in its prefix; Rare installs it when missing. */
+  battlenet?: boolean;
   label: string;
   controller?: Controller;
   back?: "escape" | "alt+left";
@@ -64,6 +69,7 @@ export function wayKind(w: Way): WayKind | null {
   if (w.flatpak) set.push("flatpak");
   if (w.exec?.length) set.push("exec");
   if (w.steam) set.push("steam");
+  if (w.battlenet === true) set.push("battlenet");
   return set.length === 1 ? set[0] : null;
 }
 
@@ -90,13 +96,16 @@ export function statusFor(app: AppEntry, installed: string[], userFlathub = true
     if (k === "webview" || k === "steam") return true;
     if (k === "chromeApp" || k === "chrome") return browser ? true : "com.google.Chrome";
     if (k === "flatpak") return installed.includes(w.flatpak!) ? true : w.flatpak!;
+    if (k === "battlenet") return installed.includes(BATTLENET) ? true : BATTLENET;
     return null;
   };
   const ready = app.ways.map((w, i) => [i, need(w)] as const).filter(([, n]) => n === true).map(([i]) => i);
   const way = ready.length ? ready[0] : null;
   const first = need(app.ways[0]);
   const offer =
-    typeof first === "string"
+    first === BATTLENET
+      ? { flatpak: BATTLENET, name: "Battle.net", command: "" }
+      : typeof first === "string"
       ? { flatpak: first, name: BROWSERS.find((b) => b.flatpak === first)?.name ?? app.ways.find((w) => w.flatpak === first)?.label ?? first, command: installCommand(first, userFlathub) }
       : null;
   const w = way == null ? null : app.ways[way];

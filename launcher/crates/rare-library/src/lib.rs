@@ -3,6 +3,7 @@
 pub mod appinfo;
 pub mod apps;
 pub mod art;
+pub mod battlenet;
 pub mod browser;
 pub mod custom;
 pub mod dupes;
@@ -126,16 +127,21 @@ pub fn scan(extra_folders: &[String], web_user: &[rare_core::WebGame], removed: 
     let steam = steam::scan();
     let epic = heroic::scan_epic();
     let gog = heroic::scan_gog();
+    let bnet = battlenet::scan();
     let itch = local::scan_itch();
     let mut known_dirs: Vec<String> = Vec::new();
-    for g in steam.games.iter().chain(epic.games.iter()).chain(gog.games.iter()).chain(itch.iter()) {
+    // Battle.net's prefix as a whole: a Lutris prefix in ~/Games is not a game folder.
+    known_dirs.extend(bnet.client.as_deref().and_then(battlenet::prefix_of).map(|p| p.to_string_lossy().into_owned()));
+    for g in steam.games.iter().chain(epic.games.iter()).chain(gog.games.iter()).chain(bnet.games.iter()).chain(itch.iter()) {
         if let Some(d) = &g.install_dir {
             known_dirs.push(d.clone());
         }
     }
     let mut local = local::scan_local(extra_folders, &known_dirs);
     // Shortcuts to emulators and apps join the emulators; shortcuts to games are games.
-    let (app_shortcuts, game_shortcuts): (Vec<_>, Vec<_>) = shortcuts::scan(&steam.roots).into_iter().partition(|g| g.source == Source::Apps);
+    // A Steam shortcut to Battle.net is the app Apps > Battle.net opens (in the shortcut's prefix).
+    let bnet_found = bnet.client.is_some();
+    let (app_shortcuts, game_shortcuts): (Vec<_>, Vec<_>) = shortcuts::scan(&steam.roots).into_iter().filter(|g| !(bnet_found && shortcuts::norm(&g.title).starts_with("battlenet"))).partition(|g| g.source == Source::Apps);
     let steam_titles: std::collections::HashSet<String> = steam.games.iter().map(|g| shortcuts::norm(&g.title)).collect();
     // A shortcut to a game Steam already lists would show it twice.
     local.extend(game_shortcuts.into_iter().filter(|g| !steam_titles.contains(&shortcuts::norm(&g.title))));
@@ -152,6 +158,12 @@ pub fn scan(extra_folders: &[String], web_user: &[rare_core::WebGame], removed: 
         },
         SourceStatus { source: Source::Epic, available: epic.available, count: epic.games.len(), note: epic.note },
         SourceStatus { source: Source::Gog, available: gog.available, count: gog.games.len(), note: gog.note },
+        SourceStatus {
+            source: Source::Battlenet,
+            available: bnet_found,
+            count: bnet.games.len(),
+            note: if bnet_found { "Battle.net".into() } else { "Get Battle.net in Apps".into() },
+        },
         SourceStatus { source: Source::Itch, available: true, count: itch.len(), note: "itch.io downloads".into() },
         SourceStatus { source: Source::Local, available: true, count: local.len(), note: "Games folders".into() },
         SourceStatus { source: Source::Web, available: true, count: web.len(), note: "Browser games".into() },
@@ -165,6 +177,7 @@ pub fn scan(extra_folders: &[String], web_user: &[rare_core::WebGame], removed: 
     let mut games = steam.games;
     games.extend(epic.games);
     games.extend(gog.games);
+    games.extend(bnet.games);
     games.extend(itch);
     games.extend(local);
     games.extend(web);
@@ -194,7 +207,8 @@ pub fn scan(extra_folders: &[String], web_user: &[rare_core::WebGame], removed: 
         owned,
         emulation,
         emulation_app,
-        keys: Default::default(),
+        // Blizzard games that are on Steam too: one tile for both copies (dupes.rs).
+        keys: bnet.keys.into_iter().collect(),
         scanned_at: SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0),
     }
 }

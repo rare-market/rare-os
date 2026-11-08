@@ -42,8 +42,10 @@ fn steam_start_idx(c: &Config) -> usize {
 
 /// "GOG" for gog, else the source capitalised.
 pub fn source_label(source: &str) -> String {
-    if source == "gog" {
-        return "GOG".into();
+    match source {
+        "gog" => return "GOG".into(),
+        "battlenet" => return "Battle.net".into(),
+        _ => {}
     }
     let mut c = source.chars();
     match c.next() {
@@ -547,6 +549,7 @@ mod tests {
     #[test]
     fn source_labels() {
         assert_eq!(source_label("gog"), "GOG");
+        assert_eq!(source_label("battlenet"), "Battle.net");
         assert_eq!(source_label("steam"), "Steam");
         assert_eq!(source_label("itch"), "Itch");
     }

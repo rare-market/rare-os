@@ -215,7 +215,10 @@ impl AppSheet {
 
         if let Some(o) = &offer {
             let blk = cx.scene.add(body, s().col().gap(0.6 * r).mt(1.1 * r).done(), Node::default());
-            let msg = if ready {
+            let msg = if o.command.is_empty() {
+                // Battle.net: Blizzard's own installer, then its sign-in, in Blizzard's window.
+                format!("Rare gets {} from Blizzard and sets it up for you, no password needed. Then sign in with your Blizzard account in its window.", o.name)
+            } else if ready {
                 format!("{} is the full desktop app. It installs from Flathub for you only, no password needed.", o.name)
             } else {
                 format!("{} opens in {}. It installs from Flathub for you only, no password needed.", app.name, o.name)
@@ -233,9 +236,11 @@ impl AppSheet {
             if let Some(e) = installing.as_ref().and_then(|i| i.error.as_ref()) {
                 cx.scene.add_text(cx.t, blk, s().done(), e, ts(r, ty::SMALL.0, ty::SMALL.1, 400).wrap(), tok::NEG);
             }
-            text(cx, blk, ty::LABEL, 400, tok::MUTED, "Or in Desktop mode, in a terminal:");
-            let code = cx.scene.add(blk, s().col().px(0.9 * r).py(0.6 * r).done(), Node::bg(tok::L2).radius(0.5 * r));
-            cx.scene.add_text(cx.t, code, s().done(), &o.command, ts(r, ty::META.0, ty::META.1, 400).mono().wrap(), tok::FG);
+            if !o.command.is_empty() {
+                text(cx, blk, ty::LABEL, 400, tok::MUTED, "Or in Desktop mode, in a terminal:");
+                let code = cx.scene.add(blk, s().col().px(0.9 * r).py(0.6 * r).done(), Node::bg(tok::L2).radius(0.5 * r));
+                cx.scene.add_text(cx.t, code, s().done(), &o.command, ts(r, ty::META.0, ty::META.1, 400).mono().wrap(), tok::FG);
+            }
         }
 
         let ctl = cx.scene.add(body, s().col().mt(1.4 * r).done(), Node::default());

@@ -1262,6 +1262,9 @@ impl Backend for DeviceBackend {
     fn app_install(&self, id: &str) -> Result<(), String> {
         let st = rare_launch::apps::statuses().into_iter().find(|s| s.id == id).ok_or("Unknown app")?;
         let offer = st.offer.ok_or("Nothing to install")?;
+        if offer.flatpak == rare_launch::apps::catalog::BATTLENET {
+            return rare_launch::apps::battlenet::start(self.ctx.clone(), self.runner.clone()).map_err(|e| e.to_string());
+        }
         rare_launch::apps::install::start(self.ctx.clone(), id.to_string(), offer.flatpak, rare_launch::apps::env().user_flathub).map_err(|e| e.to_string())
     }
     fn stream_api(&self) -> Option<Box<dyn crate::screens::stream::state::StreamApi>> {
@@ -1366,6 +1369,10 @@ impl Backend for DeviceBackend {
         }
         // Epic and GOG: newer cloud saves first.
         crate::features::stores::before_launch(id, &g.title);
+        // World of Warcraft: how to turn on its controller mode, until it is on.
+        if let Some(hint) = rare_library::battlenet::gamepad_hint(id, g.install_dir.as_deref()) {
+            crate::features::bus::note(hint, false);
+        }
         // A web game opens in its own window process (features/webgame.rs).
         let launched = rare_launch::api::launch_game(&self.ctx, &self.runner, &g, |g| {
             // Emulators with no config yet get the tuned first-run settings, and their power

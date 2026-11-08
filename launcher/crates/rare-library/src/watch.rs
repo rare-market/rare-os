@@ -58,6 +58,8 @@ pub fn signature(game_folders: &[String]) -> u64 {
     for p in watched_paths(game_folders) {
         stamp(&p, &mut h);
     }
+    // Battle.net's games: its install list, read (it changes all the time while a game downloads).
+    crate::battlenet::signature().hash(&mut h);
     h.finish()
 }
 

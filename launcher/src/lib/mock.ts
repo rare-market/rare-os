@@ -33,6 +33,18 @@ function other(source: Source, id: string, title: string, origin: string): Game 
   return { id: `${source}:${id}`, source, title, installed: true, installDir: null, sizeBytes: null, lastPlayed: null, art: { cover: [], hero: [], logo: [], header: [] }, origin, foreign: false };
 }
 
+/** A Battle.net game in its Proton prefix, started through Battle.net (rare-library battlenet). */
+function bnet(uid: string, title: string, dir: string, playedDaysAgo: number | null, steamId?: number): Game {
+  const a = steamId ? cdn(steamId) : null;
+  return {
+    id: `battlenet:${uid}`, source: "battlenet", title, installed: true,
+    installDir: `/home/rare/.local/share/rare/prefixes/battlenet/drive_c/Program Files (x86)/${dir}`, sizeBytes: null,
+    lastPlayed: playedDaysAgo === null ? null : now - playedDaysAgo * day,
+    art: a ? { cover: [`${a}/library_600x900_2x.jpg`], hero: [`${a}/library_hero.jpg`], logo: [`${a}/logo.png`], header: [`${a}/header.jpg`] } : { cover: [], hero: [], logo: [], header: [] },
+    origin: "Battle.net", foreign: false,
+  };
+}
+
 const GAMES: Game[] = [
   steam(1145350, "Hades II", 9.8, 0.2),
   steam(2379780, "Balatro", 0.2, 1),
@@ -49,6 +61,10 @@ const GAMES: Game[] = [
   steam(1145360, "Hades", 15, null, "Steam library on /var/home/playtron/.local/share/Steam", true),
   other("epic", "Fortnite", "Alan Wake 2", "Epic Games"),
   other("gog", "1207658924", "The Witcher 3", "GOG"),
+  bnet("wow", "World of Warcraft", "World of Warcraft/_retail_", null),
+  bnet("prometheus", "Overwatch 2", "Overwatch", null, 2357570),
+  bnet("fenris", "Diablo IV", "Diablo IV", null, 2344520),
+  bnet("hs_beta", "Hearthstone", "Hearthstone", null),
   other("itch", "a1", "A Short Hike", "itch.io"),
   other("local", "b2", "SuperTuxKart", "Games folder"),
   other("apps", "esde", "ES-DE", "EmuDeck"),
@@ -80,6 +96,7 @@ export async function library(): Promise<Library> {
       { source: "steam", available: true, count: count("steam"), note: "Steam" },
       { source: "epic", available: true, count: count("epic"), note: "legendary" },
       { source: "gog", available: true, count: count("gog"), note: "GOG installs from Heroic" },
+      { source: "battlenet", available: true, count: count("battlenet"), note: "Battle.net" },
       { source: "itch", available: true, count: count("itch"), note: "itch.io downloads" },
       { source: "local", available: true, count: count("local"), note: "Games folders" },
       { source: "web", available: true, count: count("web"), note: "Browser games" },

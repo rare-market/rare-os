@@ -1,6 +1,6 @@
 // Mirrors src-tauri/src/model.rs and system.rs.
 
-export type Source = "steam" | "epic" | "gog" | "itch" | "local" | "web" | "apps" | "rare";
+export type Source = "steam" | "epic" | "gog" | "battlenet" | "itch" | "local" | "web" | "apps" | "rare";
 
 export interface Art {
   cover: string[];
@@ -215,6 +215,7 @@ export const SOURCE_LABEL: Record<Source, string> = {
   steam: "Steam",
   epic: "Epic Games",
   gog: "GOG",
+  battlenet: "Battle.net",
   itch: "itch.io",
   local: "Local",
   web: "Web",

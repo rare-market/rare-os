@@ -108,7 +108,9 @@ export function AppSheet({ id }: { id: string }) {
       {offer && (
         <div className="mt-[1.1rem] flex flex-col gap-[0.6rem]">
           <p className="text-small text-secondary">
-            {ready
+            {!offer.command
+              ? `Rare gets ${offer.name} from Blizzard and sets it up for you, no password needed. Then sign in with your Blizzard account in its window.`
+              : ready
               ? `${offer.name} is the full desktop app. It installs from Flathub for you only, no password needed.`
               : `${app.name} opens in ${offer.name}. It installs from Flathub for you only, no password needed.`}
           </p>
@@ -119,8 +121,12 @@ export function AppSheet({ id }: { id: string }) {
             </div>
           )}
           {installing?.error && <p className="text-small text-negative">{installing.error}</p>}
-          <div className="text-label text-secondary">Or in Desktop mode, in a terminal:</div>
-          <code className="num block select-all break-all rounded-card bg-l2 px-[0.9rem] py-[0.6rem] text-meta text-fg">{offer.command}</code>
+          {offer.command && (
+            <>
+              <div className="text-label text-secondary">Or in Desktop mode, in a terminal:</div>
+              <code className="num block select-all break-all rounded-card bg-l2 px-[0.9rem] py-[0.6rem] text-meta text-fg">{offer.command}</code>
+            </>
+          )}
         </div>
       )}
 

@@ -7,7 +7,9 @@
 //! - front:   what has the screen, so the pad goes to the right place
 //! - pointer: the pad as a mouse and keyboard for apps that don't read a controller
 //! - install: Flathub installs into the user installation, with progress
+//! - battlenet: Battle.net's installer through umu-run, into Rare's prefix for it
 
+pub mod battlenet;
 pub mod catalog;
 pub mod cloud;
 pub mod front;
@@ -44,6 +46,7 @@ pub fn env() -> Env {
         // The SuiPlay0X1's 7" 1920 x 1200 screen: the same 1.5x Rare's own UI uses.
         scale: (product.trim() == "SuiPlay0X1").then_some(1.5),
         user_flathub: user_flathub(),
+        battlenet: rare_library::battlenet::find_client(),
     }
 }
 
@@ -112,6 +115,15 @@ pub fn open(ctx: &Ctx, runner: &crate::launch::Runner, id: &str, way: Option<usi
         Plan::Steam { url } => {
             steam(ctx, runner, &url)?;
             return Ok(label);
+        }
+        Plan::Battlenet { exe, controller, back } => {
+            // The runner starts it like a Windows game (umu-run, its prefix), tracked as the app.
+            if controller == Controller::Pointer {
+                pointer::prepare();
+            }
+            runner.launch(&rare_library::battlenet::client_game(&run_id, &exe)).map_err(|err| format!("Could not open {}: {err}", entry.name))?;
+            front::set_pointer(&run_id, (controller == Controller::Pointer).then_some(back));
+            step_aside(ctx);
         }
         Plan::Spawn { program, args, controller, back } => {
             if controller == Controller::Pointer {

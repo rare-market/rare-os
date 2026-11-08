@@ -3,6 +3,13 @@
 
 use std::process::Command;
 
+/// Whether a process's command line names a folder. A folder in the form Wine shows a Windows
+/// program's path (":/program files (x86)/game/", from rare-library battlenet) matches in any case
+/// and with either slash; any other folder matches as written.
+pub fn mentions(cmd: &str, dir: &str) -> bool {
+    cmd.contains(dir) || (dir.starts_with(":/") && cmd.to_lowercase().replace('\\', "/").contains(dir))
+}
+
 /// (pid, comm, command line with spaces) of every process. Empty outside Linux.
 #[cfg(target_os = "linux")]
 pub fn cmdlines() -> Vec<(u32, String, String)> {
@@ -58,4 +65,17 @@ pub fn which(bin: &str) -> bool {
     std::env::var_os("PATH")
         .map(|paths| std::env::split_paths(&paths).any(|p| p.join(bin).is_file()))
         .unwrap_or(false)
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn mentions_a_folder_as_wine_shows_it() {
+        let wow = ":/program files (x86)/world of warcraft/_retail_/";
+        assert!(super::mentions("C:\\Program Files (x86)\\World of Warcraft\\_retail_\\Wow.exe ", wow));
+        assert!(super::mentions("c:/program files (x86)/World of Warcraft/_retail_/Wow.exe", wow));
+        assert!(!super::mentions("C:\\Program Files (x86)\\Battle.net\\Battle.net.exe --exec=launch WoW", wow));
+        assert!(super::mentions("/usr/bin/wine /games/Hades/Hades.exe", "/games/Hades"));
+        assert!(!super::mentions("/usr/bin/wine /games/hades/Hades.exe", "/games/Hades"));
+    }
 }

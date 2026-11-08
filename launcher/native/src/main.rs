@@ -10,7 +10,7 @@
 //!   RR_FIXTURE=1          the web launcher's browser mocks (library, device, live numbers): the
 //!                         same content as launcher/scripts/shots.mjs, for golden images (always on
 //!                         off Linux)
-//!   RR_TAB=library        start on a tab;  RR_OPEN=game:<id> | search | qam |
+//!   RR_TAB=library        start on a tab;  RR_OPEN=game:<id> | search | qam | library:<filter> |
 //!                         launchfail:<id>|<reason> | options:<id> | uninstall:<id> | osk | handoff | toast:<text> |
 //!                         ingame:<run id>|<menu|switcher|quick|power>|<frame png> (Rare over a game)
 //!   RR_SEARCH=<q>         the search already typed;  RR_RUNNING=<id,...> games shown as running

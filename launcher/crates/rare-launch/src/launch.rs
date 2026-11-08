@@ -638,7 +638,11 @@ impl Runner {
                     let mut all = vec![program.clone()];
                     all.extend(args.iter().cloned());
                     let (mut c, unit) = host_command_unit("umu-run", &all, &game.id);
-                    if game.id.starts_with("gog:") {
+                    if let Some(env) = rare_library::battlenet::umu_env(std::path::Path::new(program)) {
+                        // Battle.net and its games: the app's prefix (Rare's, Steam's shortcut's,
+                        // Lutris's) and its Proton (rare-library battlenet).
+                        c.envs(env);
+                    } else if game.id.starts_with("gog:") {
                         // GOG: the game's prefix (Heroic's when it came from Heroic) and its Proton.
                         let _ = std::fs::create_dir_all(rare_library::umu::prefix(&game.id));
                         c.envs(rare_library::umu::env(&game.id));
@@ -660,7 +664,29 @@ impl Runner {
                     // Games often load files relative to their own folder.
                     cmd.current_dir(parent);
                 }
-                Handle::Child { child: cmd.spawn().map_err(|e| format!("Could not start {}: {e}", game.title))?, unit, cgroup: None, started: Instant::now(), exit: None }
+                let child = cmd.spawn().map_err(|e| format!("Could not start {}: {e}", game.title))?;
+                // A Battle.net game: Battle.net starts it and stays open after it, in this run's
+                // scope or in the app's own (Apps > Battle.net) when that was open already. Track
+                // the game by its folder, as Wine shows it, the way Heroic games are tracked.
+                let needle = (game.id.starts_with("battlenet:") && rare_library::battlenet::umu_env(std::path::Path::new(program)).is_some())
+                    .then(|| game.install_dir.as_deref().and_then(|d| rare_library::battlenet::run_needle(std::path::Path::new(d))))
+                    .flatten();
+                match needle {
+                    Some(dir) => {
+                        let mut child = child;
+                        std::thread::spawn(move || {
+                            let _ = child.wait();
+                        });
+                        let app = crate::apps::catalog::run_id(rare_library::battlenet::APP_ID);
+                        if self.inner.lock().unwrap().contains_key(&app) {
+                            if let Some(id) = rare_overlay::appid::of(&app) {
+                                rare_overlay::appid::alias(&game.id, id);
+                            }
+                        }
+                        Handle::Dir { dir, seen: false, started: Instant::now(), grace: Duration::from_secs(180) }
+                    }
+                    None => Handle::Child { child, unit, cgroup: None, started: Instant::now(), exit: None },
+                }
             }
         };
         self.quitting.lock().unwrap().remove(game.id.as_str());
@@ -761,7 +787,7 @@ impl Runner {
             }
             #[cfg(target_os = "linux")]
             Handle::Dir { dir, .. } => {
-                let pids: Vec<u32> = rare_core::proc::cmdlines().into_iter().filter(|(_, _, cmd)| cmd.contains(dir.as_str())).map(|(p, _, _)| p).collect();
+                let pids: Vec<u32> = rare_core::proc::cmdlines().into_iter().filter(|(_, _, cmd)| rare_core::proc::mentions(cmd, dir)).map(|(p, _, _)| p).collect();
                 terminate(with_descendants(&pids));
             }
             #[cfg(not(target_os = "linux"))]
@@ -1094,7 +1120,7 @@ fn alive(ctx: &Ctx, h: &mut Handle, procs: &[(u32, String, String)], asked: bool
             }
         }
         Handle::Dir { dir, seen, started, grace } => {
-            let alive = procs.iter().any(|(_, _, cmd)| cmd.contains(dir.as_str()));
+            let alive = procs.iter().any(|(_, _, cmd)| rare_core::proc::mentions(cmd, dir));
             if alive {
                 *seen = true;
             }

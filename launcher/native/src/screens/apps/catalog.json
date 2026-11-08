@@ -1,5 +1,5 @@
 {
-  "$comment": "Media and chat apps on Home and in Library > Apps. Read by the UI (src/apps) and compiled into the native side (src-tauri/src/apps). Each app lists ways to open it, best first; the first way the device can use is the default. A way is exactly one of: webview (a URL in Rare's own sandboxed window, storage kept per app), chromeApp (a URL as a fullscreen Chrome app window with its own profile), chrome (Chrome itself), flatpak (an installed Flatpak app id) exec (a program and its arguments) or steam (a steam:// URL for Steam's own UI, shown like any app: Home comes back to Rare, the Running list has Resume and Close). controller: focus = Rare drives the page's own buttons (webview only), pointer = the pad works as a mouse and keyboard while the app is in front, gamepad = the app reads the controller itself. back: the key B sends in pointer mode (alt+left goes back in Chrome). stream (webview): a cloud game stream, so Rare's window decodes video on the GPU (VA-API). padHosts (webview with controller gamepad): on these hosts the page reads the controller itself through the Gamepad API; elsewhere (sign-in pages) the d-pad walks the page. plan: what playing needs, in plain words, shown on the app's page and its cloud games' pages. steps: plain setup steps, shown on the app's page and in Library > Streaming (chiaki and steamlink are listed there, not in Apps). drm: the app needs Widevine, so only Google Chrome or Microsoft Edge can open it. Icons are the services' own, see public/apps/NOTICE.",
+  "$comment": "Media and chat apps on Home and in Library > Apps. Read by the UI (src/apps) and compiled into the native side (src-tauri/src/apps). Each app lists ways to open it, best first; the first way the device can use is the default. A way is exactly one of: webview (a URL in Rare's own sandboxed window, storage kept per app), chromeApp (a URL as a fullscreen Chrome app window with its own profile), chrome (Chrome itself), flatpak (an installed Flatpak app id) exec (a program and its arguments), steam (a steam:// URL for Steam's own UI, shown like any app: Home comes back to Rare, the Running list has Resume and Close) or battlenet (true: Blizzard's Battle.net app through umu-run in its Wine prefix; Rare installs it when it is missing). controller: focus = Rare drives the page's own buttons (webview only), pointer = the pad works as a mouse and keyboard while the app is in front, gamepad = the app reads the controller itself. back: the key B sends in pointer mode (alt+left goes back in Chrome). stream (webview): a cloud game stream, so Rare's window decodes video on the GPU (VA-API). padHosts (webview with controller gamepad): on these hosts the page reads the controller itself through the Gamepad API; elsewhere (sign-in pages) the d-pad walks the page. plan: what playing needs, in plain words, shown on the app's page and its cloud games' pages. steps: plain setup steps, shown on the app's page and in Library > Streaming (chiaki and steamlink are listed there, not in Apps). drm: the app needs Widevine, so only Google Chrome or Microsoft Edge can open it. Icons are the services' own, see public/apps/NOTICE.",
   "apps": [
     {
       "id": "steam",
@@ -7,6 +7,14 @@
       "icon": "apps/steam.png",
       "about": "Steam's store, library, friends and settings. Press the Rare button to come back to Rare.",
       "ways": [{ "steam": "steam://open/bigpicture", "label": "Steam", "controller": "gamepad" }]
+    },
+    {
+      "id": "battlenet",
+      "name": "Battle.net",
+      "icon": "apps/battlenet.png",
+      "about": "Blizzard's app for World of Warcraft, Diablo, Overwatch, Hearthstone, StarCraft and Call of Duty. Sign in with your Blizzard account there. The games you install show in Library > Battle.net and start from Rare.",
+      "plan": "Playing needs a Blizzard account. Free games like Hearthstone and Overwatch 2 need nothing else.",
+      "ways": [{ "battlenet": true, "label": "Battle.net", "controller": "pointer", "back": "escape" }]
     },
     {
       "id": "telegram",

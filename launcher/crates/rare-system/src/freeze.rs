@@ -192,7 +192,7 @@ pub fn plan(target: &Target, procs: &[Proc], me: &[u32]) -> Result<Plan, Refuse>
             signal(tree)
         }
         Target::Dir { dir } => {
-            let roots: Vec<u32> = procs.iter().filter(|p| p.cmdline.contains(dir.as_str())).map(|p| p.pid).collect();
+            let roots: Vec<u32> = procs.iter().filter(|p| rare_core::proc::mentions(&p.cmdline, dir)).map(|p| p.pid).collect();
             signal(descendants(procs, &roots))
         }
     }

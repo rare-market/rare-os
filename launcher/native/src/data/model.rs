@@ -247,6 +247,7 @@ pub fn source_label(s: &str) -> &'static str {
         "steam" => "Steam",
         "epic" => "Epic Games",
         "gog" => "GOG",
+        "battlenet" => "Battle.net",
         "itch" => "itch.io",
         "local" => "Local",
         "web" => "Web",

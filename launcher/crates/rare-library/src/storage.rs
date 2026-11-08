@@ -306,6 +306,7 @@ fn source_name(s: Source) -> &'static str {
         Source::Steam => "Steam",
         Source::Epic => "Epic",
         Source::Gog => "GOG",
+        Source::Battlenet => "Battle.net",
         Source::Itch => "itch.io",
         Source::Local => "Games folder",
         Source::Web => "Web game",
@@ -329,6 +330,7 @@ pub fn no_move_reason(g: &Game) -> Option<String> {
         (Source::Cloud, _) => "Cloud games stream and take no space here.",
         (Source::Android, _) => "Android apps stay inside Android on this device.",
         (Source::Emu, _) => "ROMs stay in the emulation folder.",
+        (Source::Battlenet, _) => "Battle.net games move in Battle.net.",
         _ => "This one can't move.",
     };
     Some(r.to_string())

@@ -22,7 +22,7 @@ pub struct Groups {
 fn art_rank(g: &Game) -> u8 {
     match g.source.as_str() {
         "steam" => 0,
-        "epic" | "gog" => 1,
+        "epic" | "gog" | "battlenet" => 1,
         "rare" | "itch" | "local" | "web" | "android" => 2,
         "emu" => 3,
         _ => 4,

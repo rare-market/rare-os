@@ -496,10 +496,11 @@ fn short_name(name: &str, collection: Option<&str>) -> String {
 /// The games a paired PC serves (the stream mock, standing in until WS 8/13's stream data).
 /// The Apps row's entries (apps/catalog.json): id, name, icon.
 /// Game apps first (cloud gaming, Steam), then the rest.
-pub const APPS: [(&str, &str, &str); 11] = [
+pub const APPS: [(&str, &str, &str); 12] = [
     ("xcloud", "Xbox Cloud", "apps/xcloud.png"),
     ("geforcenow", "GeForce NOW", "apps/geforcenow.png"),
     ("steam", "Steam", "apps/steam.png"),
+    ("battlenet", "Battle.net", "apps/battlenet.png"),
     ("chrome", "Google Chrome", "apps/chrome.png"),
     ("youtube", "YouTube", "apps/youtube.png"),
     ("netflix", "Netflix", "apps/netflix.png"),

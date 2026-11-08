@@ -536,6 +536,11 @@ impl App {
                 }
             }
             "qam" => self.st.open(Some(Overlay::Qam)),
+            // The Library on one filter (shots): library:<filter> (battlenet, steam, apps...).
+            "library" => {
+                crate::screens::library::show_filter(rest);
+                self.st.set_tab(Tab::Library, false);
+            }
             "launchfail" => {
                 let mut p = rest.splitn(2, '|');
                 let id = p.next().unwrap_or("").to_string();

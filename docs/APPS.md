@@ -1,6 +1,6 @@
 # Apps
 
-Rare Launcher has an Apps row on Home and an Apps filter in Library, like a console's media row: Telegram, X, Netflix, YouTube, Discord and Google Chrome. Screenshots: `docs/screenshots/apps-*.png`.
+Rare Launcher has an Apps row on Home and an Apps filter in Library, like a console's media row: Steam, Battle.net, Telegram, X, Netflix, YouTube, Discord and Google Chrome. Screenshots: `docs/screenshots/apps-*.png`.
 
 Code: the catalog is `launcher/src/apps/catalog.json`, read by the UI (`launcher/src/apps`) and compiled into the native side (`launcher/src-tauri/src/apps`). Icons are each service's own (apple-touch icons and favicons), bundled in `launcher/public/apps` with a `NOTICE`.
 
@@ -16,6 +16,7 @@ Each app lists ways to open it, best first. The first way the device can use is 
 | YouTube | Chrome app window on `youtube.com/tv` with a TV user agent | none | gamepad |
 | Discord | Discord (`com.discordapp.Discord` Flatpak) | `discord.com/app` in Rare's window | pointer / focus |
 | Google Chrome | Chrome itself, fullscreen, the normal profile | none | pointer |
+| Battle.net | Blizzard's app through umu-run (Proton) in its Wine prefix | none (Rare installs it) | pointer |
 
 - **DRM.** WebKitGTK has no Widevine, so Netflix only opens in Google Chrome or Microsoft Edge (`drm: true`). Chromium and Brave don't count.
 - **Chrome app windows** get their own `--user-data-dir` (`~/.var/app/com.google.Chrome/data/rare-apps/<id>` for the Flatpak), so each app keeps its sign-in and runs as its own Chrome. That is what lets Close end just that app and the running dot follow it. On the SuiPlay0X1 they also get `--force-device-scale-factor=1.5`, the same scale as Rare's UI.
@@ -31,6 +32,30 @@ flatpak install --user -y flathub org.telegram.desktop
 ```
 
 If the user installation has no Flathub remote yet, the command starts with `flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo &&`. Get runs the same thing from the launcher (user scope, no sudo) under `script`, so flatpak draws its progress bar and the page shows a percentage; `app-install` events carry it.
+
+## Battle.net
+
+Blizzard's games (World of Warcraft, Diablo, Overwatch, Hearthstone, StarCraft, Heroes of the Storm, Warcraft III and Call of Duty) come through Battle.net, Blizzard's Windows app. Rare runs it with Proton, the same way it runs Windows games from GOG.
+
+**Getting it.** Open Battle.net in Apps (Home's Apps row or Library > Apps) and press **Get Battle.net**. Rare downloads Blizzard's installer from Blizzard and runs it. Blizzard's own window takes the screen, installs the app (about a minute) and then shows Blizzard's sign-in. Sign in there with your Blizzard account. Rare never sees your password. The pad works as a mouse in Battle.net's window: right stick for the pointer, A to click, Y for the on-screen keyboard. Press the Rare button to come back to Rare; Battle.net stays in the Running list with Resume and Close.
+
+**Installing games.** Install games inside Battle.net, as on a PC. Once a game is installed it shows in **Library > Battle.net** (and in All and on Home), after the next library scan. Press Play in Rare: Rare starts Battle.net, which signs the game in and starts it. Blizzard's games need Battle.net running; Rare takes care of that.
+
+**Already have Battle.net?** Rare finds it and its games in:
+
+- Rare's own prefix, `~/.local/share/rare/prefixes/battlenet` (where Get Battle.net puts it).
+- Steam, when Battle.net was added as a non-Steam game: its prefix in `steamapps/compatdata/<id>`. Rare uses the Proton Steam uses for that shortcut, so the prefix stays as it is.
+- Lutris and other Wine prefixes in `~/Games` (for example `~/Games/battlenet`), Heroic's prefixes, Bottles and `~/.wine`.
+
+Rare reads Battle.net's install list (`drive_c/ProgramData/Battle.net/Agent/product.db`) and, for older installs, each game folder's `.build.info`. Games that are also on Steam (Overwatch 2, Diablo IV, Call of Duty) get Steam's art and share one tile with the Steam copy.
+
+**Updates, uninstall and moving** stay in Battle.net. Open Battle.net from Apps and use the game's settings menu. Rare's Uninstall says so instead of deleting files, since every Battle.net game shares one prefix.
+
+**World of Warcraft with a controller.** World of Warcraft has its own controller mode, off by default. Turn it on once: in the game, type `/console GamePadEnable 1` in the chat, then `/reload`. The game saves it (`SET GamePadEnable "1"` in `WTF/Config.wtf`). Until it is on, Rare shows that tip when World of Warcraft starts. Diablo IV, Diablo II: Resurrected, Overwatch 2 and Call of Duty read the controller on their own. Hearthstone and StarCraft are played with the pointer.
+
+**How Rare starts a game.** `umu-run "<prefix>/drive_c/Program Files (x86)/Battle.net/Battle.net.exe" --exec="launch <code>"`, with `WINEPREFIX` set to the prefix and `PROTONPATH` to its Proton. The codes: WoW (World of Warcraft), WoWC (Classic), D3, Fen (Diablo IV), OSI (Diablo II: Resurrected), Pro (Overwatch 2), WTCG (Hearthstone), Hero, S1, S2, W3. A game Rare has no code for (World of Warcraft Classic Era, a new game) opens Battle.net on its own, and Play there starts it. Battle.net stays open after the game, so Rare counts the game as running while a program from its folder runs, and Quit game closes only the game.
+
+Code: `launcher/crates/rare-library/src/battlenet.rs` (prefixes, games, launch), `launcher/crates/rare-launch/src/apps/battlenet.rs` (Get Battle.net). Device check: `cargo run -p rare-library --example battlenet_scan` prints what Rare finds and the command for each game.
 
 ## The controller outside the launcher
 

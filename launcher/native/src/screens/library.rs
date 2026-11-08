@@ -18,7 +18,7 @@ use rare_render::view::{key, El};
 /// Library's note while Steam waits for a sign-in (`State::steam_sign_in`).
 pub const SIGN_IN_LINE: &str = "Steam games start once you sign in. Steam may ask for a Steam Guard code from your email or the Steam Mobile app.";
 
-const SOURCES: [&str; 13] = ["stream", "emu", "media", "cloud", "android", "rare", "steam", "epic", "gog", "itch", "local", "web", "apps"];
+const SOURCES: [&str; 14] = ["stream", "emu", "media", "cloud", "android", "rare", "steam", "epic", "gog", "battlenet", "itch", "local", "web", "apps"];
 /// The Downloads view's "Not installed games" asks the Library to open on that filter.
 static WANT_NOT_INSTALLED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 

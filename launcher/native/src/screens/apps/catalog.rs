@@ -23,6 +23,7 @@ pub enum WayKind {
     Flatpak,
     Exec,
     Steam,
+    Battlenet,
 }
 
 #[derive(Clone, Debug, Default, Deserialize)]
@@ -35,6 +36,8 @@ pub struct Way {
     pub exec: Option<Vec<String>>,
     /// A steam:// URL: Steam's own UI, an app like the others.
     pub steam: Option<String>,
+    /// Blizzard's Battle.net app through umu-run in its prefix; Rare installs it when missing.
+    pub battlenet: Option<bool>,
     pub label: String,
     pub controller: Option<Controller>,
     /// "escape" or "alt+left".
@@ -68,6 +71,10 @@ pub fn cloud_app(game_id: &str) -> Option<&'static AppEntry> {
         _ => return None,
     })
 }
+
+/// What `Offer::flatpak` is when the offer is Battle.net (native `catalog::BATTLENET`): Blizzard's
+/// installer through umu-run, with no one-line command.
+pub const BATTLENET: &str = "battlenet";
 
 /// Something to install first, with the exact one-line command (native `Offer`).
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -133,6 +140,9 @@ pub fn way_kind(w: &Way) -> Option<WayKind> {
     if w.steam.is_some() {
         set.push(WayKind::Steam);
     }
+    if w.battlenet == Some(true) {
+        set.push(WayKind::Battlenet);
+    }
     if set.len() == 1 {
         Some(set[0])
     } else {
@@ -177,7 +187,8 @@ enum Need {
     Never,
 }
 
-/// The same answer as the native `status`, from a list of installed Flatpaks.
+/// The same answer as the native `status`, from a list of installed Flatpaks (and `battlenet`
+/// when Battle.net is installed).
 pub fn status_for(app: &AppEntry, installed: &[&str], user_flathub: bool) -> AppStatus {
     let browser = BROWSERS.iter().find(|b| (!app.drm || b.drm) && installed.contains(&b.flatpak));
     let need = |w: &Way| -> Need {
@@ -198,12 +209,20 @@ pub fn status_for(app: &AppEntry, installed: &[&str], user_flathub: bool) -> App
                     Need::Flatpak(f.into())
                 }
             }
+            Some(WayKind::Battlenet) => {
+                if installed.contains(&BATTLENET) {
+                    Need::Ready
+                } else {
+                    Need::Flatpak(BATTLENET.into())
+                }
+            }
             _ => Need::Never,
         }
     };
     let ready: Vec<usize> = app.ways.iter().enumerate().filter(|(_, w)| matches!(need(w), Need::Ready)).map(|(i, _)| i).collect();
     let way = ready.first().copied();
     let offer = match need(&app.ways[0]) {
+        Need::Flatpak(f) if f == BATTLENET => Some(Offer { flatpak: f, name: "Battle.net".into(), command: String::new() }),
         Need::Flatpak(f) => {
             let name = BROWSERS
                 .iter()
@@ -282,7 +301,7 @@ macro_rules! icons {
         }
     };
 }
-icons!("steam.png", "telegram.png", "x.png", "netflix.png", "youtube.png", "spotify.png", "twitch.png", "discord.png", "xcloud.png", "geforcenow.png", "chiaki.png", "steamlink.png", "chrome.png");
+icons!("steam.png", "battlenet.png", "telegram.png", "x.png", "netflix.png", "youtube.png", "spotify.png", "twitch.png", "discord.png", "xcloud.png", "geforcenow.png", "chiaki.png", "steamlink.png", "chrome.png");
 
 #[cfg(test)]
 mod tests {
@@ -352,6 +371,11 @@ mod tests {
         // X opens in Rare; Chrome becomes a second way once installed.
         assert!(status_for(get("x"), &[], true).other_ways.is_empty());
         assert_eq!(status_for(get("x"), &["com.google.Chrome"], true).other_ways, vec![1]);
+        // Battle.net: Rare installs it (no Flatpak, no command), then it opens with the pad as a mouse.
+        let b = status_for(get("battlenet"), &[], true);
+        assert_eq!((b.way, b.offer), (None, Some(Offer { flatpak: BATTLENET.into(), name: "Battle.net".into(), command: String::new() })));
+        let b = status_for(get("battlenet"), &[BATTLENET], true);
+        assert_eq!((b.way, b.opens_in.as_deref(), b.controller, b.offer), (Some(0), Some("Battle.net"), Some(Controller::Pointer), None));
         assert_eq!(
             install_command("org.telegram.desktop", false),
             "flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak install --user -y flathub org.telegram.desktop"

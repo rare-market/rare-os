@@ -33,7 +33,7 @@ const sortGames = (games: Game[], sort: Sort): Game[] =>
     : sort === "played"
       ? [...games].sort((a, b) => (b.playtimeMinutes ?? 0) - (a.playtimeMinutes ?? 0))
       : [...games].sort((a, b) => (b.lastPlayed ?? 0) - (a.lastPlayed ?? 0) || a.title.localeCompare(b.title));
-const FILTERS: Filter[] = ["all", "stream", "media", "rare", "steam", "epic", "gog", "itch", "local", "web", "apps"];
+const FILTERS: Filter[] = ["all", "stream", "media", "rare", "steam", "epic", "gog", "battlenet", "itch", "local", "web", "apps"];
 const label = (f: Filter) => (f === "all" ? "All" : f === "media" ? "Apps" : f === "stream" ? "Streaming" : SOURCE_LABEL[f]);
 
 // Another screen asks for a filter before it switches to Library (PC streaming setup: "Show games").
@@ -46,7 +46,7 @@ function initialFilter(): Filter {
   requested = null;
   if (r) return r;
   const q = new URLSearchParams(location.search).get("filter");
-  return q === "apps" ? "media" : q === "stream" ? "stream" : "all";
+  return q === "apps" ? "media" : FILTERS.includes(q as Filter) ? (q as Filter) : "all";
 }
 
 export function Library() {

@@ -7,6 +7,8 @@ pub enum Source {
     Steam,
     Epic,
     Gog,
+    /// Blizzard's games, installed by Battle.net in a Wine or Proton prefix (battlenet.rs).
+    Battlenet,
     Itch,
     Local,
     /// Browser games installed as sandboxed web apps.
