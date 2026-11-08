@@ -1,6 +1,7 @@
 //! Chords on the system buttons, shared across the input threads:
 //!
-//! - Rare (or the pad's Guide) + Y: screenshot; + View: save the last 30 seconds.
+//! - Rare (or the pad's Guide) + Y: screenshot; + View: save the last 30 seconds; + X: Rare's
+//!   keyboard (over a game or app it types into the window that has focus).
 //! - Rare + volume: brightness (volume.rs).
 //! - View + Menu held 0.6 s: the way out of any game or app (the Switcher), whatever has focus.
 //!
@@ -44,22 +45,25 @@ pub(crate) fn guide_used() -> bool {
     GUIDE_USED.load(Ordering::Relaxed)
 }
 
-/// A capture chord.
+/// A chord on the held Rare button (or Guide).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Share {
     /// A screenshot.
     Screenshot,
     /// The last 30 seconds.
     Clip,
+    /// Rare's on-screen keyboard (Rare + X, Steam's Steam + X).
+    Keyboard,
 }
 
-/// Share chords with Guide (or Rare) held: Y saves a screenshot, View the last 30 seconds.
-/// Steam's own Guide chords (R1, X, A, B, L1, d-pad, triggers) are left alone. `p` is already put
-/// back for pads that swap X and Y, so Y is the physical Y.
+/// Chords with Guide (or Rare) held: Y saves a screenshot, View the last 30 seconds, X opens the
+/// keyboard. Steam's other Guide chords (R1, A, B, L1, d-pad, triggers) are left alone. `p` is
+/// already put back for pads that swap X and Y, so Y is the physical Y.
 pub fn share_chord(p: Pad) -> Option<Share> {
     match p {
         Pad::Y => Some(Share::Screenshot),
         Pad::Select => Some(Share::Clip),
+        Pad::X => Some(Share::Keyboard),
         _ => None,
     }
 }
@@ -131,8 +135,9 @@ mod tests {
     fn share_chords() {
         assert_eq!(share_chord(Pad::Y), Some(Share::Screenshot));
         assert_eq!(share_chord(Pad::Select), Some(Share::Clip));
-        // Steam's Guide chords and quick access stay free.
-        for p in [Pad::A, Pad::B, Pad::X, Pad::Rb, Pad::Lb, Pad::Lt, Pad::Rt, Pad::Up, Pad::Start] {
+        assert_eq!(share_chord(Pad::X), Some(Share::Keyboard));
+        // Steam's other Guide chords and quick access stay free.
+        for p in [Pad::A, Pad::B, Pad::Rb, Pad::Lb, Pad::Lt, Pad::Rt, Pad::Up, Pad::Start] {
             assert_eq!(share_chord(p), None);
         }
     }

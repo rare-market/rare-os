@@ -188,6 +188,15 @@ fn with_dev<F: FnOnce(&mut uinput::Device)>(m: &mut Mapper, f: F) {
     }
 }
 
+/// What Y opens in pointer mode, when the launcher has a keyboard of its own that shows over apps
+/// (Rare OS game mode). Without one, Steam's keyboard.
+static KEYBOARD: std::sync::OnceLock<fn()> = std::sync::OnceLock::new();
+
+/// Y in pointer mode opens `f` (the launcher's keyboard over the app) instead of Steam's.
+pub fn set_keyboard(f: fn()) {
+    let _ = KEYBOARD.set(f);
+}
+
 /// True while the pad should drive an app as a mouse and keyboard.
 pub fn active() -> bool {
     super::front::pointer_active()
@@ -206,8 +215,13 @@ pub fn button(b: Pad, down: bool, back: Back) -> bool {
         Action::Pass => false,
         Action::Keyboard => {
             if down {
-                // Steam's keyboard types into whatever window is in front (Game Mode).
-                let _ = crate::launch::steam_url("steam://open/keyboard");
+                match KEYBOARD.get() {
+                    Some(f) => f(),
+                    // Steam's keyboard types into whatever window is in front (Game Mode).
+                    None => {
+                        let _ = crate::launch::steam_url("steam://open/keyboard");
+                    }
+                }
             }
             true
         }

@@ -16,10 +16,10 @@ The SuiPlay0X1's own buttons (Rare, Quick, LC, RC) reach the launcher through In
 | **Rare** + B hold 1.5 s | Nothing | Force quit the app in front, no confirm | Nothing | Nothing | Nothing |
 | **Rare** + volume | Brightness | Brightness | Brightness | Brightness | Nothing |
 | **Quick** press | Quick Settings (again or B closes) | Quick Settings over the game | Swaps to Quick Settings, or closes it | Quick Settings | Nothing |
-| **LC** press (default) | Screenshot | Nothing (Settings > Controls > LC in games, or the game's page) | Screenshot | Nothing | Nothing |
-| **LC** hold 1 s | Save the last 30 s | Only when LC in games is set | Same | Nothing | Nothing |
-| **RC** press (default) | On-screen keyboard | Nothing (Settings > Controls > RC in games, or the game's page) | Nothing | On-screen keyboard | Nothing |
-| **RC** hold 1 s | Performance overlay: next level | Only when RC in games is set | Same | Nothing | Nothing |
+| **LC** press (default) | Screenshot | Nothing (Settings > Controls > LC in games, or the game's page; LC set to Keyboard opens the keyboard here too) | Screenshot | Nothing | Nothing |
+| **LC** hold 1 s | Save the last 30 s | When LC in games is set, or LC is Keyboard | Same | Nothing | Nothing |
+| **RC** press (default) | On-screen keyboard | On-screen keyboard over the game or app, typed into it (Settings > Controls > RC in games, or the game's page) | Nothing | On-screen keyboard | Nothing |
+| **RC** hold 1 s | Performance overlay: next level | When RC in games is set, or RC is Keyboard (the default) | Same | Nothing | Nothing |
 | **Power** press | Sleep | Sleep (game paused in memory) | Sleep | Sleep | Wake |
 | **Power** hold 1 s | Power menu | Same | Same | Same | Wake |
 | **Power** hold 10 s | Hardware off | Same | Same | Same | Same |
@@ -38,7 +38,8 @@ The SuiPlay0X1's own buttons (Rare, Quick, LC, RC) reach the launcher through In
 | **Touch** | Tap focuses and selects; a game never starts from a touch | Game | Tap selects, tap outside closes | Tap selects | Nothing |
 | **View + Menu** hold 0.6 s | Switcher (silent rescue) | Switcher | Switcher | Nothing | Nothing |
 
-- **Remapping.** LC and RC presses can be set to Capture, Keyboard, Performance overlay or Nothing in Settings > Controls (`lcAction`, `rcAction` in the launcher config). Their holds, Rare and Quick are fixed. The SuiPlay has no back paddles.
+- **Remapping.** LC and RC presses can be set to Capture, Keyboard, Performance overlay or Nothing in Settings > Controls (`lcAction`, `rcAction` in the launcher config). Their holds, Rare and Quick are fixed. The SuiPlay has no back paddles. In games, LC and RC do nothing until picked (`lcGameAction`, `rcGameAction`), except that a button set to Keyboard in the launcher is the keyboard in games too.
+- **The keyboard over a game or app.** Rare + X, a Keyboard press of LC or RC, Quick Settings > Keyboard, or Y in an app the pad drives as a mouse. It is drawn in Rare's HUD window, which gamescope paints on the overlay plane like Steam's own keyboard, so the game or app keeps focus, and each key goes out at once on Rare's virtual keyboard (`Rare keyboard` on /dev/uinput, US layout) into whatever has focus: Steam's sign-in and Steam Guard, a game's name field, Chrome. While it is up InputPlumber intercepts the pad, so the app gets no pad input. D-pad moves, A types, X deletes, Y is Shift, Menu is Enter, View is Tab, LB and RB move the cursor, B closes; Rare and Quick close it and do what they always do.
 - **Intercept.** While a game or app has the screen, InputPlumber's intercept mode is `Pass`: everything goes to the game except Rare and Quick, which go only to Rare over D-Bus. While a Rare surface is open it is `All`, so the game sees nothing. The launcher in front is `Pass`.
 - **Sticks, gyro, rumble.** Deadzones, vertical invert, gyro on or off with its sensitivity, "Gyro in Steam games" and rumble strength are in Settings > Controls. The gyro is read through InputPlumber; Steam games see the pad as a Steam Deck while they run.
 

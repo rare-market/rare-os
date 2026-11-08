@@ -1,5 +1,8 @@
-//! The HUD: the volume and brightness bar and toasts, drawn over whatever has the screen (a game,
-//! Chrome, an emulator or the launcher) without taking focus or input from it.
+//! The HUD: the volume and brightness bar, toasts and Rare's keyboard, drawn over whatever has the
+//! screen (a game, Steam, Chrome, an emulator or the launcher) without taking focus or input from
+//! it. The keyboard is drawn here for that reason: the window that has focus keeps it, so the keys
+//! Rare types on its virtual keyboard reach that window (Steam's sign-in, a game's name field),
+//! the way Steam's own keyboard sits in Steam's overlay window over a game.
 //!
 //! gamescope (steamcompmgr.cpp, `pick_primary_focus_and_override` and `paint_all`) treats an X
 //! window on server 0 that carries `STEAM_OVERLAY` = 1 as Steam's overlay: it never becomes the
@@ -72,6 +75,8 @@ fn rgba(r: u8, g: u8, b: u8, a: f32) -> Rgba {
 }
 
 const BG: (u8, u8, u8, f32) = (20, 21, 24, 0.94);
+/// The keyboard panel: opaque, so what is under it never shows through the keys.
+const KB_BG: (u8, u8, u8) = (20, 21, 24);
 const FG: (u8, u8, u8) = (245, 245, 247);
 
 /// Coverage of a pixel at signed distance `d` (negative inside).
@@ -382,6 +387,149 @@ fn draw_icon(cv: &mut Canvas, icon: &Icon, x: f32, y: f32, side: f32, r: f32) {
     }
 }
 
+/// Rare's keyboard as the HUD draws it: four rows of ten keys, then the special row.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Keyboard {
+    /// The four character rows (ten keys each).
+    pub rows: Vec<Vec<String>>,
+    /// The special row's labels (Shift, Space, Delete, Enter, Close).
+    pub special: Vec<String>,
+    /// The special row's flex weights (Space is wide).
+    pub weights: Vec<f32>,
+    /// [row, col]; row 4 is the special row.
+    pub focus: (usize, usize),
+    /// Shift is on (its key is drawn lit).
+    pub shift: bool,
+    /// The line under the keys: what the buttons do.
+    pub hint: String,
+}
+
+/// Sizes of the keyboard panel on a root of `rw` x `rh`: (unit, panel w, panel h, x, y). One unit
+/// is the launcher's rem (min(w / 80, h / 50)); the panel sits at the bottom centre.
+pub fn keyboard_layout(rw: u16, rh: u16) -> (f32, u16, u16, i16, i16) {
+    let u = (rw as f32 / 80.0).min(rh as f32 / 50.0).max(8.0);
+    let w = (52.0 * u).min(rw as f32 - 2.0 * u).round();
+    // Padding, five rows of keys and their gaps, the hint line.
+    let h = (1.2 * u + 5.0 * KEY_H * u + 4.0 * KEY_GAP * u + 0.9 * u + 1.2 * u + 1.0 * u).round();
+    let x = ((rw as f32 - w) / 2.0).round();
+    let y = (rh as f32 - h - 1.0 * u).round().max(0.0);
+    (u, w as u16, h as u16, x as i16, y as i16)
+}
+
+const KEY_H: f32 = 2.5;
+const KEY_GAP: f32 = 0.4;
+
+/// One key's rect inside the panel, in panel pixels: (x, y, w, h).
+fn key_rect(k: &Keyboard, u: f32, pw: f32, r: usize, c: usize) -> (f32, f32, f32, f32) {
+    let pad = 1.2 * u;
+    let inner = pw - 2.0 * pad;
+    let gap = KEY_GAP * u;
+    let kh = KEY_H * u;
+    let y = pad + r as f32 * (kh + gap);
+    if r < 4 {
+        let n = k.rows.get(r).map(|row| row.len()).unwrap_or(10).max(1) as f32;
+        let kw = (inner - gap * (n - 1.0)) / n;
+        (pad + c as f32 * (kw + gap), y, kw, kh)
+    } else {
+        let total: f32 = k.weights.iter().sum::<f32>().max(1.0);
+        let n = k.weights.len().max(1) as f32;
+        let unit = (inner - gap * (n - 1.0)) / total;
+        let x = pad + k.weights.iter().take(c).map(|w| w * unit + gap).sum::<f32>();
+        (x, y, k.weights.get(c).copied().unwrap_or(1.0) * unit, kh)
+    }
+}
+
+fn key_label(k: &Keyboard, r: usize, c: usize) -> &str {
+    if r < 4 {
+        k.rows.get(r).and_then(|row| row.get(c)).map(String::as_str).unwrap_or("")
+    } else {
+        k.special.get(c).map(String::as_str).unwrap_or("")
+    }
+}
+
+/// Every key as (row, col).
+fn key_cells(k: &Keyboard) -> Vec<(usize, usize)> {
+    let mut out = Vec::new();
+    for (r, row) in k.rows.iter().enumerate().take(4) {
+        out.extend((0..row.len()).map(|c| (r, c)));
+    }
+    out.extend((0..k.special.len()).map(|c| (4, c)));
+    out
+}
+
+/// One key's pixels, its panel background included (PutImage replaces what is there).
+fn render_key(text: Option<&Text>, k: &Keyboard, u: f32, pw: f32, r: usize, c: usize) -> (Canvas, i16, i16) {
+    let (x, y, w, h) = key_rect(k, u, pw, r, c);
+    let (x0, y0) = (x.floor(), y.floor());
+    let (cw, ch) = ((x + w).ceil() - x0, (y + h).ceil() - y0);
+    let mut cv = Canvas::new(cw as usize, ch as usize);
+    cv.rrect(0.0, 0.0, cw, ch, 0.0, rgba(KB_BG.0, KB_BG.1, KB_BG.2, 1.0));
+    let focused = k.focus == (r, c);
+    let lit = r == 4 && c == 0 && k.shift;
+    let fill = if focused {
+        rgba(FG.0, FG.1, FG.2, 1.0)
+    } else if lit {
+        rgba(FG.0, FG.1, FG.2, 0.30)
+    } else if r == 4 {
+        rgba(FG.0, FG.1, FG.2, 0.14)
+    } else {
+        rgba(FG.0, FG.1, FG.2, 0.09)
+    };
+    cv.rrect(x - x0, y - y0, w, h, 0.5 * u, fill);
+    if let Some(t) = text {
+        let label = key_label(k, r, c);
+        let size = if r == 4 { 0.9 * u } else { 1.1 * u };
+        let label = t.fit(label, size, w - 0.6 * u);
+        let tw = t.width(&label, size);
+        let color = if focused { rgba(KB_BG.0, KB_BG.1, KB_BG.2, 1.0) } else { rgba(FG.0, FG.1, FG.2, 1.0) };
+        t.draw(&mut cv, &label, (x - x0 + (w - tw) / 2.0).round(), (y - y0 + h / 2.0 + size * 0.36).round(), size, color);
+    }
+    (cv, x0 as i16, y0 as i16)
+}
+
+/// The keyboard panel's background and hint line, without keys.
+fn render_keyboard_panel(text: Option<&Text>, k: &Keyboard, u: f32, pw: u16, ph: u16) -> Canvas {
+    let mut cv = Canvas::new(pw as usize, ph as usize);
+    cv.rrect(0.0, 0.0, pw as f32, ph as f32, 1.0 * u, rgba(KB_BG.0, KB_BG.1, KB_BG.2, 1.0));
+    if let Some(t) = text {
+        let size = 0.8 * u;
+        let line = t.fit(&k.hint, size, pw as f32 - 2.4 * u);
+        let tw = t.width(&line, size);
+        t.draw(&mut cv, &line, (pw as f32 - 1.2 * u - tw).round(), (ph as f32 - 1.2 * u).round(), size, rgba(FG.0, FG.1, FG.2, 0.62));
+    }
+    cv
+}
+
+/// The whole keyboard (panel and keys), for tests and screenshots.
+pub fn render_keyboard(text: Option<&Text>, k: &Keyboard, rw: u16, rh: u16) -> Canvas {
+    let (u, pw, ph, _, _) = keyboard_layout(rw, rh);
+    let mut cv = render_keyboard_panel(text, k, u, pw, ph);
+    for (r, c) in key_cells(k) {
+        let (key, x, y) = render_key(text, k, u, pw as f32, r, c);
+        for ky in 0..key.h {
+            for kx in 0..key.w {
+                let (px, py) = (x as usize + kx, y as usize + ky);
+                if px < cv.w && py < cv.h {
+                    cv.px[py * cv.w + px] = key.px[ky * key.w + kx];
+                }
+            }
+        }
+    }
+    cv
+}
+
+/// The keys whose pixels differ between two states of the same keyboard; None when everything
+/// must be drawn again (another layout, shift changed).
+fn changed_keys(old: &Keyboard, new: &Keyboard) -> Option<Vec<(usize, usize)>> {
+    if old.rows != new.rows || old.special != new.special || old.weights != new.weights || old.shift != new.shift || old.hint != new.hint {
+        return None;
+    }
+    if old.focus == new.focus {
+        return Some(Vec::new());
+    }
+    Some(vec![old.focus, new.focus])
+}
+
 /// The bar's size and place on a root of `rw` x `rh`: top centre.
 pub fn bar_layout(rw: u16, rh: u16) -> (u16, u16, i16, i16) {
     let short = rw.min(rh) as f32;
@@ -512,6 +660,7 @@ mod x {
 enum Msg {
     Bar(Bar),
     Toast(Toast),
+    Keyboard(Option<Keyboard>),
 }
 
 static TX: std::sync::OnceLock<std::sync::Mutex<std::sync::mpsc::Sender<Msg>>> = std::sync::OnceLock::new();
@@ -538,6 +687,12 @@ pub fn toast(title: &str, body: Option<&str>) {
 /// A toast with a picture on its left (an achievement's badge), drawn like `toast`.
 pub fn toast_icon(title: &str, body: Option<&str>, icon: Option<Icon>) {
     send(Msg::Toast(Toast { title: title.to_string(), body: body.map(str::to_string).filter(|b| !b.trim().is_empty()), icon: icon.filter(|i| i.w > 0 && i.h > 0 && i.rgba.len() == i.w * i.h * 4) }));
+}
+
+/// Shows Rare's keyboard as `k` (Some) or takes it down (None), over whatever has the screen
+/// (gamescope sessions only). It stays until taken down; each call redraws only what changed.
+pub fn keyboard(k: Option<Keyboard>) {
+    send(Msg::Keyboard(k));
 }
 
 /// A toast from the page. Drawn only while a game or app has the screen: with the launcher in
@@ -573,6 +728,7 @@ impl Shown {
 
     fn add(&mut self, m: Msg, now: std::time::Instant) {
         match m {
+            Msg::Keyboard(_) => {}
             Msg::Bar(b) => self.bar = Some((b, now + BAR_FOR)),
             Msg::Toast(t) => {
                 self.toasts.retain(|(x, _)| *x != t);
@@ -608,6 +764,18 @@ trait Surface {
     fn flush(&mut self) -> Result<(), String>;
 }
 
+/// The system font, loaded on first use (None, logged once, when there is none).
+fn font(slot: &mut Option<Option<Text>>) -> Option<&Text> {
+    slot.get_or_insert_with(|| {
+        let t = Text::system();
+        if t.is_none() {
+            crate::host::log("[hud] no font for toasts");
+        }
+        t
+    })
+    .as_ref()
+}
+
 /// The HUD's state over time: what is up, the window's opacity, the fade-out.
 #[derive(Default)]
 struct Hud {
@@ -621,17 +789,61 @@ struct Hud {
     /// The toast column drawn last (x, y, w, h), to clear before a redraw.
     column: Option<(i16, i16, u16, u16)>,
     text: Option<Option<Text>>,
+    /// Rare's keyboard, while it is up.
+    kb: Option<Keyboard>,
+    /// The keyboard as it is on the window now, and where (x, y, w, h); None: not drawn.
+    kb_drawn: Option<(Keyboard, (i16, i16, u16, u16))>,
+    /// The keyboard changed since the last draw.
+    kb_dirty: bool,
 }
 
 impl Hud {
     fn add(&mut self, m: Msg, now: std::time::Instant) {
+        if let Msg::Keyboard(k) = m {
+            if k != self.kb {
+                self.kb = k;
+                self.kb_dirty = true;
+            }
+            return;
+        }
         self.shown.add(m, now);
         self.dirty = true;
     }
 
+
+    /// Brings the keyboard on the window up to date: all of it when it first shows (or the layout
+    /// or shift changed), only the keys whose focus moved otherwise; cleared when it went.
+    fn draw_keyboard(&mut self, s: &mut impl Surface) -> Result<(), String> {
+        self.kb_dirty = false;
+        let Some(k) = self.kb.clone() else {
+            if let Some((_, (x, y, w, h))) = self.kb_drawn.take() {
+                s.clear(x, y, w, h)?;
+            }
+            return Ok(());
+        };
+        let (rw, rh) = s.root();
+        let (u, pw, ph, x, y) = keyboard_layout(rw, rh);
+        let keys = match &self.kb_drawn {
+            Some((old, rect)) if *rect == (x, y, pw, ph) => changed_keys(old, &k),
+            _ => None,
+        };
+        let text = font(&mut self.text);
+        match keys {
+            Some(list) => {
+                for (r, c) in list {
+                    let (cv, kx, ky) = render_key(text, &k, u, pw as f32, r, c);
+                    s.put(&cv, x + kx, y + ky)?;
+                }
+            }
+            None => s.put(&render_keyboard(text, &k, rw, rh), x, y)?,
+        }
+        self.kb_drawn = Some((k, (x, y, pw, ph)));
+        Ok(())
+    }
+
     /// When `tick` has work next: an expiry or the next fade step.
     fn next_wake(&self, now: std::time::Instant) -> Option<std::time::Instant> {
-        let fading = self.opacity > 0.0 && self.shown.bar.is_none() && self.shown.toasts.is_empty();
+        let fading = self.opacity > 0.0 && self.shown.bar.is_none() && self.shown.toasts.is_empty() && self.kb.is_none();
         let step = (fading || self.fade_from.is_some()).then(|| now + FADE_STEP);
         [self.shown.next_change(), step].into_iter().flatten().min()
     }
@@ -641,6 +853,8 @@ impl Hud {
         self.opacity = 0.0;
         self.fade_from = None;
         self.column = None;
+        self.kb_drawn = None;
+        self.kb_dirty = self.kb.is_some();
     }
 
     /// Takes everything down at once (gamescope can't draw now); what is still in time shows again
@@ -659,11 +873,16 @@ impl Hud {
     /// fades the window out once nothing is left (`FADE`), then clears it and sets it hidden.
     fn tick(&mut self, s: &mut impl Surface, now: std::time::Instant) -> Result<(), String> {
         let expired = self.shown.expire(now);
-        let visible = self.shown.bar.is_some() || !self.shown.toasts.is_empty();
+        let visible = self.shown.bar.is_some() || !self.shown.toasts.is_empty() || self.kb.is_some();
         if !visible {
             self.dirty = false;
+            if self.kb_drawn.is_some() {
+                // The keyboard went: it goes at once, not with the fade (the app is typed into).
+                self.draw_keyboard(s)?;
+            }
+            self.kb_dirty = false;
             if self.opacity <= 0.0 {
-                return Ok(());
+                return s.flush();
             }
             let from = *self.fade_from.get_or_insert(now);
             let k = 1.0 - now.saturating_duration_since(from).as_secs_f32() / FADE.as_secs_f32();
@@ -680,8 +899,15 @@ impl Hud {
             }
             return s.flush();
         }
-        if !(expired || self.dirty || self.fade_from.is_some() || self.opacity < 1.0) {
+        let rest = expired || self.dirty || self.fade_from.is_some() || self.opacity < 1.0;
+        if !(rest || self.kb_dirty) {
             return Ok(());
+        }
+        if self.kb_dirty {
+            self.draw_keyboard(s)?;
+        }
+        if !rest {
+            return s.flush();
         }
         self.dirty = false;
         self.fade_from = None;
@@ -695,14 +921,7 @@ impl Hud {
             s.clear(x, y, cw, ch)?;
         }
         if !self.shown.toasts.is_empty() {
-            let font = self.text.get_or_insert_with(|| {
-                let t = Text::system();
-                if t.is_none() {
-                    crate::host::log("[hud] no font for toasts");
-                }
-                t
-            });
-            if let Some(font) = font.as_ref() {
+            if let Some(font) = font(&mut self.text) {
                 let ts = toast_sizes(rw, rh);
                 let (x, top) = toast_origin(rw, rh, ts.w, self.shown.bar.map(|_| (bw, bh, bx, by)));
                 let mut y = top;
@@ -754,7 +973,7 @@ fn run(rx: std::sync::mpsc::Receiver<Msg>) {
             continue;
         }
         if win.is_none() {
-            if !hud.dirty {
+            if !hud.dirty && !hud.kb_dirty {
                 // Nothing new to show: no window is needed to expire what was up.
                 hud.shown.expire(Instant::now());
                 continue;
@@ -768,6 +987,7 @@ fn run(rx: std::sync::mpsc::Receiver<Msg>) {
                     crate::host::log(&format!("[hud] no overlay window: {e}"));
                     hud.shown = Shown::default();
                     hud.dirty = false;
+                    hud.kb_dirty = false;
                     continue;
                 }
             }
@@ -995,6 +1215,112 @@ mod tests {
         // Still in time when gamescope can draw again: it shows again.
         hud.tick(&mut rec, t0 + Duration::from_millis(100)).unwrap();
         assert_eq!(rec.opacity, 1.0);
+    }
+
+    fn kb(focus: (usize, usize), shift: bool) -> Keyboard {
+        let row = |s: &str| s.chars().map(|c| c.to_string()).collect::<Vec<_>>();
+        Keyboard {
+            rows: vec![row("1234567890"), row("qwertyuiop"), row("asdfghjkl@"), row("zxcvbnm.-_")],
+            special: ["Shift", "Space", "Delete", "Enter", "Close"].map(String::from).to_vec(),
+            weights: vec![1.4, 4.0, 1.4, 1.4, 1.4],
+            focus,
+            shift,
+            hint: "A Type    B Close".into(),
+        }
+    }
+
+    #[test]
+    fn keyboard_fits_every_root_at_the_bottom() {
+        for (rw, rh) in [(1280u16, 800u16), (1920, 1200), (800, 1280)] {
+            let (u, w, h, x, y) = keyboard_layout(rw, rh);
+            assert!(x >= 0 && y >= 0 && x as u32 + w as u32 <= rw as u32 && y as u32 + h as u32 <= rh as u32, "{rw}x{rh}");
+            // The bottom half: what the app shows above it (a sign-in field) stays visible.
+            assert!(y as u32 >= rh as u32 / 3, "{rw}x{rh}: {y}");
+            let k = kb((1, 0), false);
+            // Every key inside the panel, none overlapping the next.
+            for (r, c) in key_cells(&k) {
+                let (kx, ky, kw, kh) = key_rect(&k, u, w as f32, r, c);
+                assert!(kx >= 0.0 && ky >= 0.0 && kx + kw <= w as f32 + 0.01 && ky + kh <= h as f32, "{r},{c}");
+                if c > 0 {
+                    let (px, _, pw, _) = key_rect(&k, u, w as f32, r, c - 1);
+                    assert!(px + pw < kx);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn keyboard_draws_the_focused_key_white() {
+        let k = kb((1, 0), false);
+        let (rw, rh) = (1920, 1200);
+        let (u, w, _, _, _) = keyboard_layout(rw, rh);
+        let cv = render_keyboard(None, &k, rw, rh);
+        let at = |r, c| {
+            let (x, y, kw, kh) = key_rect(&k, u, w as f32, r, c);
+            cv.px[(y + kh / 2.0) as usize * cv.w + (x + 2.0 + kw / 8.0) as usize]
+        };
+        assert!(at(1, 0)[0] > 0.9, "focused q is white");
+        assert!(at(1, 1)[0] < 0.3, "w is dark");
+        // Opaque panel: the app under it never shows through.
+        assert!((at(1, 1)[3] - 1.0).abs() < 1e-3);
+    }
+
+    #[test]
+    fn keyboard_moves_redraw_two_keys_and_closing_clears_it() {
+        let t0 = Instant::now();
+        let mut hud = Hud::default();
+        hud.text = Some(None);
+        let mut rec = Rec::default();
+        hud.add(Msg::Keyboard(Some(kb((1, 0), false))), t0);
+        hud.tick(&mut rec, t0).unwrap();
+        assert_eq!(rec.opacity, 1.0);
+        assert_eq!(rec.ops.iter().filter(|o| *o == "put").count(), 1, "the whole panel once: {:?}", rec.ops);
+        // It never times out.
+        assert!(hud.next_wake(t0).is_none());
+        hud.tick(&mut rec, t0 + Duration::from_secs(600)).unwrap();
+        assert_eq!(rec.opacity, 1.0);
+
+        rec.ops.clear();
+        hud.add(Msg::Keyboard(Some(kb((1, 1), false))), t0);
+        hud.tick(&mut rec, t0).unwrap();
+        assert_eq!(rec.ops.iter().filter(|o| *o == "put").count(), 2, "old and new focus only: {:?}", rec.ops);
+
+        // Shift: everything again.
+        rec.ops.clear();
+        hud.add(Msg::Keyboard(Some(kb((1, 1), true))), t0);
+        hud.tick(&mut rec, t0).unwrap();
+        assert_eq!(rec.ops.iter().filter(|o| *o == "put").count(), 1);
+
+        // A volume bar meanwhile leaves the keyboard alone.
+        rec.ops.clear();
+        hud.add(vol(30), t0);
+        hud.tick(&mut rec, t0).unwrap();
+        assert!(hud.kb_drawn.is_some());
+
+        // Closed: cleared at once, then the window hides once the bar is gone too.
+        rec.ops.clear();
+        hud.add(Msg::Keyboard(None), t0);
+        hud.tick(&mut rec, t0).unwrap();
+        assert!(rec.ops.contains(&"clear".to_string()), "{:?}", rec.ops);
+        assert!(hud.kb_drawn.is_none());
+        run_out(&mut hud, &mut rec, t0);
+        assert_eq!(rec.opacity, 0.0);
+    }
+
+    #[test]
+    fn keyboard_alone_closes_without_a_fade() {
+        let t0 = Instant::now();
+        let mut hud = Hud::default();
+        hud.text = Some(None);
+        let mut rec = Rec::default();
+        hud.add(Msg::Keyboard(Some(kb((1, 0), false))), t0);
+        hud.tick(&mut rec, t0).unwrap();
+        hud.add(Msg::Keyboard(None), t0);
+        hud.tick(&mut rec, t0).unwrap();
+        assert!(rec.ops.contains(&"clear".to_string()));
+        let done = run_out(&mut hud, &mut rec, t0);
+        assert_eq!(rec.opacity, 0.0);
+        assert!(done <= t0 + FADE + FADE_STEP);
     }
 
     #[test]

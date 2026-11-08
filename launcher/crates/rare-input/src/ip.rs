@@ -209,6 +209,31 @@ mod imp {
     static SURFACE: AtomicBool = AtomicBool::new(false);
     /// The pad goes to a game's touch controls (an Android game with touch spots is in front).
     static DIVERT: AtomicBool = AtomicBool::new(false);
+    /// Rare's keyboard is over a game or app (`capture`): the pad drives the keyboard, not the app.
+    static CAPTURE: AtomicBool = AtomicBool::new(false);
+
+    /// Whether anything wants InputPlumber to intercept the pad now.
+    fn intercept() -> bool {
+        SURFACE.load(Ordering::Relaxed) || DIVERT.load(Ordering::Relaxed) || CAPTURE.load(Ordering::Relaxed)
+    }
+
+    /// Rare's keyboard came up over a game or app (true) or went (false). InputPlumber intercepts
+    /// while it is up, so the app under it gets no pad input; every press comes here and goes to
+    /// the launcher (`apply`), which hands it to the keyboard. The app keeps keyboard focus.
+    pub fn capture(on: bool) {
+        if CAPTURE.swap(on, Ordering::Relaxed) == on {
+            return;
+        }
+        crate::log(&format!("[ip] keyboard capture {on}"));
+        if !LIVE.load(Ordering::Relaxed) {
+            return;
+        }
+        std::thread::spawn(|| {
+            if let Err(e) = set_mode(wanted_mode(intercept())) {
+                crate::log(&format!("[ip] {e}"));
+            }
+        });
+    }
     type Sink = Box<dyn Fn(Pad, bool) -> bool + Send>;
     static SINK: std::sync::Mutex<Option<Sink>> = std::sync::Mutex::new(None);
 
@@ -229,16 +254,16 @@ mod imp {
             return;
         }
         std::thread::spawn(|| {
-            let want = wanted_mode(SURFACE.load(Ordering::Relaxed) || DIVERT.load(Ordering::Relaxed));
-            if let Err(e) = set_mode(want) {
+            if let Err(e) = set_mode(wanted_mode(intercept())) {
                 crate::log(&format!("[ip] {e}"));
             }
         });
     }
 
-    /// An output the sink takes while diverted (no Rare surface up). Repeats are dropped.
+    /// An output the sink takes while diverted (no Rare surface or keyboard up). Repeats are
+    /// dropped.
     fn diverted(o: &Out) -> bool {
-        if !DIVERT.load(Ordering::Relaxed) || SURFACE.load(Ordering::Relaxed) {
+        if !DIVERT.load(Ordering::Relaxed) || SURFACE.load(Ordering::Relaxed) || CAPTURE.load(Ordering::Relaxed) {
             return false;
         }
         let (p, down, repeat) = match *o {
@@ -311,8 +336,7 @@ mod imp {
             return;
         }
         std::thread::spawn(|| {
-            let want = wanted_mode(SURFACE.load(Ordering::Relaxed) || DIVERT.load(Ordering::Relaxed));
-            if let Err(e) = set_mode(want) {
+            if let Err(e) = set_mode(wanted_mode(intercept())) {
                 crate::log(&format!("[ip] {e}"));
             }
         });
@@ -347,7 +371,7 @@ mod imp {
                 return;
             }
             LIVE.store(true, Ordering::Relaxed);
-            if let Err(e) = set_mode(wanted_mode(SURFACE.load(Ordering::Relaxed) || DIVERT.load(Ordering::Relaxed))) {
+            if let Err(e) = set_mode(wanted_mode(intercept())) {
                 crate::log(&format!("[ip] {e}"));
             }
             let mut keys = Keys::default();
@@ -409,7 +433,7 @@ mod imp {
                     checked = now;
                     let up = surface_up();
                     SURFACE.store(up, Ordering::Relaxed);
-                    if let Err(e) = set_mode(wanted_mode(up || DIVERT.load(Ordering::Relaxed))) {
+                    if let Err(e) = set_mode(wanted_mode(intercept())) {
                         crate::log(&format!("[ip] {e}"));
                     }
                 }
@@ -448,10 +472,13 @@ pub fn controls_support() -> Vec<ControlSupport> {
 }
 
 #[cfg(target_os = "linux")]
-pub use imp::{divert, set_divert_sink, start, surface};
+pub use imp::{capture, divert, set_divert_sink, start, surface};
 
 #[cfg(not(target_os = "linux"))]
 pub fn divert(_on: bool) {}
+
+#[cfg(not(target_os = "linux"))]
+pub fn capture(_on: bool) {}
 
 #[cfg(not(target_os = "linux"))]
 pub fn set_divert_sink(_f: impl Fn(Pad, bool) -> bool + Send + 'static) {}

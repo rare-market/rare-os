@@ -700,7 +700,11 @@ fn main() {
                 move |i| match {
                     // Any pad event is activity (idle dim and sleep).
                     rare_native::features::services::touch();
-                    rare_native::features::webgame::pad_input(i)
+                    // Rare's keyboard over a game or app takes the pad first (features/typekb.rs).
+                    match &i {
+                        Input::Press(e) if rare_native::features::typekb::pad(e.pad, e.repeat) => None,
+                        _ => rare_native::features::webgame::pad_input(i),
+                    }
                 } {
                     None => {}
                     Some(Input::Press(e)) => {

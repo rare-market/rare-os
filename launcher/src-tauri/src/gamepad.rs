@@ -27,10 +27,13 @@ pub struct PadEvent {
     pub repeat: bool,
 }
 
-fn share(c: rare_input::chords::Share) -> crate::share::Chord {
+/// The capture chords; the legacy launcher has no keyboard over games (Rare + X is the native
+/// launcher's).
+fn share(c: rare_input::chords::Share) -> Option<crate::share::Chord> {
     match c {
-        rare_input::chords::Share::Screenshot => crate::share::Chord::Screenshot,
-        rare_input::chords::Share::Clip => crate::share::Chord::Clip,
+        rare_input::chords::Share::Screenshot => Some(crate::share::Chord::Screenshot),
+        rare_input::chords::Share::Clip => Some(crate::share::Chord::Clip),
+        rare_input::chords::Share::Keyboard => None,
     }
 }
 
@@ -260,7 +263,11 @@ where
                     }
                     // Share chords work while a game has focus: evdev is read regardless, and the
                     // press never reaches `route`.
-                    Out::Share(c) => crate::share::chord(&app, share(c)),
+                    Out::Share(c) => {
+                        if let Some(c) = share(c) {
+                            crate::share::chord(&app, c)
+                        }
+                    }
                     Out::Exit => {
                         let app = app.clone();
                         std::thread::spawn(move || crate::overlay::exit_chord(&app));

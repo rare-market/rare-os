@@ -48,15 +48,15 @@ impl ControlsSection {
         rows.choice(cx, nav, p1, "btn-rc", "RC", Some("The small button at the top right. Press."), &labels, action_idx(cfg.rc_action.as_deref().unwrap_or("keyboard")), false);
         layout_row(cx, nav, p1);
         setting_row(cx, p1, "Back paddles", Some("This device has none."), false);
-        setting_row(cx, p1, "Holds", Some("Holding LC saves the last 30 seconds and holding RC changes the performance overlay, unless the button is set to Nothing. In games both do nothing until you pick something below. Inside Steam Game Mode Steam keeps Rare and Quick."), false);
+        setting_row(cx, p1, "Holds", Some("Holding LC saves the last 30 seconds and holding RC changes the performance overlay, unless the button is set to Nothing. In games both do nothing until you pick something below, except the keyboard: a button set to Keyboard opens it over games and apps too. Inside Steam Game Mode Steam keeps Rare and Quick."), false);
 
         // In games: the standard map (features/gamebuttons.rs), and LC and RC there (nothing until picked).
         let pg = panel(cx, col);
         let row = setting_row(cx, pg, "In games", Some("Menu is Start, View is Select, A B X Y are the console's buttons by where they sit. Rare and Quick never reach the game. Every emulator follows it."), true);
         let b = button(cx, row.right, "Show", Variant::Secondary, Sz::Md, false).sid("game-buttons").hint("Show").tag(2);
         nav.add(b.group(10));
-        rows.choice(cx, nav, pg, "btn-lc-game", "LC in games", Some("Press, while a game has the screen. A game's own page can pick its own."), &labels, action_idx(cfg.lc_game_action.as_deref().unwrap_or("none")), false);
-        rows.choice(cx, nav, pg, "btn-rc-game", "RC in games", Some("Press, while a game has the screen."), &labels, action_idx(cfg.rc_game_action.as_deref().unwrap_or("none")), false);
+        rows.choice(cx, nav, pg, "btn-lc-game", "LC in games", Some("Press, while a game has the screen. A game's own page can pick its own."), &labels, action_idx(cfg.lc_game_action.as_deref().unwrap_or(crate::side::game_default(rare_input::side::Key::Lc, cfg.lc_action.as_deref()))), false);
+        rows.choice(cx, nav, pg, "btn-rc-game", "RC in games", Some("Press, while a game or app has the screen. Keyboard types into it, Steam's sign-in too."), &labels, action_idx(cfg.rc_game_action.as_deref().unwrap_or(crate::side::game_default(rare_input::side::Key::Rc, cfg.rc_action.as_deref()))), false);
 
         // Rows InputPlumber can't apply yet are left out (rare_input::ip::controls_support), so
         // nothing here saves a value that does nothing.

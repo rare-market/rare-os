@@ -1301,6 +1301,29 @@ impl App {
                 });
             }
             "qs:clip" => crate::side::capture(true),
+            // Quick settings' Keyboard: the panel (and the in-game menu under it) goes first, so
+            // the game or app has the screen and the keyboard opens over it and types into it.
+            "qs:keyboard" => {
+                self.st.open(None);
+                let wait = if self.ingame.is_some() {
+                    self.ingame_resume();
+                    450
+                } else {
+                    150
+                };
+                std::thread::spawn(move || {
+                    std::thread::sleep(std::time::Duration::from_millis(wait));
+                    // The menu's surface can take a moment longer to go: wait for it (up to 1.5 s)
+                    // so the keyboard opens over the app, not under the menu.
+                    for _ in 0..30 {
+                        if !crate::app::surface_up() {
+                            break;
+                        }
+                        std::thread::sleep(std::time::Duration::from_millis(50));
+                    }
+                    crate::side::keyboard();
+                });
+            }
             // The power sheet over the launcher (over a game ingame_act has them).
             "suspend" | "reboot" | "poweroff" => power(&mut self.fx, if a == "suspend" { "suspend" } else if a == "reboot" { "reboot" } else { "poweroff" }),
             "desktop" => power(&mut self.fx, "desktop"),

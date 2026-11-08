@@ -175,9 +175,19 @@ pub fn perf_next() {
     });
 }
 
+/// What LC or RC in games does until it is picked: the keyboard when the button is the keyboard
+/// in the launcher (RC unless changed), else nothing. The keyboard over a game takes nothing from
+/// the game (LC and RC never reach it), and it is how a game or Steam's sign-in gets typed into.
+pub fn game_default(k: Key, launcher: Option<&str>) -> &'static str {
+    match rare_input::side::action(k, launcher) {
+        Action::Keyboard => "keyboard",
+        _ => "none",
+    }
+}
+
 /// LC's or RC's action: the running game's own (its page's Controls), else Settings > Controls.
-/// While a game has the screen it is Settings > Controls > LC / RC in games, which is nothing until
-/// picked (the standard in-game map, rare_emu::controls::STANDARD).
+/// While a game has the screen it is Settings > Controls > LC / RC in games, which until picked is
+/// `game_default` (the standard in-game map, rare_emu::controls::STANDARD).
 fn side_setting(k: Key) -> Option<String> {
     let running: Vec<String> = RUNNING.lock().map(|r| r.iter().map(|(id, _)| id.clone()).collect()).unwrap_or_default();
     if let Some(a) = crate::data::gameset::side_action(&running, k == Key::Lc) {
@@ -186,8 +196,8 @@ fn side_setting(k: Key) -> Option<String> {
     let c = config();
     let in_game = !running.is_empty() && !rare_launch::apps::front::launcher_front();
     match (k, in_game) {
-        (Key::Lc, true) => Some(c.lc_game_action.unwrap_or_else(|| "none".into())),
-        (Key::Rc, true) => Some(c.rc_game_action.unwrap_or_else(|| "none".into())),
+        (Key::Lc, true) => Some(c.lc_game_action.unwrap_or_else(|| game_default(Key::Lc, c.lc_action.as_deref()).into())),
+        (Key::Rc, true) => Some(c.rc_game_action.unwrap_or_else(|| game_default(Key::Rc, c.rc_action.as_deref()).into())),
         (Key::Lc, false) => c.lc_action,
         (Key::Rc, false) => c.rc_action,
     }
@@ -239,9 +249,17 @@ pub fn press(k: Key, down: bool) {
     );
 }
 
-/// A capture chord from the pad (Rare or Guide + Y or View).
+/// A chord from the pad: Rare (or Guide) + Y or View captures, + X the keyboard.
 pub fn chord(s: rare_input::chords::Share) {
-    capture(matches!(s, rare_input::chords::Share::Clip));
+    match s {
+        rare_input::chords::Share::Keyboard => keyboard(),
+        s => capture(matches!(s, rare_input::chords::Share::Clip)),
+    }
+}
+
+/// The keyboard: over the game or app in front (features/typekb.rs), else the launcher's own.
+pub fn keyboard() {
+    push(Req::Keyboard);
 }
 
 #[cfg(test)]
@@ -254,5 +272,16 @@ mod tests {
         let a = take();
         assert!(a.contains(&Req::Keyboard));
         assert!(take().is_empty());
+    }
+
+    #[test]
+    fn keyboard_in_games_follows_the_launcher_until_picked() {
+        // RC is the keyboard unless changed: in games too.
+        assert_eq!(game_default(Key::Rc, None), "keyboard");
+        assert_eq!(game_default(Key::Rc, Some("keyboard")), "keyboard");
+        assert_eq!(game_default(Key::Rc, Some("capture")), "none");
+        // LC captures unless changed: nothing in games; set to Keyboard, the keyboard there too.
+        assert_eq!(game_default(Key::Lc, None), "none");
+        assert_eq!(game_default(Key::Lc, Some("keyboard")), "keyboard");
     }
 }

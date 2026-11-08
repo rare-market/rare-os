@@ -53,11 +53,22 @@ impl App {
             let running: Vec<(String, String)> = self.st.running.iter().map(|rid| (rid.clone(), self.st.run_name(rid))).collect();
             crate::side::set_running(running);
         }
+        crate::features::typekb::tick();
         for r in crate::side::take() {
             match r {
                 crate::side::Req::Toast(text, err) => self.st.toast(text, if err { Tone::Error } else { Tone::Info }, now),
                 crate::side::Req::Keyboard => {
-                    if self.st.osk.is_some() {
+                    // Over a game or app (Steam's sign-in too): Rare's keyboard in the HUD's
+                    // overlay window, typing into the app. The launcher's own keyboard is part of
+                    // the launcher's window, behind the app, so it never showed there.
+                    if crate::features::typekb::is_open() {
+                        crate::features::typekb::close();
+                    } else if crate::features::typekb::wanted() {
+                        crate::features::typekb::open();
+                    } else if crate::features::typekb::available() && rare_overlay::gamescope::other_app_shown() {
+                        // A Rare surface is over the app (the Rare menu): nothing, as Rare + X
+                        // there. The launcher's keyboard would open behind the app, unseen.
+                    } else if self.st.osk.is_some() {
                         self.st.osk = None;
                     } else if self.st.overlay.is_none() {
                         self.ask_search();

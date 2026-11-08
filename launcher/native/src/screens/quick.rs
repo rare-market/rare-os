@@ -41,6 +41,7 @@ const SHARE: u32 = 16;
 const TDP: u32 = 17;
 const REPLAY: u32 = 18;
 const STEAM: u32 = 19;
+const KEYBOARD: u32 = 20;
 const PROFILE: u32 = 100;
 const HUD: u32 = 200;
 const FPSC: u32 = 300;
@@ -373,6 +374,7 @@ impl Page for QuickSettings {
         let all = ui
             .bx(s().grid(&[Track::Fr(1.0), Track::Fr(1.0)]).gap(0.5).mt_auto())
             .group(Group::new("qam-end", [0.0; 4]))
+            .child(qbtn(ui, "keyboard", "Keyboard", acts.tag(Act::Local(KEYBOARD)), Some("Open the keyboard"), true))
             .child(qbtn(ui, "settings", "All settings", acts.tag(Act::Local(SETTINGS)), None, false))
             .child(qbtn(ui, "gamepad-2", "Open Steam", acts.tag(Act::Local(STEAM)), Some("Open Steam"), false));
         let small = T::new(Ty::Small).c(tok::fg(0.7));
@@ -593,6 +595,9 @@ impl Page for QuickSettings {
             // Capture: the app closes Quick settings first so the shot is of the game or the screen
             // under it, not of this panel.
             SHOT => fx.run(Act::Legacy("qs:screenshot".into())),
+            // The keyboard over the game or app under the panel (or the launcher's own); the app
+            // closes the panel first so the app has the screen and focus.
+            KEYBOARD => fx.run(Act::Legacy("qs:keyboard".into())),
             CLIP => fx.run(Act::Legacy("qs:clip".into())),
             REPLAY => {
                 fx.fb(Feedback::Toggle);

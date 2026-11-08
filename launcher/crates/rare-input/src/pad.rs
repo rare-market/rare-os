@@ -801,7 +801,9 @@ mod tests {
         if cfg!(target_os = "linux") {
             // On the SuiPlay's pad the physical Y arrives as West and is put back first.
             assert_eq!(map_button_for(Btn::West, xbox_xy_swapped("Handheld Daemon Controller")).and_then(chords::share_chord), Some(Share::Screenshot));
-            assert_eq!(map_button_for(Btn::North, xbox_xy_swapped("Handheld Daemon Controller")).and_then(chords::share_chord), None);
+            // The physical X (North after the swap) is Rare + X, the keyboard.
+            assert_eq!(map_button_for(Btn::North, xbox_xy_swapped("Handheld Daemon Controller")).and_then(chords::share_chord), Some(Share::Keyboard));
+            assert_eq!(map_button_for(Btn::South, xbox_xy_swapped("Handheld Daemon Controller")).and_then(chords::share_chord), None);
         }
     }
 
@@ -938,6 +940,8 @@ mod tests {
         chords::RARE_HELD.store(true, Ordering::Relaxed);
         assert_eq!(run(&mut m, 1, Ev::Pressed(Btn::North), t), vec![Out::Share(Share::Screenshot)]);
         assert!(chords::RARE_CHORD_USED.load(Ordering::Relaxed));
+        // Rare + X: the keyboard, and X never reaches the launcher as a press.
+        assert_eq!(run(&mut m, 1, Ev::Pressed(Btn::West), ms(t, 100)), vec![Out::Share(Share::Keyboard)]);
         chords::RARE_HELD.store(false, Ordering::Relaxed);
         chords::RARE_CHORD_USED.store(false, Ordering::Relaxed);
         assert_eq!(run(&mut m, 1, Ev::Pressed(Btn::North), ms(t, 500)), vec![Out::Press(Pad::Y, false)]);
