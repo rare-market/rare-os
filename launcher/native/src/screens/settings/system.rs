@@ -53,6 +53,9 @@ impl SystemSection {
 
 impl SectionView for SystemSection {
     fn press(&mut self, cx: &mut Cx, nav: &mut Nav, cfg: &mut Config, now: f64) -> SectionOut {
+        if self.update.press_details(cx, nav) {
+            return SectionOut::None;
+        }
         if let Some(a) = self.update.press(nav) {
             return SectionOut::Act(a.into());
         }

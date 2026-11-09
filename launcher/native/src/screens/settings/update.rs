@@ -98,6 +98,28 @@ pub fn ago_text(at_sec: Option<f64>, now_ms: f64) -> String {
 pub struct UpdateLine {
     pub title: String,
     pub body: String,
+    /// The updater's own error words behind Details, when the body says it in plain words instead.
+    pub detail: Option<String>,
+}
+
+/// The generic words for a failed check.
+pub const CHECK_FAILED: &str = "Rare OS could not check for updates. It tries again by itself.";
+
+/// A failed check in plain words, and the raw error to keep behind Details. os-update's own
+/// sentences for free space and battery stay as they are; no network says so; anything else
+/// (a missing or bad signature, a registry error) gets the generic words.
+pub fn failed_words(err: Option<&str>) -> (String, Option<String>) {
+    let Some(e) = err.map(str::trim).filter(|e| !e.is_empty()) else { return (CHECK_FAILED.into(), None) };
+    let l = e.to_lowercase();
+    if l.starts_with("there is not enough free space") || l.starts_with("the battery is at") {
+        let body = if l.contains("try again") || l.contains("tries again") { e.to_string() } else { format!("{e} It tries again by itself.") };
+        return (body, None);
+    }
+    let offline = ["offline", "could not be reached", "resolv", "temporary failure", "network is unreachable", "no route", "dns", "timed out", "timeout", "connection refused"];
+    if offline.iter().any(|w| l.contains(w)) {
+        return ("No internet connection. It tries again by itself.".into(), Some(e.to_string()));
+    }
+    (CHECK_FAILED.into(), Some(e.to_string()))
 }
 
 /// The Updates row's words for a state. `checking` is a check started from this launcher.
@@ -109,6 +131,7 @@ pub fn update_line(u: &OsUpdate, checking: bool, now_ms: f64) -> UpdateLine {
                 None => "Ready. Restart to update".into(),
             },
             body: "It is downloaded and installs while the device restarts. Restart now, or keep playing and do it later.".into(),
+            detail: None,
         };
     }
     let name = |v: &Option<String>| v.as_ref().map(|v| format!("Rare OS {v}")).unwrap_or_else(|| "the update".into());
@@ -120,10 +143,10 @@ pub fn update_line(u: &OsUpdate, checking: bool, now_ms: f64) -> UpdateLine {
             }
             _ => "It downloads in the background, so you can keep playing.".into(),
         };
-        return UpdateLine { title: format!("Downloading {}", name(&u.offer_version)), body };
+        return UpdateLine { title: format!("Downloading {}", name(&u.offer_version)), body, detail: None };
     }
     if u.busy.is_some() || checking {
-        return UpdateLine { title: "Checking for updates".into(), body: "Looking for a new version. A download goes on in the background.".into() };
+        return UpdateLine { title: "Checking for updates".into(), body: "Looking for a new version. A download goes on in the background.".into(), detail: None };
     }
     if let Some(w) = &u.waiting {
         let body = match w.as_str() {
@@ -132,7 +155,7 @@ pub fn update_line(u: &OsUpdate, checking: bool, now_ms: f64) -> UpdateLine {
             "metered" => "It downloads by itself on a network that is not metered. Update now downloads it on this one.",
             _ => "It downloads by itself soon.",
         };
-        return UpdateLine { title: "Update waiting to download".into(), body: body.into() };
+        return UpdateLine { title: "Update waiting to download".into(), body: body.into(), detail: None };
     }
     if u.stopped {
         let done = match (u.bytes, u.bytes_total) {
@@ -142,32 +165,27 @@ pub fn update_line(u: &OsUpdate, checking: bool, now_ms: f64) -> UpdateLine {
         return UpdateLine {
             title: "The update stopped before it finished".into(),
             body: format!("It goes on from where it stopped within the hour, or now with Update now.{done}"),
+            detail: None,
         };
     }
     match u.result.as_deref() {
         Some("skipped") => {
-            return UpdateLine { title: "Rare OS is up to date".into(), body: u.check_error.clone().unwrap_or_else(|| "A version that did not work on this device is skipped.".into()) };
+            return UpdateLine { title: "Rare OS is up to date".into(), body: u.check_error.clone().unwrap_or_else(|| "A version that did not work on this device is skipped.".into()), detail: None };
         }
         Some("unsupported") => {
-            return UpdateLine { title: "Updates are not set up on this device".into(), body: u.check_error.clone().unwrap_or_else(|| "This build has no update source.".into()) };
+            return UpdateLine { title: "Updates are not set up on this device".into(), body: u.check_error.clone().unwrap_or_else(|| "This build has no update source.".into()), detail: None };
         }
         _ => {}
     }
     if u.check_ok == Some(false) {
-        return UpdateLine {
-            title: "Could not update".into(),
-            body: {
-                let e = u.check_error.clone().unwrap_or_else(|| "The last check did not finish.".into());
-                // os-update's own words may say it already ("It tries again later.")
-                if e.contains("tries again") { e } else { format!("{e} It tries again by itself.") }
-            },
-        };
+        let (body, detail) = failed_words(u.check_error.as_deref());
+        return UpdateLine { title: "Could not update".into(), body, detail };
     }
     let checked = match u.checked_at.filter(|a| *a != 0.0) {
         Some(_) => format!("Last checked {}.", ago_text(u.checked_at, now_ms)),
         None => "Not checked yet.".into(),
     };
-    UpdateLine { title: "Rare OS is up to date".into(), body: format!("{checked} Updates download by themselves and install at the next restart.") }
+    UpdateLine { title: "Rare OS is up to date".into(), body: format!("{checked} Updates download by themselves and install at the next restart."), detail: None }
 }
 
 /// The staged version to announce once per launch, or None (nothing staged, or already announced).
@@ -255,6 +273,28 @@ pub struct UpdateRows {
     pub panel: Id,
     check_btn: Id,
     info: SystemInfo,
+    /// The update row's body, its plain words, the raw error behind Details and the Details label.
+    details: Option<Details>,
+}
+
+struct Details {
+    body: Id,
+    plain: String,
+    raw: String,
+    label: Id,
+    shown: bool,
+}
+
+/// The last failed check's raw error already in the log (the rows rebuild often).
+static LOGGED_ERROR: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
+
+fn log_check_error(e: &str) {
+    if let Ok(mut g) = LOGGED_ERROR.lock() {
+        if g.as_deref() != Some(e) {
+            log::warn!("[settings] update check failed: {e}");
+            *g = Some(e.to_string());
+        }
+    }
 }
 
 impl UpdateRows {
@@ -269,6 +309,19 @@ impl UpdateRows {
         let busy = info.checking || info.update.busy.is_some();
         let line = update_line(&info.update, info.checking, now_ms);
         let row_ = setting_row(cx, panel, &line.title, Some(&line.body), false);
+        let details = match (&line.detail, row_.body) {
+            (Some(raw), Some(body)) => {
+                log_check_error(raw);
+                let b = button(cx, row_.right, "Details", Variant::Secondary, Sz::Md, false).hint("Show details").sid("update-details").tag(6);
+                let label = match b.kind {
+                    Kind::Btn { text, .. } => text,
+                    _ => b.id,
+                };
+                nav.add(b.group(10));
+                Some(Details { body, plain: line.body.clone(), raw: raw.clone(), label, shown: false })
+            }
+            _ => None,
+        };
         let check_btn = if info.update.staged {
             let b = button(cx, row_.right, "Restart now", Variant::Primary, Sz::Md, false).hint("Restart to update").sid("updates").tag(1);
             nav.add(b.group(10))
@@ -306,7 +359,23 @@ impl UpdateRows {
         let r = setting_row(cx, panel, "Boot menu", Some(body), false);
         let b = button(cx, r.right, if info.menu_set { "Set for next start" } else { "Show next start" }, if info.menu_set { Variant::Dimmed } else { Variant::Secondary }, Sz::Md, false).hint("Boot menu next start").sid("boot-menu").tag(4);
         nav.add(b.group(10));
-        UpdateRows { panel, check_btn, info }
+        UpdateRows { panel, check_btn, info, details }
+    }
+
+    /// A on Details shows or hides the updater's own error under the plain words. True when it was Details.
+    pub fn press_details(&mut self, cx: &mut Cx, nav: &mut Nav) -> bool {
+        if !nav.current().is_some_and(|f| f.tag == 6 && f.sid == "update-details") {
+            return false;
+        }
+        let Some(d) = self.details.as_mut() else { return false };
+        d.shown = !d.shown;
+        let body = if d.shown { format!("{}\n{}", d.plain, d.raw) } else { d.plain.clone() };
+        cx.scene.set_text(cx.t, d.body, &body);
+        cx.scene.set_text(cx.t, d.label, if d.shown { "Hide details" } else { "Details" });
+        if let Some(f) = nav.items.iter_mut().find(|f| f.tag == 6 && f.sid == "update-details") {
+            f.hint = if d.shown { "Hide details".into() } else { "Show details".into() };
+        }
+        true
     }
 
     /// A on one of the update buttons: the host action, or None.
@@ -341,7 +410,10 @@ impl UpdateSection {
 }
 
 impl SectionView for UpdateSection {
-    fn press(&mut self, _cx: &mut Cx, nav: &mut Nav, _cfg: &mut Config, _now: f64) -> SectionOut {
+    fn press(&mut self, cx: &mut Cx, nav: &mut Nav, _cfg: &mut Config, _now: f64) -> SectionOut {
+        if self.rows.press_details(cx, nav) {
+            return SectionOut::None;
+        }
         match self.rows.press(nav) {
             Some(a) => SectionOut::Act(a.into()),
             None => SectionOut::None,
@@ -377,7 +449,7 @@ mod tests {
     fn checking_failed_up_to_date() {
         assert_eq!(update_line(&OsUpdate::default(), true, NOW).title, "Checking for updates");
         let failed = OsUpdate { check_ok: Some(false), check_error: Some("offline".into()), ..Default::default() };
-        assert!(update_line(&failed, false, NOW).body.contains("offline"));
+        assert_eq!(update_line(&failed, false, NOW).body, "No internet connection. It tries again by itself.");
         let ok = update_line(&OsUpdate { check_ok: Some(true), checked_at: Some(SEC - 7200.0), ..Default::default() }, false, NOW);
         assert_eq!(ok.title, "Rare OS is up to date");
         assert!(ok.body.contains("2 hours ago"));
@@ -411,6 +483,23 @@ mod tests {
             let l = update_line(&u, false, NOW);
             assert!(!(l.title + &l.body).contains(['\u{2014}', '\u{2013}']));
         }
+    }
+
+    #[test]
+    fn a_failed_check_says_it_plainly_and_keeps_the_error_for_details() {
+        let raw = "Fetching manifest: failed to invoke method OpenImage: A signature was required, but no signature exists";
+        let l = update_line(&OsUpdate { check_ok: Some(false), check_error: Some(raw.into()), ..Default::default() }, false, NOW);
+        assert_eq!(l.title, "Could not update");
+        assert_eq!(l.body, CHECK_FAILED);
+        assert_eq!(l.detail.as_deref(), Some(raw));
+        let off = update_line(&OsUpdate { check_ok: Some(false), check_error: Some("The device is offline or the update server could not be reached.".into()), ..Default::default() }, false, NOW);
+        assert_eq!(off.body, "No internet connection. It tries again by itself.");
+        assert!(off.detail.is_some());
+        let space = "There is not enough free space for the update. Free some space and try again.";
+        let l = update_line(&OsUpdate { check_ok: Some(false), check_error: Some(space.into()), ..Default::default() }, false, NOW);
+        assert_eq!((l.body.as_str(), l.detail), (space, None));
+        let l = update_line(&OsUpdate { check_ok: Some(false), ..Default::default() }, false, NOW);
+        assert_eq!((l.body.as_str(), l.detail), (CHECK_FAILED, None));
     }
 
     #[test]
