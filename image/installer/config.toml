@@ -13,27 +13,53 @@ chvt 6
 # A handheld panel is 1920x1200 at about 7 inches: the 8x16 console font is unreadable there.
 setfont -C /dev/tty6 latarcyrheb-sun32 2>/dev/null || setfont latarcyrheb-sun32 2>/dev/null || true
 printf '\\033[?25l'
-# The internal drive: the largest non-removable, non-USB disk.
-best=""; bestsize=0
+# The disk the installer started from (the stick), whatever bus it is on.
+src=""
+srcdev=$(findmnt -no SOURCE /run/install/repo 2>/dev/null | head -1)
+[ -n "$srcdev" ] && src=$(lsblk -dno PKNAME "$srcdev" 2>/dev/null | head -1)
+[ -z "$src" ] && [ -n "$srcdev" ] && src=$(basename "$srcdev")
+# The internal drive: an NVMe drive first (handhelds have one), else the largest other fixed disk.
+# Never USB devices (the stick, a USB drive or card reader), removable media, SD and eMMC cards
+# (mmcblk: a microSD slot reports itself as not removable), or the disk the installer started from.
+best=""; bestsize=0; bestrank=9
 for d in /sys/block/*; do
     n=$(basename "$d")
-    case "$n" in loop*|ram*|zram*|sr*|dm-*|md*) continue ;; esac
+    case "$n" in loop*|ram*|zram*|sr*|dm-*|md*|mmcblk*|nbd*|fd*|zd*) continue ;; esac
+    [ "$n" = "$src" ] && continue
     [ "$(cat "$d/removable" 2>/dev/null)" = 1 ] && continue
-    readlink -f "$d" | grep -q "/usb" && continue
-    s=$(cat "$d/size")
-    [ "$s" -gt "$bestsize" ] && { best=$n; bestsize=$s; }
+    [ "$(cat "$d/hidden" 2>/dev/null)" = 1 ] && continue
+    readlink -f "$d" | grep -qE "/usb|/mmc" && continue
+    s=$(cat "$d/size" 2>/dev/null || echo 0)
+    [ "$s" -gt 0 ] || continue
+    case "$n" in nvme*) rank=0 ;; *) rank=1 ;; esac
+    if [ "$rank" -lt "$bestrank" ] || { [ "$rank" = "$bestrank" ] && [ "$s" -gt "$bestsize" ]; }; then
+        best=$n; bestsize=$s; bestrank=$rank
+    fi
 done
-[ -n "$best" ] || { echo "No internal drive found."; sleep 600; exit 1; }
+printf '\\033[2J\\033[H'
+[ -n "$best" ] || { printf '\\n   Rare OS installer\\n\\n   No internal drive was found, so nothing was changed.\\n   Hold the power button to turn off.\\n'; sleep 3600; exit 1; }
 model=$(cat /sys/block/$best/device/model 2>/dev/null | xargs)
 gb=$((bestsize * 512 / 1000000000))
-printf '\\033[2J\\033[H'
+[ "$gb" -ge 40 ] || { printf '\\n   Rare OS installer\\n\\n   The internal drive (%s, %s GB) is too small: Rare OS needs 40 GB.\\n   Nothing was changed. Hold the power button to turn off.\\n' "$best" "$gb"; sleep 3600; exit 1; }
+# Secure Boot on: Rare OS's kernel is signed with Universal Blue's key, which the firmware must
+# trust once (%post queues it; a blue key screen asks at the first start).
+sb=0
+v=/sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+[ -r "$v" ] && [ "$(od -An -t u1 "$v" | awk '{print $NF}')" = 1 ] && sb=1
+echo "$sb" > /tmp/rare-secureboot
 echo
 echo "   Rare OS installer"
 echo
 echo "   This erases ${model:-the internal drive} ($best, ${gb} GB) and installs Rare OS."
 echo "   Everything on that drive is removed. The USB stick is not touched."
 echo
-for i in $(seq 20 -1 1); do printf "\r   Starting in %2d s. Hold the power button to cancel. " "$i"; sleep 1; done
+if [ "$sb" = 1 ]; then
+    echo "   Secure Boot is on. After the install a blue screen asks to trust Rare OS's key:"
+    echo "   that needs a USB keyboard (password: rare). No keyboard? Cancel now and turn"
+    echo "   Secure Boot off in the firmware settings."
+    echo
+fi
+for i in $(seq 20 -1 1); do printf "\\r   Starting in %2d s. Hold the power button to cancel. " "$i"; sleep 1; done
 
 # Rare's install screen until the restart: the step, the time so far, a dot that moves every second.
 echo "$best" > /tmp/rare-target
@@ -91,6 +117,22 @@ reboot --eject
 # Anaconda leaves a text-mode install (cmdline, above) on multi-user.target: game mode never starts.
 %post --erroronfail
 systemctl set-default graphical.target
+%end
+
+# Secure Boot on: Rare OS's kernel is signed with Universal Blue's key, so queue that key for shim's
+# blue key screen at the first start (password rare, no timeout), as get-rare-os.sh does.
+%post --log=/var/log/rare-secureboot.log
+v=/sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+[ -d /sys/firmware/efi/efivars ] && ! mountpoint -q /sys/firmware/efi/efivars && mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+if [ -r "$v" ] && [ "$(od -An -t u1 "$v" | awk '{print $NF}')" = 1 ]; then
+    echo "Secure Boot is on: queueing the ublue kernel key"
+    key=/etc/pki/akmods/certs/akmods-ublue.der
+    mokutil --timeout -1 || true
+    printf 'rare\\nrare\\n' | mokutil --import "$key" || true
+    mokutil --list-new
+else
+    echo "Secure Boot is off"
+fi
 %end
 """
 

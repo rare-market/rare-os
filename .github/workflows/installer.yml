@@ -1,0 +1,171 @@
+name: Rare OS installer
+
+# Builds the USB installer ISO from the published image (no image build): resolves the tag to a
+# digest, pulls it under the device's signature policy (image/keys/rare-os.pub) and checks it with
+# cosign, builds the ISO (image/installer/config.toml, then finish-iso.sh), checks that the ISO
+# carries exactly that image, and attaches it to a draft release. The installed system follows
+# $REGISTRY_IMAGE:stable and updates from it with signature checks, like every device.
+#
+# GitHub release files must be under 2 GiB and the ISO is about 8 GB, so it goes up in parts
+# (rare-os-installer.iso.part0, part1, ...); joined in order they are the ISO, whose SHA-256 is in
+# rare-os-installer.iso.sha256. rare.market/os/rare-os-installer.iso serves the joined file.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Draft release tag (installer-0.1.2); empty uploads the ISO as a workflow artifact only
+        default: ''
+      image_tag:
+        description: Published image tag to build from
+        default: stable
+
+permissions:
+  contents: write
+  packages: read
+
+env:
+  REGISTRY_IMAGE: ${{ vars.RARE_IMAGE_REPO || format('ghcr.io/{0}', github.repository) }}
+  # bootc-image-builder reads the host's storage at /var/lib/containers/storage, and podman refuses a database
+  # made under another path: the storage lives on the larger disk, bind-mounted at the default path.
+  STORAGE: /var/lib/containers/storage
+  WORK: /mnt/rare-iso
+  # The published image as an OCI layout, on the root disk (the larger one is busy with the build).
+  PAYLOAD: /home/runner/rare-payload
+
+jobs:
+  iso:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache \
+            /usr/local/share/boost /usr/share/swift /usr/local/share/powershell /usr/lib/jvm /opt/microsoft \
+            /opt/google /usr/local/lib/node_modules /usr/local/share/chromium /opt/az
+          sudo docker system prune -af >/dev/null 2>&1 || true
+          sudo swapoff -a || true; sudo rm -f /mnt/swapfile /swapfile
+          df -h / /mnt
+
+      - name: Podman storage on the larger disk
+        run: |
+          sudo mkdir -p /mnt/containers-storage "$STORAGE" "$WORK"
+          sudo mount --bind /mnt/containers-storage "$STORAGE"
+          sudo podman info --format '{{.Store.GraphRoot}} {{.Version.Version}}'
+          echo 'set man-db/auto-update false' | sudo debconf-communicate >/dev/null 2>&1 || true
+          sudo rm -f /var/lib/man-db/auto-update
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends skopeo xorriso mtools jq >/dev/null
+
+      - name: Pull the published image as a device would
+        id: image
+        run: |
+          digest="$(skopeo inspect --retry-times 3 --format '{{.Digest}}' "docker://$REGISTRY_IMAGE:${{ inputs.image_tag }}")"
+          echo "$REGISTRY_IMAGE:${{ inputs.image_tag }} is $digest"
+          # The device's policy for this repo (image/build/build.sh): sigstore signature by
+          # image/keys/rare-os.pub, read from the legacy .sig attachment. The pull fails if it is not signed.
+          sudo mkdir -p /etc/containers/registries.d
+          printf 'docker:\n  %s:\n    use-sigstore-attachments: true\n' "$REGISTRY_IMAGE" | sudo tee /etc/containers/registries.d/rare-os.yaml
+          jq -n --arg repo "$REGISTRY_IMAGE" --arg key "$PWD/image/keys/rare-os.pub" \
+            '{default:[{type:"insecureAcceptAnything"}],transports:{docker:{($repo):[{type:"sigstoreSigned",keyPath:$key,signedIdentity:{type:"matchRepository"}}]}}}' \
+            | sudo tee /etc/containers/policy.json
+          sudo podman pull "$REGISTRY_IMAGE@$digest"
+          curl -fsSLo /tmp/cosign https://github.com/sigstore/cosign/releases/download/v2.4.3/cosign-linux-amd64
+          echo "caaad125acef1cb81d58dcdc454a1e429d09a750d1e9e2b3ed1aed8964454708  /tmp/cosign" | sha256sum -c --quiet && chmod +x /tmp/cosign
+          /tmp/cosign verify --key image/keys/rare-os.pub --insecure-ignore-tlog=true "$REGISTRY_IMAGE@$digest" >/dev/null
+          echo "signature checked with image/keys/rare-os.pub"
+          # The exact published image for the ISO, from the registry with its digests; the policy is checked on
+          # the way in (an OCI layout cannot carry the signature, so it is not copied).
+          sudo skopeo copy --retry-times 3 --preserve-digests --remove-signatures "docker://$REGISTRY_IMAGE@$digest" "oci:$PAYLOAD:stable"
+          # bootc-image-builder takes the installer's packages from the image's /etc/yum.repos.d, and Fedora 45
+          # keeps its repo files in /usr/share/dnf5/repos.d: the ISO is built from a copy with them added, and
+          # set-payload.sh then puts the published image (above) in the ISO. The installed system follows the
+          # ref the ISO is built from (bib's %post bootc switch), so the copy carries that name.
+          printf 'FROM %s\nRUN cp /usr/share/dnf5/repos.d/fedora.repo /usr/share/dnf5/repos.d/fedora-updates.repo /etc/yum.repos.d/\n' \
+            "$REGISTRY_IMAGE@$digest" | sudo podman build --pull=never -t "$REGISTRY_IMAGE:stable" -f - .
+          id="$(sudo podman image inspect --format '{{.Id}}' "$REGISTRY_IMAGE@$digest")"
+          version="$(sudo podman image inspect --format '{{index .Labels "org.opencontainers.image.version"}}' "$REGISTRY_IMAGE@$digest")"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "config=sha256:${id#sha256:}" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Rare OS $version, $digest (config sha256:${id#sha256:})"
+
+      - name: Build the installer ISO
+        run: |
+          sudo podman run --rm --privileged --pull=newer --security-opt label=type:unconfined_t \
+            -v "$PWD/image/installer/config.toml:/config.toml:ro" -v "$WORK:/output" \
+            -v "$STORAGE:/var/lib/containers/storage" \
+            quay.io/centos-bootc/bootc-image-builder:latest \
+            --type anaconda-iso --rootfs btrfs --use-librepo=True "$REGISTRY_IMAGE:stable"
+          sudo image/installer/set-payload.sh "$WORK/bootiso/install.iso" "$PAYLOAD" "$WORK/payload.iso"
+          sudo rm -rf "$WORK/bootiso" "$WORK/manifest-anaconda-iso.json" "$PAYLOAD"
+          sudo image/installer/finish-iso.sh "$WORK/payload.iso" "$WORK/rare-os-installer.iso"
+          sudo rm -f "$WORK/payload.iso"
+          sudo chown "$(id -u):$(id -g)" "$WORK" "$WORK/rare-os-installer.iso"
+
+      - name: Check the ISO
+        run: |
+          iso="$WORK/rare-os-installer.iso" m="$WORK/mnt"
+          sudo mkdir -p "$m" && sudo mount -o loop,ro "$iso" "$m"
+          trap 'sudo umount "$m"' EXIT
+          ls -l "$m"
+          for ks in "$m"/*.ks; do echo "== $ks"; cat "$ks"; done
+          idx="$(sudo find "$m" -maxdepth 3 -name index.json | head -1)"
+          manifest="$(jq -r '.manifests[0].digest' "$idx")"
+          config="$(jq -r '.config.digest' "$(dirname "$idx")/blobs/sha256/${manifest#sha256:}")"
+          echo "ISO ($idx) carries $manifest (config $config); the published image is ${{ steps.image.outputs.digest }} (config ${{ steps.image.outputs.config }})"
+          [ "$manifest" = "${{ steps.image.outputs.digest }}" ] && [ "$config" = "${{ steps.image.outputs.config }}" ] \
+            || { echo "the ISO does not carry the published image" >&2; exit 1; }
+          # Every blob the manifest names is in the ISO and matches its digest.
+          d="$(dirname "$idx")/blobs/sha256"
+          for b in "${config#sha256:}" $(jq -r '.layers[].digest | sub("sha256:"; "")' "$d/${manifest#sha256:}"); do
+            [ "$(sudo sha256sum "$d/$b" | cut -d' ' -f1)" = "$b" ] || { echo "blob $b is missing or damaged" >&2; exit 1; }
+          done
+          echo "all $(jq '.layers | length' "$d/${manifest#sha256:}") layers present and intact"
+          cat "$m"/*.ks | grep -q "bootc switch .*$REGISTRY_IMAGE:stable" || { echo "the installed system would not follow $REGISTRY_IMAGE:stable" >&2; exit 1; }
+          cat "$m"/*.ks | grep -q 'Hold the power button to cancel' || { echo "the ISO lacks Rare's kickstart" >&2; exit 1; }
+          ls -l "$iso"
+
+      - name: Parts and checksums
+        run: |
+          mkdir -p dist
+          cd "$WORK"
+          sha256sum rare-os-installer.iso > "$GITHUB_WORKSPACE/dist/rare-os-installer.iso.sha256"
+          # Parts of 2000 MiB, each under GitHub's 2 GiB file limit.
+          split -b 2000M -d -a 1 rare-os-installer.iso "$GITHUB_WORKSPACE/dist/rare-os-installer.iso.part"
+          rm -f rare-os-installer.iso
+          cd "$GITHUB_WORKSPACE/dist"
+          sha256sum rare-os-installer.iso.part* > SHA256SUMS
+          cat rare-os-installer.iso.sha256 >> SHA256SUMS
+          # The joined parts are the ISO.
+          [ "$(cat rare-os-installer.iso.part* | sha256sum | cut -d' ' -f1)" = "$(cut -d' ' -f1 rare-os-installer.iso.sha256)" ]
+          {
+            echo "image=${{ env.REGISTRY_IMAGE }}:stable"
+            echo "version=${{ steps.image.outputs.version }}"
+            echo "digest=${{ steps.image.outputs.digest }}"
+            echo "config=${{ steps.image.outputs.config }}"
+            echo "size=$(cat rare-os-installer.iso.part* | wc -c)"
+          } > rare-os-installer.iso.info
+          ls -l; cat SHA256SUMS rare-os-installer.iso.info
+
+      - name: Draft release
+        if: inputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "a release for $TAG already exists: attach the files by hand after checking them"; exit 1
+          fi
+          gh release create "$TAG" dist/* --draft --target "${{ github.sha }}" --latest=false \
+            --title "Rare OS installer ${{ steps.image.outputs.version }}" --notes "Draft: see the release notes."
+
+      - name: Upload the ISO parts
+        if: inputs.tag == ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: rare-os-installer-${{ github.run_number }}
+          retention-days: 3
+          compression-level: 0
+          path: dist/*

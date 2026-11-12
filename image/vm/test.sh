@@ -7,6 +7,9 @@
 #                             tools/get-rare-os.sh, boot Rare OS, roll back, boot the old OS
 #   image/vm/test.sh handheld a Bazzite handheld reachable only over SSH, switched offline from an
 #                             OCI archive (RARE_ARCHIVE), checked and rolled back (see handheld())
+#   image/vm/test.sh usbiso   the USB installer ISO (RARE_ISO) as an owner uses it: written to a USB
+#                             stick, a blank (or Windows) NVMe drive, a USB drive and an SD card that
+#                             must stay untouched; install, restart, boot without the stick (usbiso())
 #
 # Env: IMAGE (default localhost/rare-os:test), WORK (disks, default /var/tmp/rare-vm),
 #      STORAGE (host container storage, default /var/lib/containers/storage),
@@ -374,10 +377,153 @@ secureboot() {
     return $ok
 }
 
+# The USB installer as an owner uses it. RARE_ISO is the released rare-os-installer.iso (no podman
+# needed). UEFI, the ISO on a USB stick (usb-storage on xHCI, not a CD drive), a 64 GB NVMe internal
+# drive, a 256 GB USB drive and a 128 GB SD card (both bigger than the NVMe drive, with a file
+# system and a file on them). Checks:
+#   disk   the installer picks the NVMe drive; the USB drive and the SD card are byte-for-byte unchanged
+#   boot1  after the install it restarts by itself, with the stick still in, into Rare OS
+#   boot2  powered off, stick out, powered on: the launcher starts
+#   update bootc follows the signed $REPO:stable (the first start moves it to ostree-image-signed,
+#          the signature checks against /etc/pki/containers/rare-os.pub) and `bootc upgrade --check` works
+# ISO_DISK=windows: the NVMe drive holds a Windows-style GPT first (EFI, MSR, NTFS, recovery) and the
+# stick is picked from the boot menu (it boots first); afterwards no Windows partition may be left.
+# RARE_VM_SECUREBOOT=1: Secure Boot on with the Microsoft keys; the installer queues Rare OS's key
+# and the harness walks the blue key screen (password rare). ISO_NAME names the screenshots.
+usbiso() {
+    use_vsock
+    local iso="${RARE_ISO:?set RARE_ISO to rare-os-installer.iso}" name="${ISO_NAME:-usbiso}" ok=0 t0 n
+    local nvme="$WORK/$name-nvme.raw" usb="$WORK/$name-usbdrive.raw" sd="$WORK/$name-sdcard.raw"
+    local repo="${ISO_REPO:-ghcr.io/rare-market/rare-os}"
+    export RARE_VM_DISK_BUS=nvme RARE_VM_ISO_BUS=usb RARE_VM_RES="${RARE_VM_RES:-1920x1200}"
+    export RARE_VM_USB_DISK="$usb" RARE_VM_SD="$sd"
+    check() { if [[ "$2" == 1 ]]; then echo "CHECK $1: PASS"; else echo "CHECK $1: FAIL"; ok=1; fi; }
+    mark() { # disk size label: GPT, one FAT32 partition with a file, then remember its bytes
+        local f="$1" lo
+        rm -f "$f"; truncate -s "$2" "$f"
+        sgdisk -n 1:1MiB:+2GiB -t 1:0700 "$f" >/dev/null  # (-q drops a new table in gdisk 1.0.8)
+        lo="$(attach "$f")"
+        mkfs.vfat -n "$3" "${lo}p1" >/dev/null
+        mkdir -p "$WORK/mnt"; mount "${lo}p1" "$WORK/mnt"; echo "$3 $(date -u +%s)" > "$WORK/mnt/KEEP-ME.txt"; umount "$WORK/mnt"
+        losetup -d "$lo"
+    }
+    attach() { # loop device with its partitions (the table is written to the file first)
+        local lo; lo="$(losetup -fP --show "$1")"
+        for _ in $(seq 1 20); do [[ -e "${lo}p1" ]] && break; partx -u "$lo" 2>/dev/null || true; udevadm settle 2>/dev/null || true; sleep 0.5; done
+        [[ -e "${lo}p1" ]] || { echo "no partitions on $lo" >&2; losetup -d "$lo"; return 1; }
+        echo "$lo"
+    }
+    sums() { # the regions anything writing a partition table or a file system touches
+        local f="$1" sz; sz=$(stat -c %s "$f")
+        { dd if="$f" bs=1M count=2100 status=none; dd if="$f" bs=1M skip=$(( sz / 1048576 - 64 )) status=none; } | sha256sum | cut -d' ' -f1
+    }
+
+    echo "::group::disks"
+    rm -f "$RARE_VM_STATE"/vars-*.fd
+    mark "$usb" 256G USBDRIVE; mark "$sd" 128G SDCARD
+    local usb0 sd0; usb0=$(sums "$usb"); sd0=$(sums "$sd")
+    rm -f "$nvme"; truncate -s 64G "$nvme"
+    if [[ "${ISO_DISK:-blank}" == windows ]]; then
+        local lo
+        sgdisk -n 1:1MiB:+100MiB -t 1:ef00 -c 1:"EFI system partition" -n 2:0:+16MiB -t 2:0c01 -c 2:"Microsoft reserved partition" \
+            -n 3:0:-1GiB -t 3:0700 -c 3:"Basic data partition" -n 4:0:0 -t 4:2700 -c 4:"Basic data partition" "$nvme" >/dev/null
+        lo="$(attach "$nvme")"
+        mkfs.vfat -F 32 -n SYSTEM "${lo}p1" >/dev/null
+        mmd -i "${lo}p1" ::/EFI ::/EFI/Microsoft ::/EFI/Microsoft/Boot
+        echo "not a real loader" > "$WORK/bootmgfw.efi"; mcopy -i "${lo}p1" "$WORK/bootmgfw.efi" ::/EFI/Microsoft/Boot/bootmgfw.efi
+        mkfs.ntfs -Q -q -L Windows "${lo}p3"; mkfs.ntfs -Q -q -L Recovery "${lo}p4"
+        sgdisk -p "$lo"; blkid "$lo"* || true
+        losetup -d "$lo"
+        export RARE_VM_ISO_FIRST=1
+    fi
+    echo "::endgroup::"
+
+    echo "::group::install from the stick"
+    export RARE_VM_ISO="$iso"
+    # Secure Boot: the key screen comes at the restart, so the harness takes over there (stick out).
+    [[ "${RARE_VM_SECUREBOOT:-0}" == 1 ]] && export RARE_VM_ISO_FIRST=1
+    # With the stick picked from the boot menu, the installer's own restart would start it again
+    # (QEMU's boot order outranks the firmware's): QEMU stops at the restart instead.
+    [[ "${RARE_VM_ISO_FIRST:-0}" == 1 ]] && export RARE_VM_NO_REBOOT=1
+    $H stop
+    python3 -c "import sys; sys.path.insert(0, '$HERE'); import harness; harness.start('$nvme')"
+    t0=$(date +%s); n=0
+    local installed=0
+    while :; do
+        n=$((n + 1)); $H shot --out "$OUT/$name-1-install-$(printf %03d $n).png" >/dev/null 2>&1 || true
+        if ! python3 -c "import sys; sys.path.insert(0, '$HERE'); import harness; sys.exit(0 if harness.running() else 1)"; then
+            echo "QEMU stopped at the installer's restart after $(( $(date +%s) - t0 )) s"; installed=2; break
+        fi
+        if (( n % 6 == 0 )) && timeout 15 $H ssh --timeout 12 --cmd 'grep -q "^NAME=\"Rare OS\"" /etc/os-release && ! test -d /run/install && echo INSTALLED' 2>/dev/null | grep -q INSTALLED; then
+            echo "installed, restarted into Rare OS with the stick in, after $(( $(date +%s) - t0 )) s"; installed=1; break
+        fi
+        (( $(date +%s) - t0 > ${ISO_TIMEOUT:-3600} )) && { echo "install timed out"; break; }
+        sleep 5
+    done
+    unset RARE_VM_NO_REBOOT
+    echo "::endgroup::"
+    [[ $installed != 0 ]] || { check "install finished" 0; $H stop; return 1; }
+
+    if [[ $installed == 1 ]]; then
+        echo "::group::first start (stick still in)"
+        $H wait --name "$name-2-boot1" --out "$OUT" --wait-launcher "${WAIT:-1800}" || ok=1
+        echo "::endgroup::"
+    else
+        echo "::group::first start (stick out)"
+        unset RARE_VM_ISO RARE_VM_ISO_FIRST
+        python3 -c "import sys; sys.path.insert(0, '$HERE'); import harness; harness.start('$nvme')"
+        if [[ "${RARE_VM_SECUREBOOT:-0}" == 1 ]]; then mok_walk "$name"; fi
+        $H wait --name "$name-2-boot1" --out "$OUT" --wait-launcher "${WAIT:-1800}" || ok=1
+        echo "::endgroup::"
+    fi
+    if [[ $installed == 1 && "${RARE_VM_SECUREBOOT:-0}" == 1 ]]; then echo "(Secure Boot: the key screen came before this start)"; fi
+
+    echo "::group::the drive the installer picked, and the disks it must not touch"
+    $H ssh --cmd 'lsblk -o NAME,TRAN,RM,SIZE,FSTYPE,LABEL,PARTLABEL,MOUNTPOINTS; echo; sgdisk -p /dev/nvme0n1; echo; blkid; echo; efibootmgr -v 2>&1; mokutil --sb-state 2>&1' | tee "$OUT/$name-3-disks.txt"
+    check "installed on the NVMe drive (btrfs rare-os)" "$(grep -qE 'nvme0n1p[0-9].*btrfs.*rare-os' "$OUT/$name-3-disks.txt" && echo 1)"
+    check "no Windows partition left (NTFS, MSR)" "$(grep -qiE 'ntfs|Microsoft reserved|Basic data' "$OUT/$name-3-disks.txt" || echo 1)"
+    echo "::endgroup::"
+
+    echo "::group::signed updates (rare-signed-switch, a minute after boot)"
+    $H ssh --timeout 1800 --cmd 'for i in $(seq 1 120); do rpm-ostree status --json | jq -e "[.deployments[] | .[\"container-image-reference\"] // \"\" | startswith(\"ostree-image-signed:\")] | any" >/dev/null && rpm-ostree status | grep -q "^State: idle" && break; sleep 10; done; journalctl -b --no-pager -u rare-signed-switch | tail -n 20; bootc status' | tee "$OUT/$name-4-signed-switch.txt"
+    check "the first start moved updates to the signed source" "$(grep -q "ostree-image-signed:docker://$repo:stable" "$OUT/$name-4-signed-switch.txt" && echo 1)"
+    echo "::endgroup::"
+
+    echo "::group::power off, stick out, power on"
+    $H ssh --timeout 30 --cmd 'systemctl poweroff' || true
+    for _ in $(seq 1 120); do python3 -c "import sys; sys.path.insert(0, '$HERE'); import harness; sys.exit(0 if harness.running() else 1)" || break; sleep 2; done
+    $H stop
+    check "USB drive untouched" "$([[ "$(sums "$usb")" == "$usb0" ]] && echo 1)"
+    check "SD card untouched" "$([[ "$(sums "$sd")" == "$sd0" ]] && echo 1)"
+    unset RARE_VM_ISO RARE_VM_ISO_FIRST
+    python3 -c "import sys; sys.path.insert(0, '$HERE'); import harness; harness.start('$nvme')"
+    local up=0
+    $H wait --name "$name-5-boot2" --out "$OUT" --wait-launcher "${WAIT:-1800}" && up=1
+    check "launcher starts without the stick" "$up"
+    $H ssh --timeout 900 --cmd "bootc status; echo; bootc status --json | jq -r '.status.booted.image.image.image, .status.booted.image.imageDigest, .status.booted.image.image.signature // empty'; echo; bootc upgrade --check 2>&1 | tail -n 5; echo UPGRADE_CHECK_EXIT=\${PIPESTATUS[0]}; grep -E '^(NAME|VERSION|RARE_VERSION)=' /usr/lib/os-release; systemctl --failed --no-pager" | tee "$OUT/$name-6-update.txt"
+    check "booted image is the signed $repo:stable" "$(grep -q "ostree-image-signed:docker://$repo:stable" "$OUT/$name-6-update.txt" && echo 1)"
+    check "bootc upgrade --check works (signature and registry)" "$(grep -q 'UPGRADE_CHECK_EXIT=0' "$OUT/$name-6-update.txt" && echo 1)"
+    $H stop
+    cp "$RARE_VM_STATE/serial-$(basename "$nvme").log" "$OUT/$name-serial.log" 2>/dev/null || true
+    [[ "${KEEP_DISK:-0}" == 1 ]] || rm -f "$nvme" "$usb" "$sd"
+    echo "::endgroup::"
+    return $ok
+}
+
+# The blue key screen (shim's MokManager) at the first start with Secure Boot on, walked with the
+# keys the installer's screen and docs/INSTALL.md list: Enroll MOK, Continue, Yes, password, Reboot.
+mok_walk() {
+    sleep "${MOK_WAIT:-40}"
+    $H shot --out "$OUT/$1-mok-0.png" || true
+    $H keys --out "$OUT" --name "$1-mok" --gap 3 --keys "down ret down ret down ret text:${RARE_MOK_PASSWORD:-rare} ret"
+    $H keys --out "$OUT" --name "$1-mok-reboot" --gap 3 --keys "ret"
+}
+
 case "${1:-}" in
     fresh) fresh ;;
     rebase) rebase ;;
     handheld) handheld ;;
     secureboot) secureboot ;;
-    *) echo "usage: $0 fresh|rebase|handheld|secureboot" >&2; exit 2 ;;
+    usbiso) usbiso ;;
+    *) echo "usage: $0 fresh|rebase|handheld|secureboot|usbiso" >&2; exit 2 ;;
 esac

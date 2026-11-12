@@ -2,7 +2,8 @@ name: Rare OS image
 
 # Runs only when started by hand (Actions > Rare OS image > Run workflow) or for a
 # release tag (v*). Each run takes 1-2 hours of runner time; day-to-day image builds
-# belong on the build machine (image/vm/test.sh).
+# belong on the build machine (image/vm/test.sh). The USB installer ISO is built from the
+# published image by installer.yml.
 on:
   push:
     tags: ['v*']
@@ -16,10 +17,6 @@ on:
         description: Switch a stock Fedora bootc VM to Rare OS with get-rare-os.sh, then roll back
         type: boolean
         default: true
-      build_iso:
-        description: Build the USB installer ISO (not uploaded, checks that it builds)
-        type: boolean
-        default: false
       publish:
         description: Push to the image repo (RARE_IMAGE_REPO) and sign with cosign (the package must be public for devices to pull it)
         type: boolean
@@ -107,23 +104,6 @@ jobs:
           sudo podman push "$IMAGE" "oci:$WORK/rare-oci:test"
           sudo -E SOURCE_IMGREF=oci:/output/rare-oci:test image/vm/test.sh fresh
           sudo rm -rf "$WORK/rare-oci"
-
-      - name: Installer ISO
-        if: steps.build.outcome == 'success' && inputs.build_iso && !cancelled()
-        run: |
-          mkdir -p "$WORK/iso"
-          # The installed system follows the ref the ISO is built from (bib's %post bootc switch):
-          # build from the one devices follow, never localhost/rare-os:test.
-          sudo podman tag "$IMAGE" "$REGISTRY_IMAGE:stable"
-          sudo podman run --rm --privileged --pull=newer --security-opt label=type:unconfined_t \
-            -v "$PWD/image/installer/config.toml:/config.toml:ro" -v "$WORK/iso:/output" \
-            -v "$STORAGE:/var/lib/containers/storage" \
-            quay.io/centos-bootc/bootc-image-builder:latest \
-            --type anaconda-iso --rootfs btrfs --use-librepo=True "$REGISTRY_IMAGE:stable"
-          sudo apt-get install -y -qq --no-install-recommends xorriso mtools >/dev/null
-          sudo image/installer/finish-iso.sh "$WORK/iso/bootiso/install.iso" "$WORK/iso/rare-os-installer.iso"
-          sudo find "$WORK/iso" -name '*.iso' -exec ls -lh {} \;
-          sudo rm -rf "$WORK/iso"
 
       - name: VM test, switch from a stock OS and roll back
         if: steps.build.outcome == 'success' && (github.event_name == 'push' || inputs.rebase_test) && !cancelled()

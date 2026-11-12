@@ -16,6 +16,11 @@ for conditions such as "the launcher is running".
 
 Secure Boot: RARE_VM_SECUREBOOT=1 boots with OVMF's Secure Boot firmware and the Microsoft keys
 enrolled (what a PC or handheld that shipped with Windows has), so only signed boot chains start.
+
+Installer media and disks: RARE_VM_ISO (the installer ISO; RARE_VM_ISO_BUS=usb attaches it as a USB stick
+on the xHCI bus instead of a CD drive, RARE_VM_ISO_FIRST=1 boots it first as if picked in the boot menu),
+RARE_VM_DISK_BUS=nvme (the main disk is NVMe), RARE_VM_USB_DISK (a USB drive), RARE_VM_SD (a card in an SD
+slot, mmcblk in the guest), RARE_VM_NO_REBOOT=1 (QEMU stops at the guest's restart).
 """
 import argparse, json, os, shutil, socket, subprocess, sys, time
 
@@ -140,10 +145,29 @@ def qemu_cmd(disk):
     # First-install walk (walk.py): the installer ISO, a host pad handed over whole (vpad.py), a
     # vsock for SSH that keeps working while the guest's network is off, and the panel size.
     iso = os.environ.get("RARE_VM_ISO")
+    # RARE_VM_ISO_FIRST=1: the stick boots first, as when it is picked in the firmware's boot menu.
+    iso_first = os.environ.get("RARE_VM_ISO_FIRST") == "1"
     if iso:
         # The disk first: blank, it falls through to the stick; installed, it boots Rare OS (as a
         # handheld does once the installer added its boot entry).
-        extra += ["-drive", f"file={iso},media=cdrom,readonly=on,if=none,id=cd0", "-device", "ide-cd,drive=cd0,bootindex=2"]
+        if os.environ.get("RARE_VM_ISO_BUS") == "usb":
+            # Written to a USB stick: a removable USB mass-storage disk on the xHCI bus, not a CD drive.
+            extra += ["-drive", f"file={iso},format=raw,readonly=on,if=none,id=stick",
+                      "-device", f"usb-storage,bus=xhci.0,drive=stick,removable=on,bootindex={1 if iso_first else 2}"]
+        else:
+            extra += ["-drive", f"file={iso},media=cdrom,readonly=on,if=none,id=cd0", "-device", "ide-cd,drive=cd0,bootindex=2"]
+    # Disks the installer must never touch: a USB drive (removable) and a card in an SD slot (mmcblk).
+    usb_disk = os.environ.get("RARE_VM_USB_DISK")
+    if usb_disk:
+        extra += ["-drive", f"file={usb_disk},format=raw,if=none,id=usbdisk,cache=unsafe",
+                  "-device", "usb-storage,bus=xhci.0,drive=usbdisk,removable=on"]
+    sd = os.environ.get("RARE_VM_SD")
+    if sd:
+        extra += ["-device", "sdhci-pci,id=sdhci", "-drive", f"file={sd},format=raw,if=none,id=sdcard,cache=unsafe",
+                  "-device", "sd-card,drive=sdcard"]  # on the only SD bus (its name differs between QEMU versions)
+    if os.environ.get("RARE_VM_NO_REBOOT") == "1":
+        # A restart ends QEMU (the next start can then leave the stick out).
+        extra += ["-no-reboot"]
     pad = os.environ.get("RARE_VM_PAD")
     if pad:
         extra += ["-device", f"virtio-input-host-pci,evdev={pad}"]
@@ -163,10 +187,13 @@ def qemu_cmd(disk):
         "-m", str(mem), "-smp", str(cpus),
         "-drive", f"if=pflash,format=raw,readonly=on,file={code}",
         "-drive", f"if=pflash,format=raw,file={vars_file}",
-        *(["-drive", f"file={disk},format={fmt},if=none,id=d0,cache=unsafe", "-device", "virtio-blk-pci,drive=d0,bootindex=1"] if iso else ["-drive", f"file={disk},format={fmt},if=virtio,cache=unsafe"]),
+        "-drive", f"file={disk},format={fmt},if=none,id=d0,cache=unsafe",
+        # RARE_VM_DISK_BUS=nvme: the internal drive is NVMe, as in a handheld.
+        "-device", (f"nvme,serial=rare-nvme0,drive=d0" if os.environ.get("RARE_VM_DISK_BUS") == "nvme" else "virtio-blk-pci,drive=d0")
+        + (f",bootindex={2 if iso and iso_first else 1}" if iso else ""),
         "-device", f"virtio-vga,xres={xres},yres={yres}",
         "-display", "none",
-        "-device", "qemu-xhci", "-device", "usb-tablet", "-device", "usb-kbd",
+        "-device", "qemu-xhci,id=xhci", "-device", "usb-tablet", "-device", "usb-kbd",
         "-netdev", f"user,id=n0,hostfwd=tcp:127.0.0.1:{PORT}-:22",
         "-device", "virtio-net-pci,netdev=n0",
         "-qmp", f"unix:{os.path.join(STATE, 'qmp.sock')},server=on,wait=off",

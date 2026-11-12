@@ -12,8 +12,8 @@ Three ways in, easiest first. All three are undoable.
 > Status: the switch path is tested in virtual machines (CI and the build machine, see the end of this
 > page), including one with Secure Boot on and a GameOS-like setup, and Rare OS runs on a
 > SuiPlay0X1 (switched from Bazzite, not from GameOS). The switch from a stock GameOS
-> unit has not been run on real hardware yet. The image is not published yet, so the commands
-> below work once the maintainers flip the switches in "Before the first public install".
+> unit has not been run on real hardware yet. The USB installer is tested in virtual machines (the
+> ISO on a USB stick, an NVMe drive, a Windows disk, Secure Boot), not yet on a SuiPlay.
 
 ---
 
@@ -262,12 +262,17 @@ only from that file; once the image is published, move to it with
 
 ## 2. USB-C installer (erase and install)
 
-For devices that do not boot from an image (SteamOS, Windows, most Linux installs), or for a
-clean start.
+For a SuiPlay running Windows or SteamOS, other devices that do not boot from an image (most Linux
+installs), or a clean start.
 
 ### Make the stick (on any computer)
 
-1. Download `rare-os-installer.iso` from https://rare.market/os.
+1. Download `rare-os-installer.iso` (about 8 GB) from https://rare.market/os. Its SHA-256 is on
+   that page and at https://rare.market/os/rare-os-installer.iso.sha256 (`certutil -hashfile
+   rare-os-installer.iso SHA256` on Windows, `shasum -a 256` on macOS, `sha256sum` on Linux).
+   The same file is on the GitHub release (`installer-<version>`) in parts, as GitHub takes files
+   up to 2 GiB: `cat rare-os-installer.iso.part* > rare-os-installer.iso` joins them (Windows:
+   `copy /b` with every part in order, joined by `+`).
 2. Write it to a USB-C stick (16 GB or more) with one of:
    - **Fedora Media Writer** (Windows, macOS, Linux): "Select .iso file", pick the stick, "Write".
    - **balenaEtcher** (Windows, macOS, Linux): "Flash from file", "Select target", "Flash".
@@ -278,17 +283,42 @@ block the mass-storage class), so one of the apps above is needed.
 
 ### Install
 
-1. Power off the handheld. Plug in the stick.
-2. Open the firmware boot menu and pick the USB stick. On AYANEO-made handhelds (the
-   SuiPlay0X1 is one) this is usually done by holding a volume key while pressing power;
-   check the device's manual, this has not been confirmed on a SuiPlay yet. On other PCs it
-   is usually `F12`, `F7` or `Esc` with a keyboard attached.
-3. One screen: it names the internal drive it will erase, with a 20-second countdown. Hold the
-   power button to cancel. Otherwise it installs and restarts into Rare OS by itself (about 10
-   minutes).
+1. Power off the handheld. Plug the stick into a USB-C port.
+2. Open the firmware boot menu and pick the USB stick (below).
+3. One screen: it names the internal drive it will erase, with a 20-second countdown. To cancel,
+   hold the power button until the screen goes off; nothing is written before the countdown
+   ends. Otherwise it installs and restarts into Rare OS by itself (about 10 minutes).
+4. When Rare OS has started, unplug the stick. The installer puts Rare OS first in the firmware's
+   boot order, so the restart goes to Rare OS even with the stick still in. If the installer
+   screen comes back instead, hold the power button to turn off, unplug the stick, power on.
 
 The installer erases the whole internal drive. Games and files on it are gone; games on an SD
-card are kept and Rare Launcher picks them up.
+card are kept and Rare Launcher picks them up. It only ever picks the internal drive: an NVMe
+drive first, else the largest other fixed disk. USB devices (the stick, other USB drives, card
+readers), SD and eMMC cards, removable media and the disk it started from are never picked,
+and a drive under 40 GB stops it with nothing changed.
+
+**Secure Boot on:** the countdown screen says so. Rare OS's kernel is signed with Universal
+Blue's key, so the installer queues that key (as `get-rare-os.sh` does) and the first start
+shows the blue key screen once: with a USB-C keyboard, Down to **Enroll MOK**, **Continue**,
+**Yes**, password `rare`, **Reboot**. No keyboard: cancel, turn Secure Boot off in the firmware
+settings, start again.
+
+### The firmware boot menu
+
+| Device | Boot menu | How sure |
+|---|---|---|
+| AYANEO 2S | Power off, hold **Volume Up** + **LC**, press **Power**. With a USB keyboard: `F7` while it starts. The menu also has Enter Setup (firmware settings). | AYANEO's own guide for the 2S |
+| SuiPlay0X1 | Expected to be the same (it is built on the AYANEO 2S, and Playtron's guide gives Volume Up + LC + Power for AYANEO handhelds) | Not tried on a SuiPlay yet; the SuiPlay has its own firmware |
+| Other PCs | `F12`, `F7` or `Esc` with a keyboard attached | Varies by maker |
+
+Arrow keys and Enter on a USB-C keyboard (in the other port) always work in the menu. Without a
+keyboard, AYANEO handhelds are reported to move with the AYANEO button and pick with Volume Up;
+this is not confirmed on a SuiPlay. Whether a SuiPlay starts from the stick by itself when its
+internal drive holds no system is not known yet, so use the menu.
+
+Sources: AYANEO's guides for the 2S (ayaneo.com/article/779) and AYANEO 2 (ayaneo.com/article/245),
+Playtron's install page (playtron.one/playtron-os).
 
 ### Undo
 
@@ -296,8 +326,14 @@ Reinstall the previous OS from its own installer (GameOS, SteamOS and Windows al
 one). A USB install cannot be rolled back in place.
 
 How the stick is built: `image/installer/config.toml` is the configuration for
-`bootc-image-builder --type anaconda-iso`; its kickstart picks the largest non-removable,
-non-USB disk, shows the countdown, partitions it (EFI + btrfs) and installs the Rare OS image.
+`bootc-image-builder --type anaconda-iso`; its kickstart picks the internal drive, shows the
+countdown, partitions it (EFI + btrfs) and installs the Rare OS image the ISO carries. The
+installed system follows `ghcr.io/rare-market/rare-os:stable`, and its first start moves updates to the
+signature-checked source. The "Rare OS installer" workflow (`.github/workflows/installer.yml`) builds
+the ISO from the published `:stable`, pulled by digest under the device's signature policy
+(`image/keys/rare-os.pub`), checks that the ISO carries exactly that image, and attaches it in parts
+with its SHA-256 to a draft release. `image/vm/test.sh usbiso` tests a released ISO the way an
+owner uses it (below).
 
 ---
 
@@ -310,6 +346,10 @@ sudo IMAGE=localhost/rare-os:test image/vm/test.sh rebase    # stock Fedora boot
 sudo RARE_ARCHIVE=rare-os.ociarchive SOURCE_IMGREF=registry:quay.io/fedora/fedora-bootc:44 \
     image/vm/test.sh secureboot                               # same with Secure Boot on, GameOS-like user/os-release,
                                                               # key screen walked by the harness, rare-undo
+sudo RARE_ISO=rare-os-installer.iso image/vm/test.sh usbiso    # the USB installer: ISO as a USB stick, NVMe drive,
+                                                              # a USB drive and an SD card left untouched, restart,
+                                                              # boot without the stick, signed :stable updates
+                                                              # (ISO_DISK=windows, RARE_VM_SECUREBOOT=1)
 ```
 
 `image/vm/harness.py` drives QEMU (KVM when available), screenshots through QMP and checks
@@ -320,7 +360,7 @@ with software rendering instead of gamescope (`/usr/bin/rare-session` decides; s
 Image builds run on any x86_64 Linux machine with podman (KVM makes the VM tests fast): the two commands above.
 CI: the "Rare OS image" workflow runs only when started by hand (Actions tab, "Run workflow")
 or for a release tag `v*`, never on ordinary pushes. It builds the image, runs both VM tests
-and uploads screenshots and logs. Options: build the installer ISO, publish.
+and uploads screenshots and logs. Option: publish. The installer ISO has its own workflow, "Rare OS installer".
 
 ---
 
