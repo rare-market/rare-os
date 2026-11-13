@@ -479,7 +479,7 @@ usbiso() {
     if [[ $installed == 1 && "${RARE_VM_SECUREBOOT:-0}" == 1 ]]; then echo "(Secure Boot: the key screen came before this start)"; fi
 
     echo "::group::the drive the installer picked, and the disks it must not touch"
-    $H ssh --cmd 'lsblk -o NAME,TRAN,RM,SIZE,FSTYPE,LABEL,PARTLABEL,MOUNTPOINTS; echo; sgdisk -p /dev/nvme0n1; echo; blkid; echo; efibootmgr -v 2>&1; mokutil --sb-state 2>&1' | tee "$OUT/$name-3-disks.txt"
+    $H ssh --cmd 'lsblk -o NAME,TRAN,RM,SIZE,FSTYPE,LABEL,PARTLABEL,MOUNTPOINTS; echo; sgdisk -p /dev/nvme0n1; echo; blkid; echo; efibootmgr -v 2>&1; mokutil --sb-state 2>&1; true' | tee "$OUT/$name-3-disks.txt"
     check "installed on the NVMe drive (btrfs rare-os)" "$(grep -qE 'nvme0n1p[0-9].*btrfs.*rare-os' "$OUT/$name-3-disks.txt" && echo 1)"
     check "no Windows partition left (NTFS, MSR)" "$(grep -qiE 'ntfs|Microsoft reserved|Basic data' "$OUT/$name-3-disks.txt" || echo 1)"
     echo "::endgroup::"
