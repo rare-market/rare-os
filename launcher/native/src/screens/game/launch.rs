@@ -19,7 +19,20 @@ pub struct LaunchFail {
 fn store_detail(id: &str) -> Option<(Option<String>, String)> {
     rare_stores::Store::of(id)?;
     let path = rare_library::umu::log_path(id);
-    path.is_file().then(|| (rare_stores::launch_problem(id), rare_library::umu::show_path(&path)))
+    path.is_file().then(|| (rare_stores::launch_problem(id).map(problem_text), rare_library::umu::show_path(&path)))
+}
+
+/// rare-stores words a store game's start problem in English (`launch_problem`): the ones it
+/// words itself in the UI language; a tool's own error line stays as it came.
+fn problem_text(p: String) -> String {
+    let t = &tr().game;
+    match p.as_str() {
+        "Epic can't be reached: no connection. Check Wi-Fi and try again." => t.store_fail_offline.into(),
+        "Epic needs you to sign in again: Settings > Accounts." => t.store_fail_sign_in.into(),
+        "legendary doesn't have it as installed. Check files in the game's Manage row, or install it again." => t.store_fail_not_installed.into(),
+        "It needs an update first. Update it from its page." => t.store_fail_out_of_date.into(),
+        _ => p,
+    }
 }
 
 /// The sheet's second line (store.ts launchFailText).

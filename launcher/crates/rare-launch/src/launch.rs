@@ -603,6 +603,23 @@ fn launch_extra(id: &str) -> LaunchExtra {
     EXTRA.get().and_then(|f| f(id)).unwrap_or_default()
 }
 
+/// Epic's account service resolves and takes a TCP connection within `t`. legendary signs in there
+/// on every `launch`; without it the start fails at "Login failed". Off the calling thread, since
+/// a resolver that hangs (systemd-resolved busy) would otherwise hold the start.
+fn epic_reachable(t: Duration) -> bool {
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        use std::net::ToSocketAddrs;
+        let ok = ("account-public-service-prod03.ol.epicgames.com", 443)
+            .to_socket_addrs()
+            .ok()
+            .and_then(|mut a| a.next())
+            .is_some_and(|a| std::net::TcpStream::connect_timeout(&a, Duration::from_secs(3)).is_ok());
+        let _ = tx.send(ok);
+    });
+    rx.recv_timeout(t).unwrap_or(false)
+}
+
 impl Runner {
     pub fn launch(&self, game: &Game) -> Result<(), String> {
         rare_system::upscale::apply_saved();
@@ -629,6 +646,11 @@ impl Runner {
                 // Proton through umu-run, in Rare's prefix for the game (the one cloud saves and
                 // Uninstall use). legendary starts the game and exits; the scope's cgroup keeps it tracked.
                 let mut args = vec!["launch".to_string(), app_name.clone(), "--skip-version-check".to_string()];
+                // No way to Epic (no network, or no DNS): skip the sign-in, which would fail the start,
+                // and launch offline. Most games run so; one that needs Epic online says it itself.
+                if !epic_reachable(Duration::from_secs(4)) {
+                    args.push("--offline".to_string());
+                }
                 if rare_library::steam::which("umu-run") {
                     args.extend(["--no-wine".to_string(), "--wrapper".to_string(), "umu-run".to_string()]);
                 }

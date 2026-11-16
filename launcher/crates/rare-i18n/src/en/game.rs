@@ -361,6 +361,14 @@ strings! {
     screenshots: "Screenshots",
     /// The game page's rail of the store page's screenshots
     store_shots: "From the store",
+    /// Launch failure: an Epic game could not reach Epic to sign in
+    store_fail_offline: "Epic can't be reached: no connection. Check Wi-Fi and try again.",
+    /// Launch failure: the Epic sign-in expired
+    store_fail_sign_in: "Epic needs you to sign in again: Settings > Accounts.",
+    /// Launch failure: legendary does not list the game as installed
+    store_fail_not_installed: "legendary doesn't have it as installed. Check files in the game's Manage row, or install it again.",
+    /// Launch failure: the game needs an update first
+    store_fail_out_of_date: "It needs an update first. Update it from its page.",
     updates: "Updates",
     news: "News",
     dlc: "DLC",

@@ -95,6 +95,11 @@ pub fn launch_problem(id: &str) -> Option<String> {
 }
 
 fn problem_in(log: &str) -> Option<String> {
+    // The sign-in failed because Epic could not be reached, not because the session expired.
+    let unreachable = ["ConnectionError", "NameResolutionError", "Max retries exceeded", "Temporary failure in name resolution"].iter().any(|k| log.contains(k));
+    if log.contains("Login failed, cannot continue") && unreachable {
+        return Some("Epic can't be reached: no connection. Check Wi-Fi and try again.".into());
+    }
     if log.contains("Login failed, cannot continue") || log.contains("No saved credentials") {
         return Some("Epic needs you to sign in again: Settings > Accounts.".into());
     }
@@ -249,6 +254,9 @@ mod tests {
     fn launch_problems_read_plainly() {
         let log = "Rare: starting epic:Fortnite: legendary launch Fortnite\n[cli] INFO: Logging in...\n[cli] ERROR: Login failed, cannot continue!\n";
         assert_eq!(problem_in(log).as_deref(), Some("Epic needs you to sign in again: Settings > Accounts."));
+        // The same refusal with no way to Epic is a connection problem, not a sign-in one.
+        let offline = "[Core] WARNING: Resuming failed for unknown reason: ConnectionError(MaxRetryError('HTTPSConnectionPool(host=x, port=443): Max retries exceeded'))\n[Core] ERROR: HTTP request for login failed: ConnectionError(...)\n[cli] ERROR: Login failed, cannot continue!\n";
+        assert_eq!(problem_in(offline).as_deref(), Some("Epic can't be reached: no connection. Check Wi-Fi and try again."));
         let log = "Rare: starting epic:X\n[umu.umu_runtime:400] CRITICAL: Could not reach repo.steampowered.com\n";
         assert_eq!(problem_in(log).as_deref(), Some("Could not reach repo.steampowered.com."));
         assert_eq!(problem_in("Rare: starting epic:X\nfsync: up and running.\n"), None);
