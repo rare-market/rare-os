@@ -1,7 +1,10 @@
-//! Wi-Fi power save off while a game or stream has the screen, back on when it leaves.
+//! Wi-Fi power save off while a game or stream has the screen, or while the device is on its
+//! charger, and back on when neither holds.
 //!
 //! Power save adds tens of milliseconds of wake-up latency to incoming packets (iwlwifi on the
-//! SuiPlay0X1 has it on), which shows as stutter in streams and online games. It is turned off
+//! SuiPlay0X1 has it on), which shows as stutter in streams and online games, and in the launcher
+//! itself: on one SuiPlay0X1 the router answered a ping in 49 ms on average with it on and 9 ms
+//! with it off. On the charger it saves nothing worth that, so it is off there too. It is turned off
 //! with `iw dev <if> set power_save off` (nl80211 SET_POWER_SAVE: no reassociation, so SSH over
 //! Wi-Fi stays up), through `/usr/libexec/rare/wifi-powersave` run with pkexec; polkit lets the
 //! active local session do that one thing without a prompt
@@ -23,9 +26,10 @@ pub fn is_game_or_stream(id: &str) -> bool {
     !id.starts_with("app:")
 }
 
-/// Power save should be off: a game or stream that is running has the screen.
-pub fn want_off(front: Option<&str>, running: &[String]) -> bool {
-    front.is_some_and(|f| is_game_or_stream(f) && running.iter().any(|r| r == f))
+/// Power save should be off: the device is on its charger (`on_ac`), or a game or stream that is
+/// running has the screen.
+pub fn want_off(front: Option<&str>, running: &[String], on_ac: bool) -> bool {
+    on_ac || front.is_some_and(|f| is_game_or_stream(f) && running.iter().any(|r| r == f))
 }
 
 /// What to do on a tick, from what we want, what the driver says and whether we turned it off.
@@ -78,7 +82,7 @@ fn marker() -> Option<PathBuf> {
 }
 
 /// Starts the loop. `state` gives the run id in front (None while the launcher has the screen)
-/// and the running ids.
+/// and the running ids; the charger is read from sysfs on every tick.
 pub fn start(state: impl Fn() -> (Option<String>, Vec<String>) + Send + 'static) {
     if !std::path::Path::new(HELPER).exists() || iface().is_none() {
         return;
@@ -89,14 +93,15 @@ pub fn start(state: impl Fn() -> (Option<String>, Vec<String>) + Send + 'static)
         let mut checked = Instant::now();
         loop {
             let (front, running) = state();
-            let want = want_off(front.as_deref(), &running);
+            let ac = super::on_ac() == Some(true);
+            let want = want_off(front.as_deref(), &running, ac);
             // Read the driver when the wish changes, and every 30 s while playing.
             if last_want != Some(want) || (want && checked.elapsed() >= Duration::from_secs(30)) {
                 checked = Instant::now();
                 match act(want, power_save(), ours) {
                     Act::Off => match set(false) {
                         Ok(()) => {
-                            log::info!("wifi power save off ({})", front.as_deref().unwrap_or(""));
+                            log::info!("wifi power save off ({})", if ac { "on the charger" } else { front.as_deref().unwrap_or("") });
                             ours = true;
                             if let Some(m) = marker() {
                                 let _ = std::fs::write(m, "");
@@ -138,12 +143,22 @@ mod tests {
     #[test]
     fn games_and_streams_in_front() {
         let running = vec!["steam:1145360".to_string(), "stream:abc:1".to_string(), "app:firefox".to_string()];
-        assert!(want_off(Some("steam:1145360"), &running));
-        assert!(want_off(Some("stream:abc:1"), &running));
+        assert!(want_off(Some("steam:1145360"), &running, false));
+        assert!(want_off(Some("stream:abc:1"), &running, false));
         // An app in front, the launcher in front, or a game that already ended.
-        assert!(!want_off(Some("app:firefox"), &running));
-        assert!(!want_off(None, &running));
-        assert!(!want_off(Some("steam:7"), &running));
+        assert!(!want_off(Some("app:firefox"), &running, false));
+        assert!(!want_off(None, &running, false));
+        assert!(!want_off(Some("steam:7"), &running, false));
+    }
+
+    #[test]
+    fn on_the_charger_whatever_has_the_screen() {
+        let running = vec!["app:firefox".to_string()];
+        assert!(want_off(None, &running, true));
+        assert!(want_off(Some("app:firefox"), &running, true));
+        assert!(want_off(Some("steam:7"), &[], true));
+        // Unplugged in the launcher: power save is back.
+        assert!(!want_off(None, &running, false));
     }
 
     #[test]
