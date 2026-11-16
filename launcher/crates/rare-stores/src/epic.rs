@@ -214,7 +214,19 @@ pub fn job_args(kind: &crate::jobs::Kind, app: &str) -> Vec<String> {
         Kind::Saves | Kind::Setup => {}
     }
     a.extend(["--skip-sdl".into(), "--skip-dlcs".into()]);
+    if matches!(kind, Kind::Install { .. } | Kind::Update | Kind::Repair) {
+        // legendary runs min(2 x CPUs, 16) download processes, 16 on an 8-core handheld, each
+        // with its own connections and lookups: on a SuiPlay0X1's Wi-Fi that kept systemd-resolved
+        // near a whole core during a big download and DNS fell over after a reconnect. As many as
+        // gogdl gets (gog.rs) fill the link just the same.
+        a.extend(["--max-workers".into(), workers()]);
+    }
     a
+}
+
+/// Download processes for legendary: the CPUs, at most 8.
+fn workers() -> String {
+    std::thread::available_parallelism().map(|n| n.get().min(8)).unwrap_or(4).to_string()
 }
 
 /// Syncs one game's cloud saves in its Rare prefix (`down`: only fetch, `up`: only send).
@@ -237,6 +249,18 @@ pub fn sync_saves(app: &str, down: bool, up: bool) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn downloads_run_at_most_eight_workers() {
+        use crate::jobs::Kind;
+        for kind in [Kind::Install { base: "/g".into() }, Kind::Update, Kind::Repair] {
+            let a = super::job_args(&kind, "abc");
+            let i = a.iter().position(|x| x == "--max-workers").expect("--max-workers");
+            let n: usize = a[i + 1].parse().unwrap();
+            assert!((1..=8).contains(&n), "{n}");
+        }
+        assert!(!super::job_args(&Kind::Saves, "abc").contains(&"--max-workers".to_string()));
+    }
+
     #[test]
     fn sign_in_errors_say_why() {
         // legendary 0.21.1 against Epic (2026-11-15) with a used or made-up code.
