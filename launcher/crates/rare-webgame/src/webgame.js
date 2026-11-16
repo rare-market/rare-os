@@ -259,6 +259,15 @@
     setTimeout(recheck, 450);
   };
   if (MODE === "focus") {
+    // The ring follows the page's own focus onto a text field: a code split over one box per digit
+    // moves it a box on after each digit, and the ring stayed on the first one.
+    addEventListener("focusin", (ev) => {
+      const t = ev.target;
+      if (t && t !== foc.el && isText(t) && usable(t)) {
+        foc.el = t;
+        ringDraw();
+      }
+    }, true);
     addEventListener("scroll", () => ringDraw(), true);
     addEventListener("resize", () => ringDraw());
     setInterval(() => foc.el && ringDraw(), 400);
@@ -361,6 +370,13 @@
     if (osk.el) osk.el.style.display = "none";
   };
   const oskType = (t) => {
+    // The page may move the focus itself between keys: a code split over one box per digit goes
+    // to the next box after each one. Type where the focus is now, not where the keyboard opened.
+    const a = document.activeElement;
+    if (osk.input && a && a !== osk.input && isText(a)) {
+      osk.input = a;
+      osk.field = fieldOf(a);
+    }
     const i = osk.input;
     if (!i) {
       // Key mode: the page listens to the keyboard (word games).
@@ -378,8 +394,55 @@
       document.execCommand(t === null ? "delete" : "insertText", false, t ?? undefined);
       return;
     }
+    // Delete in an empty box: the page's Backspace handler takes the focus back a box. When the page
+    // has none and leaves the focus here, a box of a split code (maxlength) goes back to the box
+    // before it and clears that one, as Backspace does on the pages that handle it.
+    if (t === null && i.value === "") {
+      tapKey("Backspace", i);
+      if (i.maxLength > 0) {
+        setTimeout(() => {
+          if (document.activeElement !== i || i.value !== "") return;
+          const prev = box(i, -1);
+          if (!prev || !(prev.maxLength > 0)) return;
+          prev.focus();
+          osk.input = prev;
+          osk.field = fieldOf(prev);
+          setValue(prev, prev.value.slice(0, -1));
+        }, 0);
+      }
+      return;
+    }
+    // A full box (maxlength): what a keyboard does, a key the page can act on, no text appended.
+    if (t !== null && i.maxLength > 0 && i.value.length >= i.maxLength) {
+      for (const ch of t) tapKey(ch, i);
+      return;
+    }
+    setValue(i, t === null ? i.value.slice(0, -1) : i.value + t);
+    // A box that is full now (one digit of a split code): on to the next one if the page, after its
+    // own handlers ran, left the focus here. Pages that move it themselves are left alone.
+    if (t !== null && i.maxLength > 0 && i.value.length >= i.maxLength) {
+      setTimeout(() => {
+        if (document.activeElement !== i) return;
+        const next = box(i, 1);
+        if (next) {
+          next.focus();
+          osk.input = next;
+          osk.field = fieldOf(next);
+        }
+      }, 0);
+    }
+  };
+  /** The text field `step` places from `i` in the page's order (1 next, -1 before), when it is
+   *  visible and enabled. */
+  const box = (i, step) => {
+    const all = Array.from(document.querySelectorAll("input, textarea")).filter((e) => isText(e) && !e.disabled && !e.readOnly && e.offsetParent !== null);
+    const k = all.indexOf(i);
+    return k >= 0 ? all[k + step] || null : null;
+  };
+  /** Sets a field's text through the element's own setter (frameworks that track the value see
+   *  it) and tells the page with an input event. */
+  const setValue = (i, v) => {
     const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(i), "value")?.set;
-    const v = t === null ? i.value.slice(0, -1) : i.value + t;
     setter ? setter.call(i, v) : (i.value = v);
     i.dispatchEvent(new Event("input", { bubbles: true }));
   };
