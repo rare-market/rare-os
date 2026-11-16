@@ -319,6 +319,14 @@ pub fn pick_asset<'a>(kind: &str, names: &'a [String], v3: bool) -> Option<&'a S
     }
 }
 
+/// The `.sha512sum` file for archive `name` among a release's asset names: `<archive>.sha512sum`,
+/// or the archive's name without its extension (GE-Proton since 11-10 publishes
+/// `GE-Proton11-12-x86_64.sha512sum` beside `GE-Proton11-12-x86_64.tar.gz`, and an aarch64 pair).
+pub fn sum_asset_for<'a>(name: &str, names: &'a [String]) -> Option<&'a String> {
+    let stem = [".tar.gz", ".tar.xz", ".tar.zst"].iter().find_map(|e| name.strip_suffix(e)).unwrap_or(name);
+    [format!("{name}.sha512sum"), format!("{stem}.sha512sum")].into_iter().find_map(|want| names.iter().find(|n| **n == want))
+}
+
 /// The hash in a `.sha512sum` file ("<hex>  <name>") for `name`.
 pub fn parse_sha512sum(text: &str, name: &str) -> Option<String> {
     text.lines().find_map(|l| {
@@ -353,7 +361,8 @@ pub fn install(ctx: &Ctx, root: &Path, kind: &str) -> Result<String, String> {
     let asset = assets.iter().find(|a| a["name"].as_str() == Some(&name)).ok_or("Asset vanished.")?;
     let size = asset["size"].as_u64().ok_or("The release gives no size.")?;
     let url = asset["browser_download_url"].as_str().ok_or("The release gives no link.")?.to_string();
-    let sum_asset = assets.iter().find(|a| a["name"].as_str() == Some(&format!("{name}.sha512sum"))).ok_or("This release publishes no checksum, so it is not installed.")?;
+    let sum_name = sum_asset_for(&name, &names).ok_or("This release publishes no checksum, so it is not installed.")?;
+    let sum_asset = assets.iter().find(|a| a["name"].as_str() == Some(sum_name.as_str())).ok_or("Asset vanished.")?;
     let sum_url = sum_asset["browser_download_url"].as_str().ok_or("The release gives no checksum link.")?;
     let want512 = parse_sha512sum(&get_text(sum_url)?, &name).ok_or("The checksum file does not list the archive.")?;
     let want256 = asset["digest"].as_str().and_then(|d| d.strip_prefix("sha256:")).map(str::to_string);
@@ -582,6 +591,12 @@ mod tests {
     fn picks_assets_and_parses_checksums() {
         let ge: Vec<String> = ["GE-Proton11-11-aarch64.sha512sum", "GE-Proton11-11-aarch64.tar.gz", "GE-Proton11-11-x86_64.sha512sum", "GE-Proton11-11-x86_64.tar.gz"].map(String::from).to_vec();
         assert_eq!(pick_asset("ge", &ge, true).unwrap(), "GE-Proton11-11-x86_64.tar.gz");
+        // The checksum beside it is named without .tar.gz, and never the aarch64 one.
+        assert_eq!(sum_asset_for("GE-Proton11-11-x86_64.tar.gz", &ge).unwrap(), "GE-Proton11-11-x86_64.sha512sum");
+        // The older naming: the archive's whole name plus .sha512sum.
+        let old: Vec<String> = ["GE-Proton10-25.tar.gz", "GE-Proton10-25.tar.gz.sha512sum"].map(String::from).to_vec();
+        assert_eq!(sum_asset_for("GE-Proton10-25.tar.gz", &old).unwrap(), "GE-Proton10-25.tar.gz.sha512sum");
+        assert!(sum_asset_for("GE-Proton11-11-x86_64.tar.gz", &old).is_none());
         let cy: Vec<String> = ["proton-cachyos-11.0-20261015-slr-arm64.tar.xz", "proton-cachyos-11.0-20261015-slr-x86_64.tar.xz", "proton-cachyos-11.0-20261015-slr-x86_64_v3.tar.xz"].map(String::from).to_vec();
         assert_eq!(pick_asset("cachyos", &cy, true).unwrap(), "proton-cachyos-11.0-20261015-slr-x86_64_v3.tar.xz");
         assert_eq!(pick_asset("cachyos", &cy, false).unwrap(), "proton-cachyos-11.0-20261015-slr-x86_64.tar.xz");
