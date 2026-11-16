@@ -42,9 +42,19 @@ pub mod roots {
             .unwrap_or_default()
     }
 
+    /// The machine's own homes and drives are left out of the unit tests: each test scans a home
+    /// of its own (HOME), and on a device with Steam or games installed the real ones would show
+    /// up beside the fixture's (device_full_scan on a SuiPlay0X1).
+    fn isolated() -> bool {
+        cfg!(test)
+    }
+
     /// Home directories of other users and of an earlier OS install on the same disk
     /// (bootc and ostree systems keep homes in /var/home, which survives an OS switch).
     pub fn other_homes() -> Vec<PathBuf> {
+        if isolated() {
+            return Vec::new();
+        }
         let me = dirs::home_dir().and_then(|h| fs::canonicalize(h).ok());
         let mut out = Vec::new();
         for base in ["/home", "/var/home"] {
@@ -60,6 +70,9 @@ pub mod roots {
 
     /// Mounted drives: SD cards, USB drives, extra partitions.
     pub fn mount_points() -> Vec<PathBuf> {
+        if isolated() {
+            return Vec::new();
+        }
         let mut out = Vec::new();
         for base in ["/run/media", "/media"] {
             for d in subdirs(base) {
