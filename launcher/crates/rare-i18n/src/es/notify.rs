@@ -89,4 +89,6 @@ translate! { notify {
     class_social: "Social",
     class_system: "Sistema",
     class_battery: "Batería",
+    battery_15: "Batería al 15 %.",
+    battery_5: "Batería al 5 %. Conecta el cargador pronto.",
 }}

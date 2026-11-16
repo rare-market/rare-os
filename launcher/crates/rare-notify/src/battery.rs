@@ -60,9 +60,15 @@ pub struct BatteryWatch {
 impl BatteryWatch {
     /// A new reading (none without a battery); the notice to post, if any.
     pub fn reading(&mut self, b: Option<BatteryReading>) -> Option<LocalNotice> {
+        self.level(b).map(|level| LocalNotice::new(NoticeKind::Battery, low_battery_text(level), NoticeAction::Battery))
+    }
+
+    /// A new reading; the level to warn about (15 or 5), if any. The launcher words it in the
+    /// UI language.
+    pub fn level(&mut self, b: Option<BatteryReading>) -> Option<u8> {
         let r = low_battery(self.warned, b);
         self.warned = r.warned;
-        r.warn.map(|level| LocalNotice::new(NoticeKind::Battery, low_battery_text(level), NoticeAction::Battery))
+        r.warn
     }
 }
 

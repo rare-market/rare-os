@@ -89,4 +89,6 @@ translate! { notify {
     class_social: "ソーシャル",
     class_system: "システム",
     class_battery: "バッテリー",
+    battery_15: "バッテリー残量 15%。",
+    battery_5: "バッテリー残量 5%。早めに充電してください。",
 }}

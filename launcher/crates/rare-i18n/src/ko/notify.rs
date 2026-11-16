@@ -89,4 +89,6 @@ translate! { notify {
     class_social: "소셜",
     class_system: "시스템",
     class_battery: "배터리",
+    battery_15: "배터리 15%.",
+    battery_5: "배터리 5%. 곧 충전기를 연결하세요.",
 }}

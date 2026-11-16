@@ -110,7 +110,7 @@ pub fn friend_request(now: i64, ago: i64) -> Notice {
 }
 
 pub fn battery(level: u8, now: i64) -> Notice {
-    let mut n = base(1020 + level as u64, NoticeKind::Battery, super::data::battery::low_battery_text(level), None, NoticeAction::Battery, 0, now);
+    let mut n = base(1020 + level as u64, NoticeKind::Battery, super::watchers::battery_text(level), None, NoticeAction::Battery, 0, now);
     n.digest = None;
     n.addr = None;
     n

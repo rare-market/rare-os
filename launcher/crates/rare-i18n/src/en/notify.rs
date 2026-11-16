@@ -156,4 +156,7 @@ strings! {
     class_social: "Social",
     class_system: "System",
     class_battery: "Battery",
+    /// Battery warnings while discharging, at 15 % and at 5 %
+    battery_15: "Battery at 15%.",
+    battery_5: "Battery at 5%. Plug in soon.",
 }

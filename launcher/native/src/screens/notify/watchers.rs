@@ -24,7 +24,17 @@ pub struct BatteryNotice {
 
 impl BatteryNotice {
     pub fn poll(&mut self, src: &mut dyn BatterySource) -> Option<LocalNotice> {
-        self.watch.reading(src.reading())
+        let level = self.watch.level(src.reading())?;
+        Some(LocalNotice::new(super::data::types::NoticeKind::Battery, battery_text(level), super::data::types::NoticeAction::Battery))
+    }
+}
+
+/// The warning for `level` (15 or 5) in the UI language.
+pub fn battery_text(level: u8) -> &'static str {
+    if level <= 5 {
+        rare_i18n::tr().notify.battery_5
+    } else {
+        rare_i18n::tr().notify.battery_15
     }
 }
 

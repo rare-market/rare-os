@@ -89,4 +89,6 @@ translate! { notify {
     class_social: "社交",
     class_system: "系统",
     class_battery: "电池",
+    battery_15: "电量剩余 15%。",
+    battery_5: "电量剩余 5%，请尽快充电。",
 }}

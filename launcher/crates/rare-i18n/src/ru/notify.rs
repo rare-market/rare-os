@@ -89,4 +89,6 @@ translate! { notify {
     class_social: "Друзья",
     class_system: "Система",
     class_battery: "Батарея",
+    battery_15: "Заряд батареи 15%.",
+    battery_5: "Заряд батареи 5%. Подключите зарядку.",
 }}
