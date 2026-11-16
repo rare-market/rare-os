@@ -106,11 +106,11 @@ pub fn fraction(d: &Dl) -> f32 {
 fn fmt_rate(b: u64) -> String {
     let b = b as f64;
     if b >= 1e9 {
-        format!("{:.1} GB/s", b / 1e9)
+        crate::kit::format::per_sec(crate::kit::format::in_gb(format!("{:.1}", b / 1e9)))
     } else if b >= 1e6 {
-        format!("{:.1} MB/s", b / 1e6)
+        crate::kit::format::per_sec(crate::kit::format::in_mb(format!("{:.1}", b / 1e6)))
     } else {
-        format!("{} KB/s", ((b / 1e3).round() as u64).max(1))
+        crate::kit::format::per_sec(crate::kit::format::in_kb(((b / 1e3).round() as u64).max(1)))
     }
 }
 

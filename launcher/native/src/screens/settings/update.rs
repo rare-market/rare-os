@@ -64,11 +64,11 @@ impl OsUpdate {
 pub fn size_text(bytes: u64) -> String {
     let b = bytes as f64;
     if b >= 1e9 {
-        format!("{:.1} GB", b / 1e9)
+        crate::kit::format::in_gb(format!("{:.1}", b / 1e9))
     } else if b >= 1e6 {
-        format!("{:.0} MB", b / 1e6)
+        crate::kit::format::in_mb(format!("{:.0}", b / 1e6))
     } else {
-        format!("{:.0} KB", (b / 1e3).max(1.0))
+        crate::kit::format::in_kb(format!("{:.0}", (b / 1e3).max(1.0)))
     }
 }
 

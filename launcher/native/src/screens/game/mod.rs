@@ -76,7 +76,7 @@ fn playtime(m: Option<i64>) -> String {
     match m.filter(|m| *m > 0) {
         None => String::new(),
         Some(m) if m < 60 => trf!(tr().game.min, n = m),
-        Some(m) => trf!(tr().game.h, n = (m as f64 / 6.0).round() / 10.0),
+        Some(m) => trf!(tr().game.h, n = rare_i18n::fmt::decimal(&((m as f64 / 6.0).round() / 10.0).to_string())),
     }
 }
 

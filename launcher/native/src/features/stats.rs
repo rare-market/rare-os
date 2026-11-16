@@ -257,7 +257,7 @@ pub fn dur(secs: i64) -> String {
         if h >= 100.0 {
             trf!(tr().features_more.stats_hours, n = int(h.round() as i64))
         } else {
-            trf!(tr().features_more.stats_hours, n = format!("{:.1}", (h * 10.0).round() / 10.0))
+            trf!(tr().features_more.stats_hours, n = rare_i18n::fmt::decimal(&format!("{:.1}", (h * 10.0).round() / 10.0)))
         }
     }
 }

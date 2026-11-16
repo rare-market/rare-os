@@ -23,9 +23,9 @@ fn small_button(cx: &mut Cx, nav: &mut Nav, parent: Id, label: &str, sid: &str, 
 pub fn size_text(bytes: u64) -> String {
     let gb = bytes as f64 / (1u64 << 30) as f64;
     if gb >= 1.0 {
-        format!("{:.1} GB", gb)
+        crate::kit::format::in_gb(format!("{:.1}", gb))
     } else {
-        format!("{} MB", (bytes >> 20).max(if bytes > 0 { 1 } else { 0 }))
+        crate::kit::format::in_mb((bytes >> 20).max(if bytes > 0 { 1 } else { 0 }))
     }
 }
 

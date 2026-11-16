@@ -267,7 +267,7 @@ fn fmt_hours(secs: u64) -> String {
     if secs < 3600 {
         trf!(tr().game.min, n = ((secs as f64 / 60.0).round() as u64).max(1))
     } else {
-        trf!(tr().game.h, n = (secs as f64 / 360.0).round() / 10.0)
+        trf!(tr().game.h, n = rare_i18n::fmt::decimal(&((secs as f64 / 360.0).round() / 10.0).to_string()))
     }
 }
 

@@ -416,18 +416,23 @@ pub fn fmt_bytes(b: u64) -> String {
     }
 }
 
-/// A number already written for its unit, with the unit in the UI language.
+/// A number already written for its unit, with the unit and the decimal mark in the UI language.
 pub fn in_tb(n: impl std::fmt::Display) -> String {
-    trf!(tr().common.unit_tb, n = n)
+    trf!(tr().common.unit_tb, n = rare_i18n::fmt::decimal(&n.to_string()))
 }
 pub fn in_gb(n: impl std::fmt::Display) -> String {
-    trf!(tr().common.unit_gb, n = n)
+    trf!(tr().common.unit_gb, n = rare_i18n::fmt::decimal(&n.to_string()))
 }
 pub fn in_mb(n: impl std::fmt::Display) -> String {
-    trf!(tr().common.unit_mb, n = n)
+    trf!(tr().common.unit_mb, n = rare_i18n::fmt::decimal(&n.to_string()))
 }
 pub fn in_kb(n: impl std::fmt::Display) -> String {
-    trf!(tr().common.unit_kb, n = n)
+    trf!(tr().common.unit_kb, n = rare_i18n::fmt::decimal(&n.to_string()))
+}
+
+/// "12.4 MB/s" in the UI language.
+pub fn per_sec(size: String) -> String {
+    trf!(tr().common.per_sec, size = size)
 }
 
 /// "15 W" in the UI language.

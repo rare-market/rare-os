@@ -122,9 +122,9 @@ pub fn platform_text(ps: &[String]) -> String {
 pub fn size_text(b: u64) -> String {
     let n = b as f64;
     if n >= 1e9 {
-        format!("{:.1} GB", n / 1e9)
+        crate::kit::format::in_gb(format!("{:.1}", n / 1e9))
     } else {
-        format!("{} MB", (n / 1e6).round().max(1.0))
+        crate::kit::format::in_mb((n / 1e6).round().max(1.0))
     }
 }
 

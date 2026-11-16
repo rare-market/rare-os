@@ -320,7 +320,7 @@ fn hours(h: f64) -> String {
     } else if h >= 100.0 {
         trf!(tr().game.h, n = int(h.round() as i64))
     } else {
-        trf!(tr().game.h, n = (h * 10.0).round() / 10.0)
+        trf!(tr().game.h, n = rare_i18n::fmt::decimal(&((h * 10.0).round() / 10.0).to_string()))
     }
 }
 
