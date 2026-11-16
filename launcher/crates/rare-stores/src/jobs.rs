@@ -352,9 +352,11 @@ fn run(job: &Job) -> Result<(), String> {
     let mut started = |pid: u32| q().lock().unwrap().pid = Some(pid);
     let mut last = std::time::Instant::now();
     let mut saved = std::time::Instant::now();
+    // An Epic download carried on (a pause, a restart): legendary counts only what is left.
+    let mut carry = if store == Store::Epic && matches!(job.kind, Kind::Install { .. } | Kind::Update) { progress::Carry::new(job.total, job.done) } else { progress::Carry::default() };
     let mut line = |l: &str| {
         if let Some(u) = progress::parse(l) {
-            apply(&id, u);
+            apply(&id, carry.map(u));
             // At most a few redraws a second.
             if last.elapsed().as_millis() > 400 {
                 last = std::time::Instant::now();

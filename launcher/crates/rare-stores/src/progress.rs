@@ -34,6 +34,54 @@ fn hms(s: &str) -> Option<u64> {
     (p.len() == 3).then(|| p[0] * 3600 + p[1] * 60 + p[2])
 }
 
+/// An Epic download carried on after a pause or a restart. legendary skips what it already
+/// fetched and counts only the rest: "Download size" is what is left, and its percent runs over
+/// that, so the bar started again at 0 % for a game that was half done. `Carry` puts the tool's
+/// numbers back onto the whole download, with what the earlier runs fetched in front.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Carry {
+    /// The whole download, as the job knew it before this run (0: nothing to carry).
+    whole: u64,
+    /// Fetched by the earlier runs.
+    before: u64,
+    /// What this run fetches (the tool's own total).
+    rest: u64,
+}
+
+impl Carry {
+    /// For a job that knew its size (`whole`) and had fetched some of it (`done`).
+    pub fn new(whole: u64, done: u64) -> Carry {
+        Carry { whole: if done > 0 { whole } else { 0 }, before: 0, rest: 0 }
+    }
+
+    pub fn map(&mut self, mut u: Update) -> Update {
+        if self.whole == 0 || u.verifying {
+            return u;
+        }
+        if let Some(t) = u.total {
+            if t == 0 || t >= self.whole {
+                // Not the rest of the same download (a new version, a bigger size): as it says.
+                self.whole = 0;
+                return u;
+            }
+            self.rest = t;
+            self.before = self.whole - t;
+            u.total = Some(self.whole);
+        }
+        if self.rest == 0 {
+            return u;
+        }
+        if let Some(d) = u.done {
+            u.done = Some(self.before + d.min(self.rest));
+        }
+        if let Some(p) = u.pct {
+            let part = self.rest as f64 * p.clamp(0.0, 100.0) as f64 / 100.0;
+            u.pct = Some(((self.before as f64 + part) / self.whole as f64 * 100.0) as f32);
+        }
+        u
+    }
+}
+
 /// What one log line says, if anything.
 pub fn parse(line: &str) -> Option<Update> {
     let l = line.trim();
@@ -101,5 +149,28 @@ mod tests {
     fn gogdl_lines() {
         let u = parse("[PROGRESS] INFO: = Progress: 50.00 500/1000, Running for: 00:00:05, ETA: 00:01:00").unwrap();
         assert_eq!((u.pct, u.done, u.total, u.eta), (Some(50.0), Some(500), Some(1000), Some(60)));
+    }
+
+    #[test]
+    fn a_resumed_download_carries_on_from_where_it_was() {
+        // 1000 MiB in all, 600 fetched before the restart: legendary says 400 are left.
+        let mut c = Carry::new(1000, 600);
+        let t = c.map(Update { total: Some(400), ..Default::default() });
+        assert_eq!(t.total, Some(1000));
+        // Its own 50 % of the rest is 80 % of the whole.
+        let p = c.map(Update { pct: Some(50.0), ..Default::default() });
+        assert_eq!(p.pct, Some(80.0));
+        let d = c.map(Update { done: Some(100), ..Default::default() });
+        assert_eq!(d.done, Some(700));
+        // A first run, or a size that is not the rest of it, is left as the tool says.
+        let mut fresh = Carry::new(1000, 0);
+        assert_eq!(fresh.map(Update { total: Some(400), ..Default::default() }).total, Some(400));
+        let mut bigger = Carry::new(1000, 600);
+        assert_eq!(bigger.map(Update { total: Some(1200), ..Default::default() }).total, Some(1200));
+        assert_eq!(bigger.map(Update { pct: Some(10.0), ..Default::default() }).pct, Some(10.0));
+        // Checking files keeps its own percent.
+        let mut v = Carry::new(1000, 600);
+        v.map(Update { total: Some(400), ..Default::default() });
+        assert_eq!(v.map(Update { pct: Some(30.0), verifying: true, ..Default::default() }).pct, Some(30.0));
     }
 }
