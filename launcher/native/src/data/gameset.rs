@@ -1,6 +1,7 @@
 //! Per-game settings the game page sets: launch arguments and environment for games Rare starts
 //! itself (Steam games keep theirs in Steam's own launch options), and the LC and RC buttons for
-//! that game on top of Settings > Controls. Kept in ~/.local/state/rare-native/games.json.
+//! that game on top of Settings > Controls, and whether the controller is its mouse. Kept in
+//! ~/.local/state/rare-native/games.json.
 //! Shared by the UI thread, the launcher (rare-launch's launch hook) and the side buttons.
 
 use serde::{Deserialize, Serialize};
@@ -22,6 +23,10 @@ pub struct GameSet {
     pub lc: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rc: Option<String>,
+    /// The controller drives this game as a mouse and keyboard (pointer mode, as for apps that
+    /// don't read a gamepad): for PC games made for the mouse alone.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub mouse: bool,
 }
 
 impl GameSet {

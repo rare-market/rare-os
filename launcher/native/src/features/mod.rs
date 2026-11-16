@@ -72,6 +72,10 @@ pub fn boot(st: &mut State) {
     if typekb::available() {
         rare_launch::apps::pointer::set_keyboard(crate::side::app_keyboard);
     }
+    // A game set to the mouse (its page's Controls row): the pad is its mouse while it has the
+    // screen and nothing of Rare's is over it.
+    #[cfg(target_os = "linux")]
+    desktop::start_in_game(|| rare_launch::apps::front::pointer_active() && !crate::app::surface_up());
     // Now playing: the first look at Quick settings or the Rare menu already has the player.
     rare_system::media::warm();
 }

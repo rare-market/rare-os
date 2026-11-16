@@ -1,6 +1,6 @@
 //! A game's own settings on its page: launch options (Steam's own for Steam games; arguments and
 //! environment for games Rare starts itself), LC and RC for this game on top of Settings >
-//! Controls, and the Steam Deck / ProtonDB line.
+//! Controls, the controller as a mouse for games made for one, and the Steam Deck / ProtonDB line.
 
 use crate::act::Act;
 use rare_i18n::{tr, trf};
@@ -23,6 +23,7 @@ const ARGS: u32 = 1001;
 const ENV: u32 = 1002;
 const LC: u32 = 1010;
 const RC: u32 = 1011;
+const MOUSE: u32 = 1012;
 /// + 0 follows Settings, + 1.. is actions()[i - 1].
 const LC_PICK: u32 = 1100;
 const RC_PICK: u32 = 1200;
@@ -158,6 +159,7 @@ pub fn view(ui: &mut Ui, sh: &Shared, acts: &mut Acts, g: &Game) -> Option<El> {
         label(ui, tr().game.controls),
         kit::button(ui, B::new(trf!(tr().game.lc_value, value = side(true, &set.lc)), acts.tag(Act::Local(LC))).ghost().hint(tr().common.change)),
         kit::button(ui, B::new(trf!(tr().game.rc_value, value = side(false, &set.rc)), acts.tag(Act::Local(RC))).ghost().hint(tr().common.change)),
+        kit::button(ui, B::new(trf!(tr().game.pad_value, value = if set.mouse { tr().game.pad_as_mouse } else { tr().game.pad_as_gamepad }), acts.tag(Act::Local(MOUSE))).ghost().hint(tr().common.change)),
     ];
     let row = |ui: &mut Ui, kids: Vec<El>| ui.bx(s().row().wrap().items_center().gap(0.5)).kids(kids);
     let a = row(ui, launch);
@@ -221,6 +223,16 @@ pub fn act(sh: &Shared, st: &mut State, fx: &mut Fx, g: &Game, code: u32) {
         }
         ARGS => st.ask_text(ASK_ARGS, tr().game.args_title, gameset::get(&g.id).args, Some("-windowed -skipintro")),
         ENV => st.ask_text(ASK_ENV, tr().game.env_title, gameset::get(&g.id).env, Some("DXVK_HUD=fps PROTON_USE_WINED3D=1")),
+        MOUSE => {
+            let mut on = false;
+            gameset::update(&g.id, |s| {
+                s.mouse = !s.mouse;
+                on = s.mouse;
+            });
+            // A game that has the screen switches at once.
+            rare_launch::apps::front::refresh_pointer();
+            st.toast(if on { tr().game.pad_mouse_on } else { tr().game.pad_mouse_off }, Tone::Info, rare_render::clock::secs());
+        }
         LC | RC => {
             let lc = code == LC;
             let set = gameset::get(&g.id);

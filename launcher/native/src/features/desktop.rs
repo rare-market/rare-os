@@ -22,6 +22,9 @@
 //! gamepad mode): Keyboard toggles Plasma's on-screen keyboard, Capture takes a screenshot with
 //! Spectacle, Key shortcut holds its keys down while the button is held (push-to-talk dictation).
 //! Return to Rare stays the desktop's Return to Rare.
+//!
+//! In Rare's Game Mode session the same controls drive a game the player set to the mouse
+//! (`start_in_game`).
 
 use crate::screens::settings::config;
 use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
@@ -228,6 +231,11 @@ fn grab(fd: i32, on: bool) -> bool {
 /// Applies the mode the window and Quick ask for. `note`: show it on screen (a hand switch).
 fn apply(note: bool) {
     let want = MODES.lock().unwrap_or_else(|e| e.into_inner()).gamepad();
+    switch(want, note);
+}
+
+/// Gamepad (`want`) or desktop controls: the pads let go or grabbed, nothing left held.
+fn switch(want: bool, note: bool) {
     if GAMEPAD.swap(want, Ordering::SeqCst) == want {
         if note {
             osd(want);
@@ -241,7 +249,7 @@ fn apply(note: bool) {
         }
     }
     log(if want { "gamepad: games get the controller" } else { "desktop controls" });
-    if note {
+    if note && !IN_GAME.load(Ordering::Relaxed) {
         osd(want);
     }
 }
@@ -400,7 +408,13 @@ fn read_pad(mut dev: evdev::Device, n: u64, swapped: bool) {
             match e.event_type() {
                 evdev::EventType::KEY if desk && v != 2 => match button(code, swapped) {
                     Does::Keys(k) => keys(&k, v == 1),
-                    Does::Keyboard if v == 1 => keyboard(),
+                    Does::Keyboard if v == 1 => {
+                        if IN_GAME.load(Ordering::Relaxed) {
+                            crate::side::app_keyboard(false);
+                        } else {
+                            keyboard();
+                        }
+                    }
                     _ => {}
                 },
                 evdev::EventType::ABSOLUTE => match code {
@@ -602,6 +616,38 @@ fn inputplumber() {
 }
 
 static STARTED: OnceLock<()> = OnceLock::new();
+/// Running inside Rare's Game Mode session (`start_in_game`), not Plasma's.
+static IN_GAME: AtomicBool = AtomicBool::new(false);
+
+/// Game Mode: the same controller-as-mouse for a game the player set to the mouse (the Controls
+/// row on its page; `mouse` says when one has the screen and no Rare surface is over it).
+///
+/// The pads are found as in Desktop mode, InputPlumber's virtual pad among them (its source pads
+/// are held by InputPlumber and left alone), but left to the games until then. While such a game
+/// has the screen they are grabbed, so the game sees only Rare's mouse and keyboard; Rare and
+/// Quick are InputPlumber D-Bus actions, not pad buttons, so they still bring the launcher back,
+/// and a Rare surface over the game gets the pad as always (InputPlumber intercepts).
+pub fn start_in_game(mouse: fn() -> bool) {
+    if STARTED.set(()).is_err() {
+        return;
+    }
+    IN_GAME.store(true, Ordering::Relaxed);
+    GAMEPAD.store(true, Ordering::SeqCst);
+    std::thread::Builder::new().name("rare-game-mouse-scan".into()).spawn(scan).ok();
+    std::thread::Builder::new().name("rare-game-mouse-motion".into()).spawn(motion).ok();
+    std::thread::Builder::new()
+        .name("rare-game-mouse".into())
+        .spawn(move || loop {
+            let on = mouse();
+            if on {
+                // The virtual mouse exists before the first move.
+                with_out(|_| {});
+            }
+            switch(!on, false);
+            std::thread::sleep(Duration::from_millis(150));
+        })
+        .ok();
+}
 
 /// `--desktop-controls`: runs until the desktop session ends. Exit code for the wrapper.
 pub fn run() -> i32 {

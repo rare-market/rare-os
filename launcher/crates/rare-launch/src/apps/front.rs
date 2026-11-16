@@ -48,6 +48,40 @@ fn state() -> std::sync::MutexGuard<'static, State> {
     S.get_or_init(|| Mutex::new(State { front: None, pointer_apps: HashMap::new(), steam: HashSet::new(), pending: HashSet::new(), ask: None })).lock().unwrap_or_else(|e| e.into_inner())
 }
 
+/// Games the player set to be driven as a mouse (the Controls row on a game's page, kept by the
+/// launcher): asked whenever one comes to the front, so it holds for every way a game starts or
+/// comes back, Steam games included. The launcher drives them (features/desktop.rs in Game Mode).
+static GAME_POINTER: std::sync::OnceLock<fn(&str) -> bool> = std::sync::OnceLock::new();
+
+/// Registers the check for `GAME_POINTER` (once, at start).
+pub fn set_game_pointer(f: fn(&str) -> bool) {
+    let _ = GAME_POINTER.set(f);
+}
+
+fn game_pointer(run_id: &str) -> bool {
+    GAME_POINTER.get().is_some_and(|f| f(run_id))
+}
+
+/// Whether `run_id` is driven as a mouse: an app in pointer mode, or a game set to be.
+fn is_pointer(s: &State, run_id: &str) -> bool {
+    s.pointer_apps.contains_key(run_id) || game_pointer(run_id)
+}
+
+/// A game's setting changed: pointer mode follows at once for what has the screen.
+pub fn refresh_pointer() {
+    if launcher_front() {
+        return;
+    }
+    let on = {
+        let s = state();
+        s.front.as_deref().is_some_and(|f| is_pointer(&s, f))
+    };
+    POINTER.store(on, Ordering::Relaxed);
+    if !on {
+        super::pointer::stop();
+    }
+}
+
 /// The launcher has the screen (start, Guide, or what was in front ended).
 pub fn to_launcher() {
     GEN.fetch_add(1, Ordering::Relaxed);
@@ -63,7 +97,7 @@ pub fn to_front(run_id: &str) {
     rare_overlay::switcher::fronted(run_id);
     let mut s = state();
     s.front = Some(run_id.to_string());
-    POINTER.store(s.pointer_apps.contains_key(run_id), Ordering::Relaxed);
+    POINTER.store(is_pointer(&s, run_id), Ordering::Relaxed);
     LAUNCHER.store(false, Ordering::Relaxed);
 }
 
@@ -241,6 +275,31 @@ mod tests {
         assert!(pointer_active());
         sync(&["steam:1".to_string()]);
         assert!(launcher_front());
+        assert!(!pointer_active());
+    }
+
+    #[test]
+    fn a_game_set_to_the_mouse_is_driven_as_one() {
+        let _g = TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        set_game_pointer(|id| id == "epic:mouse");
+        to_launcher();
+        sync(&[]);
+        to_front("epic:mouse");
+        assert!(pointer_active());
+        // Other games keep the controller.
+        to_front("epic:pad");
+        assert!(!pointer_active());
+        // Guide, then Resume: on again.
+        to_launcher();
+        assert!(!pointer_active());
+        to_front("epic:mouse");
+        assert!(pointer_active());
+        // Still running while it is checked again: it stays on.
+        sync(&["epic:mouse".to_string()]);
+        assert!(pointer_active());
+        refresh_pointer();
+        assert!(pointer_active());
+        sync(&[]);
         assert!(!pointer_active());
     }
 

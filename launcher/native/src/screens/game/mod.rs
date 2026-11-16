@@ -83,7 +83,7 @@ fn playtime(m: Option<i64>) -> String {
 impl Page for GameDetail {
     fn stamp(&self, st: &State) -> u64 {
         let slow = st.starts.get(&self.id).is_some_and(|s| rare_render::clock::secs() - s.since >= 15.0);
-        hash((&self.id, st.ver.library, st.ver.running, st.ver.favs, st.ver.starts, self.shared.ver(), self.cloud.ver(), self.settings.ver(), self.extras.ver(), (slow, crate::features::cloudsync::ver()), self.manage.stamp(), (st.feat.downloads.ver, crate::features::stores::ver(), self.know.ver(), if self.id.starts_with("emu:") { crate::features::emulation::ver() } else { 0 })))
+        hash((&self.id, st.ver.library, st.ver.running, st.ver.favs, st.ver.starts, self.shared.ver(), self.cloud.ver(), (self.settings.ver(), crate::data::gameset::version()), self.extras.ver(), (slow, crate::features::cloudsync::ver()), self.manage.stamp(), (st.feat.downloads.ver, crate::features::stores::ver(), self.know.ver(), if self.id.starts_with("emu:") { crate::features::emulation::ver() } else { 0 })))
     }
 
     fn tick(&mut self, st: &mut State, fx: &mut Fx, now: f64) -> Option<f64> {

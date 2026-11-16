@@ -199,6 +199,13 @@ strings! {
     /// Buttons for the left and right controller clicks (LC, RC stay as the buttons' names); value is an action
     lc_value: "LC: {value}",
     rc_value: "RC: {value}",
+    /// Button on the Controls row: what the controller is in this game; value is pad_as_gamepad or pad_as_mouse
+    pad_value: "Controller: {value}",
+    pad_as_gamepad: "gamepad",
+    pad_as_mouse: "mouse",
+    /// Toasts after switching it
+    pad_mouse_on: "In this game the controller is a mouse: the right stick moves the pointer, A clicks, B right-clicks, View is Escape, Y the keyboard.",
+    pad_mouse_off: "In this game the controller is a gamepad again.",
     saved_next_start: "Saved. Used the next time the game starts.",
     /// Toast; bad is the text the player typed
     env_bad: "{bad} is not NAME=value. Nothing was saved.",

@@ -719,6 +719,7 @@ impl DeviceBackend {
     pub fn new() -> DeviceBackend {
         let cache = std::env::var("RR_LIBRARY").ok().map(PathBuf::from);
         crate::features::webgame::install();
+        rare_launch::apps::front::set_game_pointer(|id| crate::data::gameset::get(id).mouse);
         rare_launch::launch::set_launch_extra(|id| {
             // The game's own arguments and environment, after Rare's frame generation and filter
             // environment (gamefx: the key its Vulkan layer manifests wait for).
