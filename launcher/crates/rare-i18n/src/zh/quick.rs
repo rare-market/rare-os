@@ -55,6 +55,7 @@ translate! { quick {
     sleep: "睡眠",
     keyboard: "键盘",
     open_keyboard: "打开键盘",
+    pad_in_game: "此游戏中的手柄",
     all_settings: "所有设置",
     open_steam: "打开 Steam",
     err_overlay: "无法更改性能浮层。",

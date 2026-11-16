@@ -55,6 +55,7 @@ translate! { quick {
     sleep: "Suspender",
     keyboard: "Teclado",
     open_keyboard: "Abrir o teclado",
+    pad_in_game: "Controle neste jogo",
     all_settings: "Todas as configurações",
     open_steam: "Abrir Steam",
     err_overlay: "Não foi possível alterar a sobreposição de desempenho.",

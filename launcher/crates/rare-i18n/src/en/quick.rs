@@ -78,6 +78,8 @@ strings! {
     /// Bottom buttons and hint (Y opens Steam)
     keyboard: "Keyboard",
     open_keyboard: "Open the keyboard",
+    /// Row over a running game: what the controller is in it (value: the game page's pad_as_mouse / pad_as_gamepad)
+    pad_in_game: "Controller in this game",
     all_settings: "All settings",
     open_steam: "Open Steam",
     /// Toasts for failed changes

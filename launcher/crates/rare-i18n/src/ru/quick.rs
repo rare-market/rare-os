@@ -55,6 +55,7 @@ translate! { quick {
     sleep: "Сон",
     keyboard: "Клавиатура",
     open_keyboard: "Открыть клавиатуру",
+    pad_in_game: "Геймпад в этой игре",
     all_settings: "Все настройки",
     open_steam: "Открыть Steam",
     err_overlay: "Не удалось изменить оверлей производительности.",

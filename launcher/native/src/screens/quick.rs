@@ -51,6 +51,7 @@ const TDP: u32 = 17;
 const REPLAY: u32 = 18;
 const STEAM: u32 = 19;
 const KEYBOARD: u32 = 20;
+const MOUSE: u32 = 21;
 const PROFILE: u32 = 100;
 const HUD: u32 = 200;
 const FPSC: u32 = 300;
@@ -232,13 +233,22 @@ fn qstate(ui: &mut Ui, icon: &str, label: &str, state: &str, tag: u32, hint: Opt
     kit::nav(kit::row_look(b), tag, hint, None, false).key(key(label))
 }
 
+/// The game the panel is for, when it is one the controller can drive as a mouse: the one
+/// running now (as for "Use for this game" above; the screen is Rare's while the panel is up),
+/// not an app, a web game or a stream (those have their own input).
+fn mouse_game() -> Option<String> {
+    let run = rare_system::power::current_game()?;
+    let own = ["app:", "web:", "stream:", "cloud:"].iter().any(|p| run.starts_with(p));
+    (!own).then_some(run)
+}
+
 fn section_label(ui: &mut Ui, label: &str) -> El {
     ui.text(label, T::new(Ty::Label).w(500).c(tok::MUTED))
 }
 
 impl Page for QuickSettings {
     fn stamp(&self, st: &State) -> u64 {
-        hash((st.ver.qs, st.ver.device, self.more, self.loaded, (self.up.mode as u8, self.up.sharpness, self.up.width, self.up.height), rare_system::media::version(), crate::features::capture::version()))
+        hash((st.ver.qs, st.ver.device, self.more, self.loaded, (self.up.mode as u8, self.up.sharpness, self.up.width, self.up.height), rare_system::media::version(), crate::features::capture::version(), crate::data::gameset::version()))
     }
 
     fn view(&mut self, ui: &mut Ui, st: &State, acts: &mut Acts) -> El {
@@ -394,10 +404,19 @@ impl Page for QuickSettings {
                     .child(qbtn(ui, "rotate-ccw", tr().common.restart, acts.tag(Act::Local(RESTART)), None, false))
                     .child(qbtn(ui, "power", tr().common.turn_off, acts.tag(Act::Local(OFF)), None, false)),
             );
-        let all = ui
+        let mut all = ui
             .bx(s().grid(&[Track::Fr(1.0), Track::Fr(1.0)]).gap(0.5).mt_auto())
             .group(Group::new("qam-end", [0.0; 4]))
-            .child(qbtn(ui, "keyboard", tr().quick.keyboard, acts.tag(Act::Local(KEYBOARD)), Some(tr().quick.open_keyboard), true))
+            .child(qbtn(ui, "keyboard", tr().quick.keyboard, acts.tag(Act::Local(KEYBOARD)), Some(tr().quick.open_keyboard), true));
+        // Over a game: the controller as its mouse or not, without closing it (the game page
+        // hides its settings while it runs).
+        if let Some(game) = mouse_game() {
+            let on = crate::data::gameset::get(&game).mouse;
+            let state = if on { tr().game.pad_as_mouse } else { tr().game.pad_as_gamepad };
+            let row = qstate(ui, "mouse", tr().quick.pad_in_game, state, acts.tag(Act::Local(MOUSE)), Some(if on { tr().common.turn_off } else { tr().common.turn_on }));
+            all = all.child(row.style(|st| st.grid_column = rare_render::taffy::prelude::span(2)));
+        }
+        let all = all
             .child(qbtn(ui, "settings", tr().quick.all_settings, acts.tag(Act::Local(SETTINGS)), None, false))
             .child(qbtn(ui, "gamepad-2", tr().quick.open_steam, acts.tag(Act::Local(STEAM)), Some(tr().quick.open_steam), false));
         let small = T::new(Ty::Small).c(tok::fg(0.7));
@@ -621,6 +640,17 @@ impl Page for QuickSettings {
             // The keyboard over the game or app under the panel (or the launcher's own); the app
             // closes the panel first so the app has the screen and focus.
             KEYBOARD => fx.run(Act::Legacy("qs:keyboard".into())),
+            MOUSE => {
+                let Some(game) = mouse_game() else { return };
+                let mut on = false;
+                crate::data::gameset::update(&game, |s| {
+                    s.mouse = !s.mouse;
+                    on = s.mouse;
+                });
+                rare_launch::apps::front::refresh_pointer();
+                fx.fb(Feedback::Toggle);
+                st.toast(if on { tr().game.pad_mouse_on } else { tr().game.pad_mouse_off }, crate::state::Tone::Info, rare_render::clock::secs());
+            }
             CLIP => fx.run(Act::Legacy("qs:clip".into())),
             REPLAY => {
                 fx.fb(Feedback::Toggle);

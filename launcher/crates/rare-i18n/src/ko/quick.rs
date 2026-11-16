@@ -55,6 +55,7 @@ translate! { quick {
     sleep: "절전",
     keyboard: "키보드",
     open_keyboard: "키보드 열기",
+    pad_in_game: "이 게임의 컨트롤러",
     all_settings: "모든 설정",
     open_steam: "Steam 열기",
     err_overlay: "성능 오버레이를 변경할 수 없습니다.",

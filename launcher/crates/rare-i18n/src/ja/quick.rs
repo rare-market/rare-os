@@ -55,6 +55,7 @@ translate! { quick {
     sleep: "スリープ",
     keyboard: "キーボード",
     open_keyboard: "キーボードを開く",
+    pad_in_game: "このゲームのコントローラー",
     all_settings: "すべての設定",
     open_steam: "Steamを開く",
     err_overlay: "パフォーマンス表示を変更できませんでした。",
