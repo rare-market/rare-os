@@ -64,6 +64,8 @@ translate! { game {
     proton_removed: "已移除 {name}",
     proton_failed: "无法完成操作。",
     proton_install: "安装 {name}",
+    proton_video_install: "此游戏含有视频。如果显示为彩条，请安装 GE-Proton，它可以播放这些视频。",
+    proton_video_pick: "此游戏含有视频。如果显示为彩条，请选择 GE-Proton，它可以播放这些视频。",
     proton_remove_old: "移除旧版 {name}",
     restarting_steam: "正在重启 Steam",
     saving: "正在保存",

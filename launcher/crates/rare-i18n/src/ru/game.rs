@@ -64,6 +64,8 @@ translate! { game {
     proton_removed: "{name} удалён",
     proton_failed: "Не удалось завершить действие.",
     proton_install: "Установить {name}",
+    proton_video_install: "В игре есть видео. Если вместо них цветные полосы, установите GE-Proton: он их воспроизводит.",
+    proton_video_pick: "В игре есть видео. Если вместо них цветные полосы, выберите GE-Proton: он их воспроизводит.",
     proton_remove_old: "Удалить старый {name}",
     restarting_steam: "Перезапуск Steam",
     saving: "Сохранение",

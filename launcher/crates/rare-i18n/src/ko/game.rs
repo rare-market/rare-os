@@ -64,6 +64,8 @@ translate! { game {
     proton_removed: "{name} 제거됨",
     proton_failed: "완료할 수 없습니다.",
     proton_install: "{name} 설치",
+    proton_video_install: "이 게임에는 동영상이 있습니다. 컬러 바가 보이면 GE-Proton을 설치하세요. 재생할 수 있습니다.",
+    proton_video_pick: "이 게임에는 동영상이 있습니다. 컬러 바가 보이면 GE-Proton을 선택하세요. 재생할 수 있습니다.",
     proton_remove_old: "이전 {name} 제거",
     restarting_steam: "Steam 다시 시작 중",
     saving: "저장 중",

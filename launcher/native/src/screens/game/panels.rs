@@ -26,6 +26,48 @@ struct Inner {
     browser: Option<String>,
     /// The Proton action in flight ("set:...", "install:ge", "rm:...").
     busy: Option<String>,
+    /// The game's folder holds video (`has_videos`).
+    videos: bool,
+}
+
+/// Video files, by extension: plain containers and the middleware ones (Bink, CRI, Theora).
+const VIDEO_EXT: [&str; 11] = ["mp4", "m4v", "webm", "wmv", "avi", "mkv", "mov", "bk2", "bik", "usm", "ogv"];
+
+/// Whether a game's folder holds video: a video file within a few levels, or Unity's
+/// `<Game>_Data/*.resource`, where Unity keeps its video clips. Proton's own builds can't decode
+/// most of these and show colour bars in their place; GE-Proton plays them. Stops after a few
+/// thousand entries, so a big folder costs little.
+pub fn has_videos(dir: &std::path::Path) -> bool {
+    let mut left = 5000usize;
+    let mut stack = vec![(dir.to_path_buf(), 0u8)];
+    while let Some((d, depth)) = stack.pop() {
+        let Ok(rd) = std::fs::read_dir(&d) else { continue };
+        let unity_data = d.file_name().and_then(|n| n.to_str()).is_some_and(|n| n.ends_with("_Data")) && d.parent() == Some(dir);
+        for e in rd.flatten() {
+            if left == 0 {
+                return false;
+            }
+            left -= 1;
+            let p = e.path();
+            let Ok(t) = e.file_type() else { continue };
+            if t.is_dir() {
+                if depth < 4 {
+                    stack.push((p, depth + 1));
+                }
+                continue;
+            }
+            let ext = p.extension().and_then(|x| x.to_str()).map(|x| x.to_ascii_lowercase()).unwrap_or_default();
+            if VIDEO_EXT.contains(&ext.as_str()) || (unity_data && ext == "resource") {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+/// The tool the game runs on is a GE-Proton build.
+fn on_ge(st: &ProtonStatus) -> bool {
+    st.game.as_deref().is_some_and(|g| st.tools.iter().any(|t| t.name == g && t.kind == "ge"))
 }
 
 /// The newest `proton-install` event (phase, done, total); None once it finished or failed.
@@ -142,12 +184,15 @@ pub fn load(sh: &Arc<Shared>, fx: &mut Fx, g: &Game) {
     if tgt.is_none() && !web {
         return;
     }
+    let dir = g.install_dir.clone().filter(|_| !web).map(std::path::PathBuf::from);
     fx.spawn(move |b| {
         let proton = tgt.as_ref().and_then(|t| status_of(b, t));
         let browser = if web { b.browser_name() } else { None };
+        let videos = proton.is_some() && dir.as_deref().is_some_and(has_videos);
         Box::new(move |_, _| sh.set(|i| {
             i.proton = proton;
             i.browser = browser;
+            i.videos = videos;
         }))
     });
 }
@@ -229,9 +274,9 @@ pub fn act(sh: &Arc<Shared>, st: &mut State, fx: &mut Fx, g: &Game, code: u32) {
 /// ProtonPanel: Valve's stable build by default, others on request.
 pub fn proton(ui: &mut Ui, sh: &Shared, acts: &mut Acts, g: &Game) -> Option<El> {
     let steam = matches!(target(g)?, Target::Steam(_));
-    let (status, busy) = {
+    let (status, busy, videos) = {
         let i = sh.inner.lock().unwrap();
-        (i.proton.clone()?, i.busy.clone())
+        (i.proton.clone()?, i.busy.clone(), i.videos)
     };
     if status.tools.is_empty() {
         return None;
@@ -259,7 +304,14 @@ pub fn proton(ui: &mut Ui, sh: &Shared, acts: &mut Acts, g: &Game) -> Option<El>
         };
         kids.push(ui.text(text, T::new(Ty::Meta).c(tok::MUTED)));
     }
-    Some(ui.bx(s().row().wrap().items_center().gap(0.5).max_w(75.0)).group(Group::new("proton", [0.0; 4])).kids(kids))
+    let row = ui.bx(s().row().wrap().items_center().gap(0.5).max_w(75.0)).group(Group::new("proton", [0.0; 4])).kids(kids);
+    // A game with video, on a Proton that can't play it: say what helps before the player sees
+    // colour bars where its videos should be.
+    if videos && !on_ge(&status) && !off {
+        let hint = if status.installable.iter().any(|k| k == "ge") { tr().game.proton_video_install } else { tr().game.proton_video_pick };
+        return Some(ui.bx(s().col().gap(0.4)).child(row).child(ui.text(hint, T::new(Ty::Meta).c(tok::MUTED).wrap())));
+    }
+    Some(row)
 }
 
 /// "12 min" or "1.5 h" (GamePanels.tsx fmtHours).
@@ -348,4 +400,24 @@ pub fn start_progress(ui: &mut Ui, start: &Start, now: f64) -> Option<El> {
     let seg = ui.bx(s().wp(0.35).h_px(3.0)).bg(tok::fg(0.8)).radius(ui.r(0.15)).name(name);
     let track = ui.bx(s().wp(1.0).h_px(3.0)).bg(tok::fg(0.15)).radius(ui.r(0.15)).clip().child(seg);
     Some(ui.bx(s().col().w(26.0)).child(track).child(ui.text_s(s().mt(0.35), text, T::new(Ty::Small).c(tok::MUTED))))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn finds_video_files_and_unity_clips() {
+        let d = std::env::temp_dir().join(format!("rare-videos-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(d.join("Game_Data/StreamingAssets")).unwrap();
+        std::fs::write(d.join("Game.exe"), "").unwrap();
+        assert!(!has_videos(&d));
+        std::fs::write(d.join("Game_Data/resources.resource"), "").unwrap();
+        assert!(has_videos(&d), "Unity's clips");
+        std::fs::remove_file(d.join("Game_Data/resources.resource")).unwrap();
+        std::fs::write(d.join("Game_Data/StreamingAssets/Intro.MP4"), "").unwrap();
+        assert!(has_videos(&d), "a video file, any case");
+        std::fs::remove_dir_all(&d).unwrap();
+    }
 }

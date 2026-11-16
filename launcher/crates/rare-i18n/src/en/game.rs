@@ -102,6 +102,9 @@ strings! {
     proton_failed: "Couldn't finish that.",
     /// Button: downloads a Proton flavour; name such as GE-Proton (short: button)
     proton_install: "Install {name}",
+    /// Under the Proton row, for a game that has videos and doesn't run on GE-Proton
+    proton_video_install: "This game has videos. If they show colour bars, install GE-Proton: it plays them.",
+    proton_video_pick: "This game has videos. If they show colour bars, choose GE-Proton: it plays them.",
     /// Button: removes an out-of-date Proton; name is its label
     proton_remove_old: "Remove old {name}",
     /// Status text while the Proton change is applied

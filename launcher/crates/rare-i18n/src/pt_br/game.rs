@@ -64,6 +64,8 @@ translate! { game {
     proton_removed: "{name} removido",
     proton_failed: "Não foi possível concluir.",
     proton_install: "Instalar {name}",
+    proton_video_install: "Este jogo tem vídeos. Se aparecerem barras coloridas, instale o GE-Proton: ele os reproduz.",
+    proton_video_pick: "Este jogo tem vídeos. Se aparecerem barras coloridas, escolha o GE-Proton: ele os reproduz.",
     proton_remove_old: "Remover {name} antigo",
     restarting_steam: "Reiniciando a Steam",
     saving: "Salvando",
