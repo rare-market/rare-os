@@ -129,7 +129,7 @@ impl AttestError {
             AttestError::Unavailable(TpmStatus::Ready) => "Try again.".into(),
             AttestError::Tpm(_) => "The TPM check didn't finish. Try again.".into(),
             AttestError::Refused { code, message, .. } => match code.as_str() {
-                "unknown_firmware" => "This device's firmware isn't a known SuiPlay firmware.".into(),
+                "unknown_firmware" => "Rare Pass doesn't recognize this device's BIOS version yet. Support is added as new SuiPlay versions appear, so try again after the next Rare OS update.".into(),
                 "untrusted_tpm" | "no_ek_cert" => "This device's TPM couldn't be verified.".into(),
                 "rate_limited" => "Too many checks in the last hour. Try again later.".into(),
                 _ => message.clone(),

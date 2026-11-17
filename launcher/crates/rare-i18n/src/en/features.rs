@@ -291,8 +291,10 @@ pass_claimed: "Rare Pass claimed",
 pass_claim_title: "Claim Rare Pass",
 /// Rare Pass: review sheet title when the pass moves to this device
 pass_move_title: "Move this device's Rare Pass here",
-/// Rare Pass: error shown on the pass screen
-pass_unverified: "This device isn't running a verified Rare OS build.",
+/// Rare Pass: error shown on the pass screen when the attestor can't vouch for how this device started (below_pass_level)
+pass_unverified: "Rare Pass can't verify how this device started yet. Install the latest Rare OS update in Settings > System, restart, then tap Claim again. If it still doesn't work, support for your device is coming in a future update.",
+/// Rare Pass: error shown on the pass screen when the attestor doesn't know this device's BIOS (unknown_firmware)
+pass_unknown_firmware: "Rare Pass doesn't recognize this device's BIOS version yet. Support is added as new SuiPlay versions appear, so try again after the next Rare OS update.",
 /// Rare Pass: error shown on the pass screen
 pass_paused: "Rare Pass claims are paused right now.",
 /// Rare Pass: error shown on the pass screen

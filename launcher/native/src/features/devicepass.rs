@@ -91,7 +91,7 @@ fn fixture() -> Option<View> {
         Ok("idle") => base,
         Ok("checking") => View { phase: Phase::Checking, ..base },
         Ok("signing") => View { phase: Phase::Signing, ..base },
-        Ok("error") => View { phase: Phase::Error("This device's firmware isn't a known SuiPlay firmware.".into()), ..base },
+        Ok("error") => View { phase: Phase::Error(tr().features.pass_unknown_firmware.into()), ..base },
         Ok("nosigner") => View { can_sign: false, ..base },
         Ok("held") => View { pass: Some(held), ..base },
         Ok("moved") => View { stale: true, ..base },
@@ -267,13 +267,18 @@ pub fn claim() {
 
 fn claim_blocking(cfg: &TrophyConfig, address: &str) -> Result<(), String> {
     let ep = rare_attest::Endpoint { base: rare_sui::network::MARKET.into(), testnet: cfg.network == Network::Testnet };
-    let a = rare_attest::attest(&ep, &rare_attest::Request { address: address.to_string(), aud: None }).map_err(|e| e.message())?;
+    let a = rare_attest::attest(&ep, &rare_attest::Request { address: address.to_string(), aud: None }).map_err(|e| match &e {
+        // The attestor doesn't know this BIOS (PCR0) yet: support comes with an update, in the UI language.
+        rare_attest::AttestError::Refused { code, .. } if code == "unknown_firmware" => tr().features.pass_unknown_firmware.to_string(),
+        _ => e.message(),
+    })?;
     let (v, title) = match a.pass {
         rare_attest::PassOffer::New(v) => (v, tr().features.pass_claim_title),
         rare_attest::PassOffer::Rebind(v) => (v, tr().features.pass_move_title),
         rare_attest::PassOffer::Held { .. } => return Ok(()),
         rare_attest::PassOffer::Unavailable { reason } => {
             return Err(match reason.as_str() {
+                // below_pass_level: the boot chain isn't one the attestor vouches for yet.
                 "level" => tr().features.pass_unverified.into(),
                 "paused" => tr().features.pass_paused.into(),
                 _ => tr().features.pass_not_open.into(),
