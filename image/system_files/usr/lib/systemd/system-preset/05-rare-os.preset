@@ -10,6 +10,7 @@ enable rare-power-defaults.service
 enable rare-pmc-first.service
 enable rare-audio-defaults.service
 enable rare-boot-menu.service
+enable rare-bootloader-update.timer
 enable rare-fand.service
 enable rare-update.timer
 enable rare-update-recover.service

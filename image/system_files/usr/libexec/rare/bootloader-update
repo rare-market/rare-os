@@ -1,0 +1,192 @@
+#!/usr/bin/bash
+# Puts Rare OS's own boot loader (shim + GRUB, \EFI\fedora and \EFI\BOOT) on the EFI system partition,
+# once per device, with bootupd. Started by rare-bootloader-update.timer a few minutes after boot.
+#
+# Why: `bootc switch` and every update after it replace the system, never the EFI partition. A SuiPlay
+# switched in place from GameOS 43 kept booting GameOS's shim 15.8-3 + GRUB 2.12-43.fc43, so its TPM
+# shows that boot chain (PCR4 228e84a8...) instead of Rare OS's, and rare.market's attestor can't tell
+# it runs Rare OS. The base's own bootloader-update.service (enabled by 81-atomic-desktop.preset;
+# bootupd 0.3 adopts a partition it has no state for) fixes that on a stock fedora-bootc:43 install
+# in a VM, but those devices never got there: on a switched device that unit is whatever the old
+# system's /etc made it (ostree keeps a local disable or mask).
+# This one runs on its own, checks the result and says what it found (docs/ATTEST.md, "Devices
+# switched from another OS").
+#
+# What it does, in order (each step logs to the journal, `journalctl -u rare-bootloader-update`):
+#   - finds the image's boot loader (bootupd's payload: /usr/lib/efi on Fedora 45 bases,
+#     /usr/lib/bootupd/updates before) and the one EFI system partition on the disk Rare OS runs
+#     from, and reads it read-only; stops if either is missing or not what it expects (Fedora layout,
+#     \EFI\fedora\shimx64.efi and grubx64.efi), or if there is more than one candidate
+#   - when the partition already has the image's shim and GRUB: records that and never runs again
+#   - otherwise, on mains power or with enough battery, runs `bootupctl update` (bootupd knows this
+#     partition: /boot/bootupd-state.json) or `bootupctl adopt-and-update` (it doesn't yet). bootupd
+#     writes each file to a temporary name and renames it into place, and never deletes the other
+#     files on the partition (grub.cfg, other systems' folders) or touches the firmware's boot entries
+#   - reads the partition again; only when shim and GRUB are the image's does it record success
+#     (/var/lib/rare/bootloader/done). A failure leaves the old boot loader in place and is tried
+#     again at the next boot, three times at most (then /var/lib/rare/bootloader/gave-up).
+#
+# The previous OS (sudo rare-undo) boots with the new shim and GRUB the same way: GRUB reads the same
+# /boot/loader/entries that ostree writes for every deployment. Its own bootloader-update.service
+# never moves the partition back, as bootupd does not downgrade.
+#
+# RARE_BOOTLOADER_CHECK=1: report only, change nothing (no bootupctl, no state written).
+set -euo pipefail
+
+STATE=/var/lib/rare/bootloader
+CHECK_ONLY="${RARE_BOOTLOADER_CHECK:-0}"
+ESP_TYPE=c12a7328-f81f-11d2-ba4b-00a0c93ec93b
+MAX_TRIES=3
+MIN_BATTERY=25
+
+log() { echo "rare-bootloader: $*"; }
+stop_here() { log "$*; nothing changed"; exit 0; }
+
+if [[ "$CHECK_ONLY" != 1 ]]; then
+    [[ -e "$STATE/done" ]] && exit 0
+    [[ -e "$STATE/gave-up" ]] && stop_here "gave up after $MAX_TRIES failed tries (see $STATE/gave-up)"
+fi
+[[ -d /sys/firmware/efi ]] || stop_here "not started with UEFI"
+[[ -e /run/ostree-booted ]] || stop_here "not an image-based system"
+command -v bootupctl >/dev/null || stop_here "bootupctl is missing"
+
+# ---------------------------------------------------------------- the image's boot loader
+one() { # glob: the single file it matches, or nothing
+    local m=() f
+    for f in $1; do [[ -f "$f" ]] && m+=("$f"); done
+    (( ${#m[@]} == 1 )) && echo "${m[0]}"
+    return 0
+}
+P_SHIM="$(one '/usr/lib/efi/shim/*/EFI/fedora/shimx64.efi')"
+P_GRUB="$(one '/usr/lib/efi/grub2/*/EFI/fedora/grubx64.efi')"
+P_BOOT="$(one '/usr/lib/efi/shim/*/EFI/BOOT/BOOTX64.EFI')"
+if [[ -z "$P_SHIM" || -z "$P_GRUB" ]]; then
+    old=/usr/lib/bootupd/updates/EFI
+    P_SHIM="$(one "$old/fedora/shimx64.efi")" P_GRUB="$(one "$old/fedora/grubx64.efi")" P_BOOT="$(one "$old/BOOT/BOOTX64.EFI")"
+fi
+[[ -n "$P_SHIM" && -n "$P_GRUB" ]] || stop_here "no single shimx64.efi + grubx64.efi in the image (/usr/lib/efi, /usr/lib/bootupd/updates)"
+evr() { # the version folder in /usr/lib/efi/<pkg>/<evr>/..., or "?" for the older layout
+    [[ "$1" == /usr/lib/efi/* ]] && { local v="${1#/usr/lib/efi/*/}"; echo "${v%%/*}"; } || echo "?"
+}
+WANT="shim $(evr "$P_SHIM"), grub $(evr "$P_GRUB")"
+
+# ---------------------------------------------------------------- the EFI system partition
+# The disk(s) under the running system's /sysroot (or / without one): through btrfs subvolumes,
+# LUKS and partitions down to whole disks.
+src="$(findmnt -nvo SOURCE /sysroot 2>/dev/null || findmnt -nvo SOURCE /)"
+[[ "$src" == /dev/* ]] || stop_here "can't tell which disk the system runs from ($src)"
+mapfile -t disks < <(lsblk -nsro PATH,TYPE "$src" | awk '$2 == "disk" { print $1 }' | sort -u)
+(( ${#disks[@]} == 1 )) || stop_here "the system runs from ${#disks[@]} disks (${disks[*]:-none}), not one"
+mapfile -t esps < <(lsblk -nro PATH,PARTTYPE,FSTYPE "${disks[0]}" | awk -v t="$ESP_TYPE" 'tolower($2) == t { print $1 " " $3 }')
+(( ${#esps[@]} == 1 )) || stop_here "${disks[0]} has ${#esps[@]} EFI system partitions, not one"
+ESP="${esps[0]% *}"
+[[ "${esps[0]#* }" == vfat ]] || stop_here "the EFI system partition $ESP is not FAT (${esps[0]#* })"
+
+MNT=""
+cleanup() {
+    if [[ -n "$MNT" ]]; then umount "$MNT" 2>/dev/null || true; rmdir "$MNT" 2>/dev/null || true; fi
+    return 0  # an EXIT trap's own status would replace the script's
+}
+trap cleanup EXIT
+# Mounts the partition read-only on a private directory (or uses where it already is) and reads the
+# three files that make PCR4: shim, GRUB, and the fallback shim (\EFI\BOOT\BOOTX64.EFI).
+read_esp() {
+    local at
+    at="$(findmnt -nro TARGET -S "$ESP" | head -n1 || true)"
+    if [[ -z "$at" ]]; then
+        MNT="$(mktemp -d /run/rare-esp.XXXXXX)"
+        mount -t vfat -o ro,nodev,nosuid,noexec "$ESP" "$MNT" || stop_here "can't mount $ESP read-only"
+        at="$MNT"
+    fi
+    E_SHIM="$(sha256sum <"$at/EFI/fedora/shimx64.efi" 2>/dev/null | cut -d' ' -f1 || true)"
+    E_GRUB="$(sha256sum <"$at/EFI/fedora/grubx64.efi" 2>/dev/null | cut -d' ' -f1 || true)"
+    E_BOOT="$(sha256sum <"$at/EFI/BOOT/BOOTX64.EFI" 2>/dev/null | cut -d' ' -f1 || true)"
+    E_FREE_KB="$(df -Pk "$at" | awk 'NR == 2 { print $4 }')"
+    cleanup; MNT=""
+}
+sum() { sha256sum <"$1" | cut -d' ' -f1; }
+W_SHIM="$(sum "$P_SHIM")" W_GRUB="$(sum "$P_GRUB")" W_BOOT=""
+[[ -n "$P_BOOT" ]] && W_BOOT="$(sum "$P_BOOT")"
+same() { [[ "$E_SHIM" == "$W_SHIM" && "$E_GRUB" == "$W_GRUB" && ( -z "$W_BOOT" || -z "$E_BOOT" || "$E_BOOT" == "$W_BOOT" ) ]]; }
+
+read_esp
+# Only a partition laid out the way Fedora (and GameOS, Bazzite, Rare OS) installs it: \EFI\fedora
+# with shim and GRUB. Anything else is not ours to change.
+[[ -n "$E_SHIM" && -n "$E_GRUB" ]] || stop_here "$ESP has no \\EFI\\fedora\\shimx64.efi + grubx64.efi"
+# For the journal: whether the base's own bootupd run is on here (on a device switched from GameOS it
+# can be off: a unit disabled or masked in the old system's /etc stays so after the switch, since
+# ostree keeps local /etc changes), and which file the firmware started this time.
+log "bootloader-update.service: $(systemctl is-enabled bootloader-update.service 2>/dev/null || true)"
+BOOT_PATH=""
+if command -v efibootmgr >/dev/null; then
+    # "Boot0007* Fedora  HD(2,GPT,...)/\EFI\fedora\shimx64.efi" (older efibootmgr: .../File(\EFI\...))
+    cur="$(efibootmgr 2>/dev/null | awk '/^BootCurrent:/ { print $2 }' || true)"
+    if [[ -n "$cur" ]]; then
+        BOOT_PATH="$(efibootmgr -v 2>/dev/null | grep -i "^Boot$cur" | grep -io '\\[^)[:space:]]*\.efi' | head -n1 || true)"
+    fi
+    log "firmware started Boot${cur:-?}: ${BOOT_PATH:-unknown path}"
+fi
+log "EFI partition $ESP on ${disks[0]}: shim ${E_SHIM:0:12}, grub ${E_GRUB:0:12}, fallback ${E_BOOT:0:12}; Rare OS's ($WANT): shim ${W_SHIM:0:12}, grub ${W_GRUB:0:12}, fallback ${W_BOOT:0:12}"
+
+record() { # file, lines
+    local f="$1"; shift
+    mkdir -p "$STATE"
+    printf '%s\n' "date=$(date -u +%FT%TZ)" "esp=$ESP" "want=$WANT" "shim=$W_SHIM" "grub=$W_GRUB" "$@" >"$f.tmp"
+    mv -f "$f.tmp" "$f"
+}
+
+case "${BOOT_PATH,,}" in
+    ""|'\efi\fedora\shimx64.efi'|'\efi\boot\bootx64.efi') ;;
+    *) log "warning: the firmware started $BOOT_PATH, not \\EFI\\fedora\\shimx64.efi or \\EFI\\BOOT\\BOOTX64.EFI: bootupd updates only those two, so this device keeps measuring the boot loader it started (boot entries are left as they are)" ;;
+esac
+
+if same; then
+    log "the EFI partition already has Rare OS's boot loader"
+    [[ "$CHECK_ONLY" == 1 ]] || record "$STATE/done" "how=already" "boot=$BOOT_PATH"
+    exit 0
+fi
+[[ "$CHECK_ONLY" == 1 ]] && { log "would update the boot loader (check only)"; exit 0; }
+
+# Not on a low battery: a power cut mid-write leaves one file new and the other old, which still
+# boots (each is signed and the pair is compatible), but there is no reason to risk it.
+for ps in /sys/class/power_supply/*; do
+    [[ "$(cat "$ps/type" 2>/dev/null)" == Battery ]] || continue
+    cap="$(cat "$ps/capacity" 2>/dev/null || echo 100)" st="$(cat "$ps/status" 2>/dev/null || echo Unknown)"
+    if [[ "$st" == Discharging ]] && (( cap < MIN_BATTERY )); then
+        stop_here "battery at $cap % and not charging; trying again at the next start"
+    fi
+done
+# bootupd writes each new file next to the old one before the rename.
+need_kb=$(( ($(stat -c %s "$P_SHIM") + $(stat -c %s "$P_GRUB")) * 3 / 1024 + 4096 ))
+(( E_FREE_KB >= need_kb )) || stop_here "only ${E_FREE_KB} KiB free on $ESP (needs ${need_kb})"
+
+tries=$(( $(cat "$STATE/tries" 2>/dev/null || echo 0) + 1 ))
+mkdir -p "$STATE"; echo "$tries" >"$STATE/tries"
+how=update
+if [[ -e /boot/bootupd-state.json ]]; then
+    log "updating the boot loader to $WANT: bootupctl update (try $tries of $MAX_TRIES)"
+    bootupctl update || log "bootupctl update failed ($?)"
+    read_esp
+fi
+if ! same; then
+    # No bootupd state for the EFI partition yet (installed without bootupd, or the state lacks the
+    # EFI component): adopt it, which writes the image's files over the ones there and records them.
+    how=adopt-and-update
+    log "updating the boot loader to $WANT: bootupctl adopt-and-update (try $tries of $MAX_TRIES)"
+    bootupctl adopt-and-update || log "bootupctl adopt-and-update failed ($?)"
+    read_esp
+fi
+bootupctl status 2>&1 | sed 's/^/rare-bootloader: bootupctl status: /' || true
+
+if same; then
+    record "$STATE/done" "how=$how" "tries=$tries" "boot=$BOOT_PATH"
+    rm -f "$STATE/tries"
+    log "done: the EFI partition has Rare OS's boot loader ($WANT, via $how)"
+    exit 0
+fi
+log "the EFI partition still has shim ${E_SHIM:0:12}, grub ${E_GRUB:0:12}: not updated (the old boot loader is still in place and boots)"
+if (( tries >= MAX_TRIES )); then
+    record "$STATE/gave-up" "tries=$tries" "esp_shim=$E_SHIM" "esp_grub=$E_GRUB"
+    log "giving up after $tries tries"
+fi
+exit 1

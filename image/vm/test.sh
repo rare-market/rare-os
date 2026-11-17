@@ -11,6 +11,9 @@
 #                             the way a device does (Settings > System > Update now: os-admin
 #                             update-now, os-update, bootc upgrade, signature policy) to the image
 #                             under test, boot it, and time a power-off (update())
+#   image/vm/test.sh bootloader install stock fedora-bootc:43 (GameOS's base), switch it to Rare OS, check
+#                             that rare-bootloader-update puts Rare OS's shim and GRUB on the EFI
+#                             partition once, and that Rare OS and the old OS both boot on them (bootloader())
 #   image/vm/test.sh usbiso   the USB installer ISO (RARE_ISO) as an owner uses it: written to a USB
 #                             stick, a blank (or Windows) NVMe drive, a USB drive and an SD card that
 #                             must stay untouched; install, restart, boot without the stick (usbiso())
@@ -669,6 +672,90 @@ update() {
     return $ok
 }
 
+# A device switched in place from GameOS 43 (fedora-bootc:43 based) keeps GameOS's shim and GRUB on
+# its EFI partition, since bootc never touches it; rare-bootloader-update puts Rare OS's there once.
+# Stock fedora-bootc:43 on a disk, switched with get-rare-os.sh, booted into Rare OS; then:
+#   a  rare-bootloader-update (the image's unit, or the repo's script with BL_SCRIPT=1) leaves the
+#      ESP's shim and GRUB equal to the image's payload, and their PCR4 to the image's
+#   b  a second run changes nothing
+#   c  Rare OS boots again on the new boot loader
+#   d  rare-undo: the old OS (fedora-bootc:43) boots on the new boot loader, and its own
+#      bootloader-update.service does not move the ESP back
+# Env: BL_BASE (default quay.io/fedora/fedora-bootc:43), BL_NO_STATE=1 (delete
+#      /boot/bootupd-state.json first, as on an install bootupd never recorded: the adopt path),
+#      BL_SWITCH_IMAGE (switch straight to this registry image, e.g. ghcr.io/rare-market/rare-os:stable;
+#      default: IMAGE through a local registry), BL_SCRIPT=1 (for an image without the unit).
+bootloader() {
+    use_vsock
+    local base="${BL_BASE:-quay.io/fedora/fedora-bootc:43}" ok=0 target
+    pass() { echo "CHECK $1: PASS"; }
+    failc() { echo "CHECK $1: FAIL"; ok=1; }
+    echo "::group::stock OS ($base)"
+    podman pull "$base"
+    KARGS+=(--karg systemd.gpt_auto=0)  # as in rebase(): a stock bootc disk has no separate /boot
+    install_disk "$base" "$WORK/bl.raw" 40G xfs
+    $H boot --disk "$WORK/bl.raw" --name bl-0-stock --out "$OUT" --wait-ssh 1200
+    to_guest "$HERE/esp.sh" /var/tmp/esp.sh
+    to_guest "$REPO/tools/boot-pcr4.py" /var/tmp/boot-pcr4.py
+    $H ssh --cmd "mkdir -p /var/log/journal && systemd-tmpfiles --create --prefix /var/log/journal && journalctl --flush; bootupctl status; bash /var/tmp/esp.sh" | tee "$OUT/bl-0-stock.txt"
+    if [[ "${BL_NO_STATE:-0}" == 1 ]]; then $H ssh --cmd "mount -o remount,rw /boot 2>/dev/null; rm -v /boot/bootupd-state.json"; fi
+    echo "::endgroup::"
+
+    echo "::group::switch with get-rare-os.sh"
+    target="${BL_SWITCH_IMAGE:-}"
+    local reg=()
+    if [[ -z "$target" ]]; then
+        podman rm -f rare-registry >/dev/null 2>&1 || true
+        mkdir -p "$WORK/registry"
+        podman run -d --name rare-registry -p 127.0.0.1:5000:5000 -v "$WORK/registry:/var/lib/registry" docker.io/library/registry:2
+        sleep 3
+        podman push --tls-verify=false --compression-format zstd --compression-level 1 "$IMAGE" localhost:5000/rare-os:test
+        target=10.0.2.2:5000/rare-os:test reg=(-E RARE_INSECURE_REGISTRY=1)
+    fi
+    to_guest "$REPO/tools/get-rare-os.sh" /root/get-rare-os.sh
+    $H ssh --timeout 5400 --cmd "systemd-run --quiet --wait --pipe --collect --unit=rare-os-get -E RARE_IMAGE=$target -E RARE_YES=1 ${reg[*]} bash /root/get-rare-os.sh 2>&1 | tail -n 20"
+    [[ -n "${BL_SWITCH_IMAGE:-}" ]] || { podman rm -f rare-registry; rm -rf "$WORK/registry"; }
+    echo "::endgroup::"
+
+    echo "::group::Rare OS: the boot loader update"
+    $H reboot --name bl-1-rare --out "$OUT" --wait-ssh 1800 || ok=1
+    to_guest "$HERE/esp.sh" /var/tmp/esp.sh
+    to_guest "$REPO/tools/boot-pcr4.py" /var/tmp/boot-pcr4.py
+    local run="systemctl start rare-bootloader-update.service; systemctl status --no-pager rare-bootloader-update.service | tail -n 3"
+    if [[ "${BL_SCRIPT:-0}" == 1 ]]; then
+        to_guest "$REPO/image/system_files/usr/libexec/rare/bootloader-update" /var/tmp/bootloader-update
+        # The unit's sandbox, around the repo's script.
+        run="systemd-run --quiet --wait --pipe --collect --unit=rare-bootloader-update-test -p PrivateNetwork=yes -p ProtectHome=yes -p PrivateMounts=yes -p KillMode=mixed bash /var/tmp/bootloader-update; echo exit=\$?"
+    fi
+    $H ssh --cmd "grep ^PRETTY_NAME /etc/os-release; bash /var/tmp/esp.sh; ls -la /boot/bootupd-state.json; systemctl is-enabled bootloader-update.service rare-bootloader-update.timer; journalctl -b --no-pager -u bootloader-update.service | tail -n 5" | tee "$OUT/bl-1-before.txt"
+    $H ssh --timeout 900 --cmd "$run; journalctl -b --no-pager -t bootloader-update -t rare-bootloader-update -u 'rare-bootloader-update*' | tail -n 40; cat /var/lib/rare/bootloader/done; bash /var/tmp/esp.sh" | tee "$OUT/bl-1-update.txt"
+    grep -q '^ESP matches image: yes' "$OUT/bl-1-update.txt" && grep -q '^how=' "$OUT/bl-1-update.txt" \
+        && [[ "$(awk '/^PCR4 esp/ { print $3 }' "$OUT/bl-1-update.txt")" == "$(awk '/^PCR4 image/ { print $3 }' "$OUT/bl-1-update.txt")" ]] \
+        && pass "a ESP has the image's shim and GRUB ($(awk '/^PCR4 esp/ { print $3 }' "$OUT/bl-1-update.txt"))" || failc "a ESP has the image's shim and GRUB"
+    $H ssh --cmd "n() { journalctl -b --no-pager | grep -c 'rare-bootloader: updating'; }; a=\$(md5sum </var/lib/rare/bootloader/done) j=\$(n); $run; [[ \$a == \$(md5sum </var/lib/rare/bootloader/done) && \$j == \$(n) ]] && echo 'second run: nothing done'" | tee "$OUT/bl-1-again.txt"
+    grep -q '^second run: nothing done' "$OUT/bl-1-again.txt" && ! grep -q 'rare-bootloader: updating' "$OUT/bl-1-again.txt" \
+        && pass "b a second run is a no-op" || failc "b a second run is a no-op"
+    echo "::endgroup::"
+
+    echo "::group::Rare OS boots on the new boot loader"
+    $H reboot --name bl-2-rare --out "$OUT" --wait-ssh 1800 || ok=1
+    $H ssh --cmd "grep ^PRETTY_NAME /etc/os-release; bash /var/tmp/esp.sh" | tee "$OUT/bl-2.txt"
+    grep -q '^PRETTY_NAME=.*Rare' "$OUT/bl-2.txt" && grep -q '^ESP matches image: yes' "$OUT/bl-2.txt" && pass "c Rare OS boots" || failc "c Rare OS boots"
+    echo "::endgroup::"
+
+    echo "::group::rare-undo: the old OS on the new boot loader"
+    $H ssh --cmd "rare-undo"
+    $H reboot --name bl-3-undo --out "$OUT" --wait-ssh 1200 || ok=1
+    $H ssh --cmd "grep ^PRETTY_NAME /etc/os-release; journalctl -b --no-pager -u bootloader-update.service | tail -n 3; bash /var/tmp/esp.sh" | tee "$OUT/bl-3-undo.txt"
+    if grep -q '^PRETTY_NAME=.*Rare' "$OUT/bl-3-undo.txt" || ! grep -q '^PRETTY_NAME=' "$OUT/bl-3-undo.txt"; then failc "d the old OS boots after rare-undo"
+    elif [[ "$(awk '/^PCR4 esp/ { print $3 }' "$OUT/bl-3-undo.txt")" == "$(awk '/^PCR4 esp/ { print $3 }' "$OUT/bl-1-update.txt")" ]]; then pass "d the old OS boots after rare-undo, ESP unchanged"
+    else failc "d the old OS's bootloader-update moved the ESP"; fi
+    $H stop
+    [[ "${KEEP_DISK:-0}" == 1 ]] || rm -f "$WORK/bl.raw"
+    echo "::endgroup::"
+    return $ok
+}
+
 mok_walk() {
     sleep "${MOK_WAIT:-40}"
     $H shot --out "$OUT/$1-mok-0.png" || true
@@ -683,5 +770,6 @@ case "${1:-}" in
     secureboot) secureboot ;;
     usbiso) usbiso ;;
     update) update ;;
-    *) echo "usage: $0 fresh|rebase|handheld|secureboot|usbiso|update" >&2; exit 2 ;;
+    bootloader) bootloader ;;
+    *) echo "usage: $0 fresh|rebase|handheld|secureboot|usbiso|update|bootloader" >&2; exit 2 ;;
 esac

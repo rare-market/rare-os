@@ -289,6 +289,9 @@ jq --arg repo "$REPO" '.transports.docker[$repo] = [{"type":"sigstoreSigned","ke
     "$POLICY" > "$POLICY.new" && mv "$POLICY.new" "$POLICY"
 jq --arg repo "$REPO" '.transports.docker[$repo]' "$POLICY"
 systemctl enable rare-user-setup.service rare-keep-previous-os.service rare-signed-switch.timer rare-power-defaults.service rare-audio-defaults.service rare-boot-menu.service rare-update.timer rare-update-recover.service rare-factory-reset.service
+# A device switched from another OS keeps that OS's shim and GRUB on the EFI partition (bootc never
+# touches it); rare-bootloader-update puts Rare OS's own there once, with bootupd (docs/ATTEST.md).
+systemctl enable rare-bootloader-update.timer
 # Speaker EQ chain: the gate drops it on non-SuiPlay hardware; the user
 # service flips wet/dry with the active port.
 systemctl enable rare-speaker-eq-gate.service

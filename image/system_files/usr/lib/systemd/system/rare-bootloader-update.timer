@@ -1,0 +1,10 @@
+[Unit]
+Description=Rare OS: put Rare OS's boot loader on the EFI partition, three minutes after boot (once)
+ConditionPathExists=!/var/lib/rare/bootloader/done
+ConditionPathExists=!/var/lib/rare/bootloader/gave-up
+
+[Timer]
+OnBootSec=3min
+
+[Install]
+WantedBy=timers.target

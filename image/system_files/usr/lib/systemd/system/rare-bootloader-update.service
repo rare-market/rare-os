@@ -1,0 +1,23 @@
+[Unit]
+Description=Rare OS: put Rare OS's boot loader on the EFI partition (once)
+Documentation=file:///usr/libexec/rare/bootloader-update
+# Started by rare-bootloader-update.timer a few minutes after boot, never in the way of the boot itself.
+ConditionPathExists=!/var/lib/rare/bootloader/done
+ConditionPathExists=!/var/lib/rare/bootloader/gave-up
+ConditionPathExists=/run/ostree-booted
+ConditionPathIsDirectory=/sys/firmware/efi
+# Never at the same time as the base's own bootupd run (bootloader-update.service, when enabled).
+After=bootloader-update.service rpm-ostreed.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rare/bootloader-update
+# The same sandbox as bootloader-update.service: its mounts (the EFI partition) stay private.
+PrivateNetwork=yes
+ProtectHome=yes
+PrivateMounts=yes
+# A shutdown in the middle lets bootupctl finish its file (only the script gets SIGTERM).
+KillMode=mixed
+TimeoutStopSec=90
+Nice=10
+IOSchedulingClass=idle
