@@ -653,6 +653,7 @@ pub fn library_head(ui: &mut Ui, acts: &mut Acts, def: bool) -> El {
     let ra_label = if retro_view().is_some() { tr().features.emu_retro_trophies_on } else { tr().features.emu_retro_trophies };
     let buttons = vec![
         kit::button(ui, setup_b),
+        kit::button(ui, B::new(tr().features.emu_add_title, acts.tag(Act::Open(Overlay::Other(super::emu_add::ADD)))).sm().icon(BtnIcon::Lucide("plus", 1.0, false))),
         kit::button(ui, B::new(bios_label, acts.tag(Act::Open(Overlay::Other(BIOS)))).sm().icon(BtnIcon::Lucide("cpu", 1.0, false))),
         kit::button(ui, B::new(ra_label, acts.tag(Act::Open(Overlay::Other(RA)))).sm().icon(BtnIcon::Lucide("trophy", 1.0, false))),
     ];
@@ -734,7 +735,7 @@ pub fn game_panel(ui: &mut Ui, acts: &mut Acts, g: &Game) -> Option<El> {
 
 // ---------------------------------------------------------------- pages
 
-fn page(ui: &mut Ui, icon: &str, title: &str, note: &str, k: &str) -> El {
+pub(crate) fn page(ui: &mut Ui, icon: &str, title: &str, note: &str, k: &str) -> El {
     let head = ui
         .bx(s().row().items_center().gap(0.75).h(2.5).mb(1.25))
         .child(kit::icon(ui, icon, 1.5, tok::ICON2))
@@ -744,7 +745,7 @@ fn page(ui: &mut Ui, icon: &str, title: &str, note: &str, k: &str) -> El {
 }
 
 /// A row: title, sub line, a right side; focusable when `tag` is given.
-fn line(ui: &mut Ui, title: &str, sub: &str, right: Option<El>, tag: Option<(u32, &str)>, def: bool) -> El {
+pub(crate) fn line(ui: &mut Ui, title: &str, sub: &str, right: Option<El>, tag: Option<(u32, &str)>, def: bool) -> El {
     let col = ui.bx(s().col().grow().min0().gap(0.2)).child(ui.text(title, T::new(Ty::Body).w(600).trunc())).child(ui.text(if sub.is_empty() { " " } else { sub }, T::new(Ty::Small).c(tok::MUTED).trunc()));
     let el = ui.bx(s().row().items_center().gap(1.0).h(4.0).wp(1.0).px(1.0)).radius(ui.r(0.5)).child(col).maybe(right);
     match tag {

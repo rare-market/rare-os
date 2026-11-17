@@ -2,12 +2,14 @@
 //! ~/Applications, first-run settings tuned for the 780M handheld, and a default power profile each.
 
 pub mod actions;
+pub mod add;
 pub mod art;
 pub mod bios;
 pub mod catalog;
 pub mod controls;
 pub mod dat;
 pub mod defaults;
+pub mod homebrew;
 pub mod ident;
 pub mod install;
 pub mod md5;
@@ -19,6 +21,7 @@ pub mod serial;
 pub mod setup;
 pub mod systems;
 pub mod unzip;
+pub mod upload;
 
 pub use rare_core::events::EmuProgress;
 
