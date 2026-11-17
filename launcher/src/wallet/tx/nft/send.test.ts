@@ -173,10 +173,12 @@ describe('planNftSends', () => {
     expect(check([wallet(1), unlocked(2), locked(3)])).toHaveLength(1)
   })
 
+  // 3000 builds and measures take about 3 s on a CI runner, close to vitest's 5 s default:
+  // the test timed out now and then, on main and on unrelated pull requests.
   it('splits thousands of wallet NFTs by size', () => {
     const b = check(Array.from({ length: 3000 }, (_, i) => wallet(i + 1)))
     expect(b.length).toBeGreaterThan(1)
-  })
+  }, 20_000)
 
   it('splits many locked items by command count and size', () => {
     const b = check(Array.from({ length: 150 }, (_, i) => locked(i + 1)))
