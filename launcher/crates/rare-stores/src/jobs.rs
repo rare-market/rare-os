@@ -332,6 +332,11 @@ fn apply(id: &str, u: Update) {
     }
 }
 
+/// The device's memory in MiB (/proc/meminfo; 8 GiB when it can't be read).
+fn mem_mib() -> u64 {
+    std::fs::read_to_string("/proc/meminfo").ok().and_then(|t| t.lines().find(|l| l.starts_with("MemTotal:")).and_then(|l| l.split_whitespace().nth(1)?.parse::<u64>().ok())).map(|kb| kb / 1024).unwrap_or(8192)
+}
+
 /// Free space check before an install (both tools check too, with worse messages).
 fn check_space(base: &std::path::Path, need: u64) -> Result<(), String> {
     let probe = std::iter::successors(Some(base), |p| p.parent()).find(|p| p.exists()).unwrap_or(base);
@@ -378,8 +383,14 @@ fn run(job: &Job) -> Result<(), String> {
                     check_space(base, disk)?;
                 }
             }
-            let args = crate::epic::job_args(&job.kind, sid);
-            let out = tools::run_with(LEGENDARY, &args, &[], None, &mut started, &mut line)?;
+            let mut args = crate::epic::job_args(&job.kind, sid);
+            let mut out = tools::run_with(LEGENDARY, &args, &[], None, &mut started, &mut line)?;
+            // A big game needs more than legendary's 2 GiB of shared memory: once more with room.
+            if let Some(more) = (!out.ok).then(|| crate::epic::more_memory_args(&out.error(), mem_mib())).flatten() {
+                log::info!("store job {sid}: legendary needs more shared memory, again with {}", more.join(" "));
+                args.extend(more);
+                out = tools::run_with(LEGENDARY, &args, &[], None, &mut started, &mut line)?;
+            }
             if !out.ok {
                 return Err(friendly(&out.error()));
             }

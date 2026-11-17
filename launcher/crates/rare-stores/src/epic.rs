@@ -235,6 +235,18 @@ pub fn sync_saves(app: &str, down: bool, up: bool) -> Result<(), String> {
     tools::run(LEGENDARY, &args, &env, Duration::from_secs(120)).map(|_| ())
 }
 
+/// legendary's answer when a game's download needs more shared memory than its 2 GiB default
+/// ("Current shared memory cache is smaller than required: 2048.0 MiB < 3216.0 MiB"): the arguments
+/// for one more run, `--enable-reordering` (which needs far less) and room for what it asked, at
+/// most a quarter of the device's memory. None for any other error.
+pub fn more_memory_args(error: &str, total_mib: u64) -> Option<Vec<String>> {
+    let i = error.find("shared memory cache is smaller than required")?;
+    let need = error[i..].split('<').nth(1)?.split_whitespace().next()?.parse::<f64>().ok()?;
+    let cap = (total_mib / 4).max(2048);
+    let size = ((need.ceil() as u64) + 64).min(cap);
+    Some(vec!["--enable-reordering".into(), "--max-shared-memory".into(), size.to_string()])
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -259,5 +271,15 @@ mod tests {
         let l = super::parse_list(json);
         assert_eq!(l.len(), 1);
         assert_eq!((l[0].art_square.as_str(), l[0].art_cover.as_str(), l[0].cloud), ("https://e/t.jpg", "https://e/w.jpg", true));
+    }
+
+    #[test]
+    fn a_big_game_gets_more_shared_memory() {
+        // legendary 0.21.1 on a big game (BioShock Infinite) with its default 2 GiB.
+        let e = "MemoryError: Current shared memory cache is smaller than required: 2048.0 MiB < 3216.0 MiB. Try running legendary with \"--enable-reordering\" to reduce memory usage, or use \"--max-shared-memory 3248\" to increase the limit.";
+        assert_eq!(super::more_memory_args(e, 15249).unwrap(), ["--enable-reordering", "--max-shared-memory", "3280"]);
+        // Never more than a quarter of the memory; reordering does the rest.
+        assert_eq!(super::more_memory_args(e, 8000).unwrap()[2], "2048");
+        assert!(super::more_memory_args("Log in failed!", 15249).is_none());
     }
 }
