@@ -1,0 +1,34 @@
+#!/bin/sh
+# Rare OS: the GPU's graphics block stays powered (no GFXOFF) for the last seconds before a restart
+# or power-off. systemd-shutdown runs this after every service has stopped, just before the kernel
+# shuts the devices down.
+#
+# Why: on Phoenix APUs (Radeon 780M; the SuiPlay0X1's Ryzen 7 7840U) amdgpu's own shutdown step
+# first asks the SMU to leave GFXOFF. When the SMU does not answer, every later SMU and MES message
+# times out and the board never resets or powers off; nothing short of holding the power button
+# brings it back (drm/amd#5898, Ryzen 7 7840HS, intermittent; with GFXOFF disabled for good it
+# never happened there). Asked here instead, while nothing is shutting down yet, amdgpu finds
+# GFXOFF already off and sends no such message in its shutdown step. GFXOFF stays on at every
+# other time: it is what keeps the GPU's idle draw down on battery.
+#
+# The request is amdgpu's debugfs file amdgpu_gfxoff (a u32 0 = "GFXOFF not allowed"). Nothing
+# changes where there is no amdgpu, no debugfs, or it is refused (kernel lockdown under Secure
+# Boot). RARE_DEBUGFS moves debugfs (tests).
+[ "$1" = kexec ] && exit 0
+D="${RARE_DEBUGFS:-/sys/kernel/debug}"
+if [ -z "$RARE_DEBUGFS" ] && [ ! -d "$D/dri" ]; then
+    mount -t debugfs debugfs "$D" 2>/dev/null || exit 0
+fi
+for f in "$D"/dri/*/amdgpu_gfxoff; do
+    [ -f "$f" ] || continue
+    # One request per GPU: dri/ also has links to the same device under other names.
+    [ -L "${f%/*}" ] && continue
+    if timeout 10 head -c 4 /dev/zero >"$f" 2>/dev/null; then
+        msg="GFXOFF off for the shutdown (${f%/*})"
+    else
+        msg="could not turn GFXOFF off for the shutdown (${f%/*})"
+    fi
+    [ -w /dev/kmsg ] && [ -z "$RARE_DEBUGFS" ] && echo "rare-gfx-on: $msg" >/dev/kmsg
+    echo "rare-gfx-on: $msg" >&2
+done
+exit 0
