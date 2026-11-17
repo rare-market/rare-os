@@ -128,9 +128,9 @@ def qemu_cmd(disk):
     if not os.path.exists(vars_file):
         shutil.copy(vars_src, vars_file)
     extra = []
-    # e.g. "type=1,manufacturer=Mysten Labs,, Inc.,product=SuiPlay0X1" to look like a SuiPlay0X1
-    smbios = os.environ.get("RARE_VM_SMBIOS")
-    if smbios:
+    # e.g. "type=1,manufacturer=Mysten Labs,, Inc.,product=SuiPlay0X1" to look like a SuiPlay0X1;
+    # several tables separated by ";" (a SuiPlay0X1 also has type=2 with the same names)
+    for smbios in filter(None, os.environ.get("RARE_VM_SMBIOS", "").split(";")):
         extra += ["-smbios", smbios]
     # root's SSH key as a systemd credential (systemd-tmpfiles provisions ssh.authorized_keys.root):
     # reaches a system installed from the ISO, whose installer sets no keys.
