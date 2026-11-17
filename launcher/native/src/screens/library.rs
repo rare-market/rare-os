@@ -747,7 +747,8 @@ impl Library {
         if empty {
             let scan = kit::button(ui, B::new(tr().library.scan_again, acts.tag(Act::Scan)));
             let folders = kit::button(ui, B::new(tr().library.rom_folders, acts.tag(Act::Open(crate::state::Overlay::Other(crate::features::emulation::SETUP)))).ghost());
-            return col.child(kit::empty(ui, s(), tr().library.no_games_title, Some(tr().library.emu_empty_body), vec![scan, folders]).key(key("emu-empty")));
+            let add = kit::button(ui, B::new(tr().features.emu_add_title, acts.tag(Act::Open(crate::state::Overlay::Other(crate::features::emu_add::ADD)))).primary());
+            return col.child(kit::empty(ui, s(), tr().library.no_games_title, Some(tr().library.emu_empty_body), vec![add, scan, folders]).key(key("emu-empty")));
         }
         // The chips: All, then each system with games.
         let mut chips: Vec<(Option<String>, String)> = vec![(None, trf!(tr().library.chip_all, n = all.len()))];
