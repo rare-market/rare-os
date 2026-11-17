@@ -1366,6 +1366,16 @@ impl Backend for DeviceBackend {
             rare_android::note_played(id);
         }
         if let Some(rom) = &rom {
+            // A core RetroArch hasn't got yet (setup not run, or a system added since): fetched
+            // now, a few megabytes, rather than a game that doesn't start.
+            if let Some((core, dir)) = rare_emu::roms::missing_core(rom, &rare_emu::roms::home()) {
+                crate::features::bus::note(trf!(tr().data.emu_core_getting, system = rom.system.name), false);
+                rare_emu::setup::install_core(&dir, core).map_err(|e| {
+                    log::warn!("emulation: core {core}: {e}");
+                    trf!(tr().data.emu_core_failed, system = rom.system.name)
+                })?;
+                log::info!("emulation: installed RetroArch's {core} core for {}", rom.id);
+            }
             g.launch = rare_emu::roms::launch_spec(rom, &rare_emu::roms::home(), true)?;
         }
         // Epic and GOG: newer cloud saves first.

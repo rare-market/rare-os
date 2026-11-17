@@ -62,6 +62,8 @@ translate! { data {
     open_android_app: "открытое приложение Android",
     android_one_app: "Сначала закройте {name}. Android запускает только одно приложение за раз.",
     android_busy: "Android занят установкой. Повторите попытку, когда она закончится.",
+    emu_core_getting: "Загружаю эмулятор {system} для RetroArch…",
+    emu_core_failed: "Не удалось загрузить эмулятор {system} для RetroArch. Проверьте Wi-Fi или настройте эмуляцию в «Библиотека → Эмуляция».",
     price_drop: "Снижение цены: {title}",
     price_drop_body: "{price} в {store}, было {old}",
     a_store: "магазине",

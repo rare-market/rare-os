@@ -62,6 +62,8 @@ translate! { data {
     open_android_app: "열려 있는 Android 앱",
     android_one_app: "먼저 {name}을(를) 종료하세요. Android는 한 번에 앱 하나만 실행합니다.",
     android_busy: "Android가 설치 중입니다. 완료된 후 다시 시도하세요.",
+    emu_core_getting: "RetroArch용 {system} 에뮬레이터를 받는 중…",
+    emu_core_failed: "RetroArch용 {system} 에뮬레이터를 받을 수 없습니다. Wi-Fi를 확인하거나 라이브러리의 에뮬레이션에서 설정하세요.",
     price_drop: "가격 인하: {title}",
     price_drop_body: "{store}에서 {price}, 이전 {old}",
     a_store: "스토어",

@@ -62,6 +62,8 @@ translate! { data {
     open_android_app: "当前打开的 Android 应用",
     android_one_app: "请先退出 {name}。Android 一次只能运行一个应用。",
     android_busy: "Android 正在安装。完成后请重试。",
+    emu_core_getting: "正在为 RetroArch 获取 {system} 模拟器…",
+    emu_core_failed: "无法为 RetroArch 获取 {system} 模拟器。请检查 Wi-Fi，或在“游戏库 > 模拟”中设置模拟。",
     price_drop: "降价：{title}",
     price_drop_body: "{store} 售价 {price}，原价 {old}",
     a_store: "某商店",

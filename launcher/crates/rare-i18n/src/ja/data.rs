@@ -62,6 +62,8 @@ translate! { data {
     open_android_app: "開いている Android アプリ",
     android_one_app: "先に{name}を終了してください。Android は一度に1つのアプリしか実行できません。",
     android_busy: "Android はインストール中です。完了してからもう一度お試しください。",
+    emu_core_getting: "RetroArch 用の {system} エミュレーターを入手しています…",
+    emu_core_failed: "RetroArch 用の {system} エミュレーターを入手できませんでした。Wi-Fiを確認するか、ライブラリの「エミュレーション」で設定してください。",
     price_drop: "値下げ：{title}",
     price_drop_body: "{store}で{price}（元の価格 {old}）",
     a_store: "ストア",

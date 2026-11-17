@@ -127,6 +127,9 @@ strings! {
     android_one_app: "Quit {name} first. Android runs one app at a time.",
     /// Error text
     android_busy: "Android is busy with an install. Try again when it's done.",
+    /// Toast and error when a ROM's RetroArch core is fetched at its start; system is the system's name
+    emu_core_getting: "Getting the {system} emulator for RetroArch…",
+    emu_core_failed: "Couldn't get the {system} emulator for RetroArch. Check Wi-Fi, or set up emulation in Library, Emulation.",
     /// Notification title; title is a game
     price_drop: "Price drop: {title}",
     /// Notification body; prices include currency symbols

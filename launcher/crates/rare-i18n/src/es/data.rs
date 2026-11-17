@@ -62,6 +62,8 @@ translate! { data {
     open_android_app: "la app de Android abierta",
     android_one_app: "Cierra primero {name}. Android ejecuta una app a la vez.",
     android_busy: "Android está ocupado con una instalación. Inténtalo de nuevo cuando termine.",
+    emu_core_getting: "Obteniendo el emulador de {system} para RetroArch…",
+    emu_core_failed: "No se pudo obtener el emulador de {system} para RetroArch. Revisa el Wi-Fi o configura la emulación en Biblioteca, Emulación.",
     price_drop: "Bajada de precio: {title}",
     price_drop_body: "{price} en {store}, antes {old}",
     a_store: "una tienda",

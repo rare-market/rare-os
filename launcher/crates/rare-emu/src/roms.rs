@@ -386,6 +386,13 @@ pub fn launch_spec(rom: &Rom, home: &Path, rewind_ok: bool) -> Result<LaunchSpec
     Ok(LaunchSpec::Exec { program, args, cwd: None, windows: false })
 }
 
+/// The RetroArch core a ROM's system needs when it isn't installed, and the folder it goes in.
+pub fn missing_core(rom: &Rom, home: &Path) -> Option<(&'static str, PathBuf)> {
+    let Runner::Core(core) = rom.system.runner else { return None };
+    let p = retroarch::paths(home);
+    (!retroarch::core_path(&p, core).is_file()).then(|| (core, p.cores.clone()))
+}
+
 /// Before the game starts: Rare's RetroArch settings, the handheld shader, the achievements
 /// retro trophies sign-in for the standalone emulators. Never fails the launch.
 pub fn prepare(rom: &Rom, home: &Path) {
@@ -570,6 +577,21 @@ mod tests {
         // No emulator installed: the launch says what to do.
         let sonic = roms.iter().find(|r| r.title == "Sonic").unwrap();
         assert!(launch_spec(sonic, h, true).unwrap_err().contains("Set up emulation"));
+    }
+
+    #[test]
+    fn names_the_core_a_rom_still_needs() {
+        let t = tempfile::tempdir().unwrap();
+        let h = t.path();
+        let cores = h.join(".var/app/org.libretro.RetroArch/config/retroarch/cores");
+        let rom = Rom { id: "emu:gba/T.gba".into(), system: systems::by_id("gba").unwrap(), path: "/r/T.gba".into(), file: "/r/T.gba".into(), title: "T".into(), tags: String::new(), discs: 1, bytes: 1, sd: false };
+        assert_eq!(missing_core(&rom, h), Some(("mgba", cores.clone())));
+        std::fs::create_dir_all(&cores).unwrap();
+        std::fs::write(cores.join("mgba_libretro.so"), b"x").unwrap();
+        assert_eq!(missing_core(&rom, h), None);
+        // A standalone emulator's system needs no core.
+        let ds = Rom { system: systems::by_id("nds").unwrap(), ..rom };
+        assert_eq!(missing_core(&ds, h), None);
     }
 
     #[test]
